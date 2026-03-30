@@ -1,0 +1,38 @@
+type = "about"
+title = "About"
+
+[profile]
+research_interests = [
+  "Heavy flavor physics",
+  "Inclusive charm decays",
+  "HQET and OPE",
+  "Heavy-flavor phenomenology"
+]
+
+[[sections]]
+id = "about"
+type = "markdown"
+source = "bio.md"
+title = "About"
+
+[[sections]]
+id = "featured_publications"
+type = "publications"
+source = "publications.bib"
+title = "Selected Publications"
+filter = "selected"
+limit = 4
+
+[[sections]]
+id = "open_questions"
+type = "questions"
+source = "questions.toml"
+title = "Open Questions"
+limit = 4
+
+[[sections]]
+id = "news"
+type = "list"
+title = "News"
+source = "news.toml"
+limit = 5

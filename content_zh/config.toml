@@ -1,0 +1,61 @@
+[site]
+title = "邵康康"
+description = "邵康康的个人学术主页，现为华中科技大学访问者。"
+url = "https://kkshao.org.cn"
+last_updated = "2026年3月29日"
+
+[author]
+name = "邵康康"
+title = "访问者"
+institution = "华中科技大学"
+
+[[author.advisors]]
+name = "秦溱"
+url = "http://faculty.hust.edu.cn/QinQin/zh_CN/index/2259838/list/index.htm"
+institution = "华中科技大学"
+
+[[author.advisors]]
+name = "于福升"
+url = "https://snst.lzu.edu.cn/shiziduiwu/jiaoshou/2024/1015/277664.html"
+institution = "兰州大学"
+
+[social]
+location = "武汉，中国"
+location_url = ""
+location_details = ["华中科技大学物理学院", "武汉，中国"]
+
+[[navigation]]
+title = "关于我"
+type = "page"
+target = "about"
+href = "/"
+
+[[navigation]]
+title = "研究"
+type = "page"
+target = "research"
+href = "/research"
+
+[[navigation]]
+title = "问题集"
+type = "page"
+target = "questions"
+href = "/questions"
+
+[[navigation]]
+title = "论文"
+type = "page"
+target = "publications"
+href = "/publications"
+
+[[navigation]]
+title = "摄影"
+type = "page"
+target = "photography"
+href = "/photography"
+
+[[navigation]]
+title = "简历"
+type = "page"
+target = "cv"
+href = "/cv"

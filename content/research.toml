@@ -1,0 +1,24 @@
+type = "card"
+title = "Research"
+description = "Current directions in heavy-flavor phenomenology, effective field theory, and data-informed analysis."
+
+[[items]]
+title = "Inclusive Charm Decays"
+subtitle = "Analytic structure, decay widths, and electron-energy moments"
+date = "Current"
+content = "My main ongoing project studies inclusive charm decays. I am interested in how decay widths and higher-order electron-energy moments can be derived with enough analytic control to support later phenomenological analysis.\n\nThis direction combines formal derivation, data processing, and comparison with experimental inputs, with the broader goal of constraining non-perturbative HQET parameters from data."
+tags = ["charm decay", "heavy flavor physics", "electron-energy moments"]
+
+[[items]]
+title = "HQET, OPE, and Non-Perturbative Parameters"
+subtitle = "Effective-theory tools for heavy-flavor phenomenology"
+date = "Current"
+content = "Heavy Quark Effective Theory and Operator Product Expansion are central tools in my work. I use them to organize high-dimensional operator effects, derive controlled approximations, and study how non-perturbative parameters may be constrained by data.\n\nI am especially interested in the point where formal expressions become usable for phenomenology, especially in data-driven studies of inclusive charm decays."
+tags = ["HQET", "OPE", "non-perturbative physics"]
+
+[[items]]
+title = "Beauty-Charmed Baryons and Weak-Annihilation Decays"
+subtitle = "Lifetime structure and inclusive channels in heavy baryons"
+date = "Previous and ongoing foundation"
+content = "A second research line comes from my undergraduate thesis on beauty-charmed baryons. Using HDET and OPE, I studied weak-annihilation decay channels and their relation to lifetime structure, including the decay-width dependence on the mixing angle in the \\(\\Xi_{bc} \\to X_{cs}\\) channel.\n\nThis work provides a foundation for how I think about effective theory beyond a single decay process."
+tags = ["beauty-charmed baryons", "weak annihilation", "HDET"]

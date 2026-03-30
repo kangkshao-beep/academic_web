@@ -1,0 +1,38 @@
+type = "questions"
+title = "问题集"
+description = "这里记录的是我会反复回到的问题，以及那些还没被写成熟文的想法。"
+
+[[items]]
+id = "negative-results-memory"
+date = "2026-03-29"
+question = "研究组应该如何保存负结果，避免它们只以“口口相传的经验”存在？"
+context = "很多重复踩过的坑只停留在社交记忆里，而没有形成可复用的结构化记录。"
+tags = ["研究过程", "知识管理"]
+
+[[items]]
+id = "evaluation-small-benchmarks"
+date = "2026-03-12"
+question = "在什么情况下，一个更小但更干净的评测协议会优于一个更大的基准数据集？"
+context = "在资源受限场景中，更紧的实验边界有时比更广的任务覆盖更有解释力。"
+tags = ["评测", "基准"]
+
+[[items]]
+id = "visual-field-notes"
+date = "2026-02-21"
+question = "摄影记录能否不仅作为插图，而是真正参与研究问题的形成？"
+context = "在问题被正式表述之前，视觉材料有时已经捕捉到了结构和注意力分布。"
+tags = ["视觉思考", "研究方法"]
+
+[[items]]
+id = "collaboration-ready-problems"
+date = "2026-01-30"
+question = "一个开放问题需要满足什么条件，才足够适合合作，又不会过早锁定解法？"
+context = "有价值的问题框架与过早承诺方案之间，往往只有很细的一条界线。"
+tags = ["协作", "问题构造"]
+
+[[items]]
+id = "bilingual-research-maintenance"
+date = "2025-12-18"
+question = "一个双语学术网站怎样才能长期更新，而不是把维护成本简单翻倍？"
+context = "双语版本可以扩大可见性，但如果工作流设计不好，两边内容会很快失衡。"
+tags = ["双语", "研究传播"]

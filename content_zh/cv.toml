@@ -1,0 +1,4 @@
+type = "text"
+title = "简历"
+description = "教育背景、科研经历、见刊论文、会议报告与获奖情况。"
+source = "cv.md"

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000">
+  <defs>
+    <linearGradient id="dawnSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#191628" />
+      <stop offset="55%" stop-color="#4a4d75" />
+      <stop offset="100%" stop-color="#d5b48b" />
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#dawnSky)" />
+  <path d="M0 610c126-28 248-68 390-68 156 0 236 50 384 50 126 0 222-26 386-92 114-46 260-74 440-74v574H0Z" fill="#544965" opacity="0.62" />
+  <path d="M0 680c142-38 240-60 356-60 144 0 230 34 370 34 118 0 226-24 364-74 158-58 304-88 510-90v510H0Z" fill="#353347" opacity="0.72" />
+  <path d="M0 774c136-42 240-70 360-70 132 0 244 36 382 36 108 0 238-22 410-64 156-38 280-50 448-36v360H0Z" fill="#191825" opacity="0.9" />
+  <circle cx="1260" cy="206" r="66" fill="#f4dcb2" opacity="0.75" />
+</svg>

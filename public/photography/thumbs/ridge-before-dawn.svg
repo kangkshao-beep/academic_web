@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300">
+  <defs>
+    <linearGradient id="dawnThumb" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#171524" />
+      <stop offset="60%" stop-color="#5a5e82" />
+      <stop offset="100%" stop-color="#d7b88a" />
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#dawnThumb)" />
+  <path d="M0 190c48-18 90-30 142-30 54 0 88 16 140 16 42 0 88-12 198-56v180H0Z" fill="#433d58" opacity="0.8" />
+  <path d="M0 226c60-20 104-32 154-32 58 0 96 18 152 18 42 0 88-10 174-36v124H0Z" fill="#191825" opacity="0.92" />
+  <circle cx="380" cy="62" r="20" fill="#f2dcb2" opacity="0.78" />
+</svg>

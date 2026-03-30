@@ -1,0 +1,4 @@
+type = "publication"
+title = "Publications"
+description = "Journal publications only."
+source = "publications.bib"

@@ -1,0 +1,38 @@
+type = "questions"
+title = "Open Questions"
+description = "A public log of problems and half-shaped ideas I keep returning to."
+
+[[items]]
+id = "negative-results-memory"
+date = "2026-03-29"
+question = "How should a research group preserve negative results before they turn into unspoken folklore?"
+context = "Repeated dead ends are often remembered socially, not structurally, which makes them hard to reuse."
+tags = ["research process", "knowledge management"]
+
+[[items]]
+id = "evaluation-small-benchmarks"
+date = "2026-03-12"
+question = "When does a smaller, cleaner evaluation protocol beat a larger benchmark with noisier assumptions?"
+context = "Some low-resource settings seem to reward tighter experimental framing more than broader task coverage."
+tags = ["evaluation", "benchmarking"]
+
+[[items]]
+id = "visual-field-notes"
+date = "2026-02-21"
+question = "Can field photographs function as problem-formulation tools rather than only as illustrations?"
+context = "Visual artifacts sometimes capture structure and attention cues before the formal question is articulated."
+tags = ["visual thinking", "research methods"]
+
+[[items]]
+id = "collaboration-ready-problems"
+date = "2026-01-30"
+question = "What makes an open problem legible enough for collaboration without prematurely forcing a solution path?"
+context = "The line between useful framing and over-commitment is often where promising collaborations stall."
+tags = ["collaboration", "problem formulation"]
+
+[[items]]
+id = "bilingual-research-maintenance"
+date = "2025-12-18"
+question = "How can a bilingual research site stay alive without doubling editorial maintenance?"
+context = "Parallel language versions increase reach, but they can also silently diverge unless the workflow is carefully designed."
+tags = ["bilingual", "research communication"]

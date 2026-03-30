@@ -1,0 +1,27 @@
+type = "card"
+title = "Awards"
+description = "Use this page for scholarships, fellowships, grants, prizes, and other recognitions."
+
+[[items]]
+title = "Add an award or fellowship here"
+subtitle = "Organization"
+date = "20XX"
+content = "Replace this with a brief factual description."
+
+[[items]]
+title = "Add another recognition here"
+subtitle = "Organization"
+date = "20XX"
+content = "Use one short line for context."
+
+[[items]]
+title = "Add another recognition here"
+subtitle = "Organization"
+date = "20XX"
+content = "Use one short line for context."
+
+[[items]]
+title = "Add another recognition here"
+subtitle = "Organization"
+date = "20XX"
+content = "Use one short line for context."

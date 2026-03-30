@@ -1,0 +1,27 @@
+type = "card"
+title = "奖项"
+description = "如果你之后想把奖项、资助或奖学金独立展示，可以在这里维护。"
+
+[[items]]
+title = "在这里添加奖项或资助"
+subtitle = "颁发机构"
+date = "20XX"
+content = "保持简短、事实化。"
+
+[[items]]
+title = "在这里添加另一条荣誉"
+subtitle = "颁发机构"
+date = "20XX"
+content = "用一句话补充背景。"
+
+[[items]]
+title = "在这里添加另一条荣誉"
+subtitle = "颁发机构"
+date = "20XX"
+content = "用一句话补充背景。"
+
+[[items]]
+title = "在这里添加另一条荣誉"
+subtitle = "颁发机构"
+date = "20XX"
+content = "用一句话补充背景。"

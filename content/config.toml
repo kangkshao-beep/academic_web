@@ -1,0 +1,87 @@
+[site]
+title = "Kang-Kang Shao"
+description = "Research website of Kang-Kang Shao, visitor at Huazhong University of Science and Technology (HUST)."
+url = "https://kkshao.org.cn"
+favicon = "/favicon.svg"
+last_updated = "March 29, 2026"
+
+[author]
+name = "Kang-Kang Shao"
+title = "Visitor"
+institution = "Huazhong University of Science and Technology (HUST)"
+avatar = "/avatar.svg"
+
+[[author.advisors]]
+name = "Qin Qin"
+url = "http://faculty.hust.edu.cn/QinQin/zh_CN/index/2259838/list/index.htm"
+institution = "Huazhong University of Science and Technology"
+
+[[author.advisors]]
+name = "Fu-Sheng Yu"
+url = "https://snst.lzu.edu.cn/shiziduiwu/jiaoshou/2024/1015/277664.html"
+institution = "Lanzhou University"
+
+[social]
+# Fill in and keep non-empty values to display these links on the site.
+email = "kangkshao@gmail.com"
+location = "Wuhan, China"
+location_url = ""
+location_details = ["School of Physics, Huazhong University of Science and Technology", "Wuhan, China"]
+google_scholar = ""
+inspire = "https://inspirehep.net/authors/2840202"
+orcid = "https://orcid.org/0009-0006-4907-1821"
+github = ""
+linkedin = ""
+
+[features]
+enable_likes = false
+enable_one_page_mode = false
+
+[i18n]
+enabled = true
+locales = ["en", "zh"]
+default_locale = "en"
+mode = "auto"
+fixed_locale = "en"
+persist = true
+switcher = true
+
+[i18n.labels]
+en = "English"
+zh = "中文"
+
+[[navigation]]
+title = "About"
+type = "page"
+target = "about"
+href = "/"
+
+[[navigation]]
+title = "Research"
+type = "page"
+target = "research"
+href = "/research"
+
+[[navigation]]
+title = "Questions"
+type = "page"
+target = "questions"
+href = "/questions"
+
+[[navigation]]
+title = "Publications"
+type = "page"
+target = "publications"
+href = "/publications"
+
+[[navigation]]
+title = "Photography"
+type = "page"
+target = "photography"
+href = "/photography"
+
+[[navigation]]
+title = "CV"
+type = "page"
+target = "cv"
+href = "/cv"

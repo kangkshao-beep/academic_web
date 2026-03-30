@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000">
+  <defs>
+    <linearGradient id="streetSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#211f2e" />
+      <stop offset="100%" stop-color="#3b415c" />
+    </linearGradient>
+    <linearGradient id="pavement" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#47506a" />
+      <stop offset="100%" stop-color="#171c29" />
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#streetSky)" />
+  <rect y="530" width="1600" height="470" fill="url(#pavement)" />
+  <path d="M250 1000 730 320h160L430 1000Z" fill="#202638" opacity="0.9" />
+  <path d="M860 1000 1140 430h120L1080 1000Z" fill="#202638" opacity="0.88" />
+  <circle cx="758" cy="348" r="44" fill="#f3bc6c" opacity="0.95" />
+  <circle cx="1128" cy="460" r="36" fill="#f5d27c" opacity="0.9" />
+  <path d="M750 392c-26 188-38 314-42 608" fill="none" stroke="#f5bc71" stroke-width="20" stroke-linecap="round" opacity="0.55" />
+  <path d="M1120 498c-16 146-24 242-28 502" fill="none" stroke="#f5cf86" stroke-width="16" stroke-linecap="round" opacity="0.42" />
+  <path d="M0 836c142 40 276 58 458 58 284 0 512-46 1142-174v280H0Z" fill="#0f141f" opacity="0.5" />
+</svg>

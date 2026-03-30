@@ -1,0 +1,10 @@
+type = "card"
+title = "Teaching"
+description = "Use this page for courses, seminars, or mentoring work once you are ready to surface them."
+
+[[items]]
+title = "Add a course or seminar here"
+subtitle = "Role and level"
+date = "20XX"
+content = "Replace this with a concise description of the course, your responsibilities, and any public materials you want to share."
+tags = ["teaching", "coursework"]

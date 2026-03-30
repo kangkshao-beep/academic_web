@@ -1,0 +1,9 @@
+type = "card"
+title = "Services"
+description = "Use this page for reviewing, organizing, community roles, and professional service."
+
+[[items]]
+title = "Add a service role here"
+subtitle = "Journal, workshop, or community"
+date = "20XX"
+content = "Replace this with a short description of reviewing, organizing, or community work."
