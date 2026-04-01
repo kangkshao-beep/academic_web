@@ -1,141 +1,124 @@
 # Deployment Guide
 
-This guide is designed for beginners. You don't need complex configurations to deploy your website.
+This project is intended to be deployed with **Cloudflare Pages**.
 
-## Option 1: GitHub Pages
+The repository is a Next.js static-export site:
 
-1.  **Build your project**
-    
-    First, ensure you have the correct Node.js version installed.
-    *   **Download & Install**: Go to [https://nodejs.org/en/download](https://nodejs.org/en/download) and install Node.js manually.
-    *   Better not to use the system's default Node.js as it might be outdated.
+- build command: `npm run build`
+- output directory: `out`
+- required Node.js version: `22`
 
-    Open your terminal in the project folder and run:
-    
-    ```bash
-    npm install
-    npm run build
-    ```
-    This will create a folder named `out` in your project directory. This folder contains your generated website.
-    
-2.  **Create a GitHub Repository**
-    *   Log in to GitHub.
-    *   Create a new **Public** repository.
-    *   Name it `username.github.io` (replace `username` with your actual GitHub username).
+GitHub should be used as the **source repository only**. Do not use GitHub Pages for production hosting of this project.
 
-3.  **Upload Files**
-  
-    *   Upload **all the files inside the `out` folder** to your new repository.
-    *   You can do this by clicking "Upload files" on the GitHub repository page and dragging everything from the `out` folder.
-    *   *Alternatively, if you know Git, you can push the contents of `out` to the repository.*
-    
-4.  **Add .nojekyll file**
-  
-    *   In your GitHub repository, click "Add file" -> "Create new file".
-    *   Name the file `.nojekyll` (start with a dot, all lowercase).
-    *   Leave the content empty and click "Commit changes".
-    *   *This is important! It tells GitHub to allow folders starting with `_` (like `_next`).*
-    
-5.  **Configure Pages**
-    *   Go to your repository **Settings**.
-    *   Click on **Pages** in the left sidebar.
-    *   Under **Build and deployment**, ensure "Deploy from a branch" is selected.
-    *   Select your branch (usually `main`) and click **Save**.
+## Recommended production setup
 
-6.  **Done!**
-    Visit `https://username.github.io` to see your website.
+- Source repository: GitHub
+- Hosting: Cloudflare Pages
+- Production branch: `main`
+- Custom domain: `kkshao.org.cn`
 
-### (Optional) Deploy Automatically with GitHub Actions
+## Why not GitHub Pages
 
-PRISM also supports **automatic deployment to GitHub Pages** using GitHub Actions.  
-This method is recommended if you want your site to update automatically whenever you push changes.
+This repository does **not** publish a ready-to-serve `index.html` from the repository root or `docs/`.
+The production site is generated only after running:
 
-#### How to enable
-
-This repository includes an optional workflow located at:
-
-```
-.github/workflows/deploy.yml
+```bash
+npm run build
 ```
 
-For template users, GitHub disables workflows by default.  
-To enable deployment:
+That build outputs the site into `out/`, which Cloudflare Pages can deploy directly through Git integration.
 
-1. Go to **Settings > Pages**, and under **Build and deployment > Source**, choose **GitHub Actions**.
-2. Go to **Actions** Tab, and select **"Deploy PRISM to GitHub Pages"**.
-3. Click **"Enable workflow"**.
-4. Run manually using **Run workflow**.
-5. (Optional) To enable automatic deployment on push:  
-   Edit `.github/workflows/deploy.yml` and uncomment:
+If GitHub Pages remains enabled with this repository, your custom domain may resolve to GitHub's default `404 File not found` page.
 
-   ```yaml
-   on:
-     push:
-       branches:
-         - main
-         - ci
-   ```
+## One-time setup
 
-Once enabled, GitHub Actions will:
+### 1. Push the repository to GitHub
 
-- Build your site (`npm install && npm run build`)
-- Export static files into `out/`
-- Deploy automatically to GitHub Pages
+Use a normal Git workflow:
 
-Your site will be available at `https://<username>.github.io`
-
-If you are using a repository other than `username.github.io`, your site will be at `https://<username>.github.io/<repository>/`.
-
-In this case, make sure to set the `basePath` and `assetPrefix` in `next.config.ts` accordingly to add path prefixes to your assets:
-
-```
-// next.config.ts
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  output: 'export',
-  trailingSlash: true,
-
-  // Add these two lines
-  basePath: "/my-repo",
-  assetPrefix: "/my-repo",
-
-  images: {
-    unoptimized: true,
-  },
-  /* config options here */
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.bib$/,
-      type: 'asset/source',
-    });
-    return config;
-  },
-};
-
-export default nextConfig;
+```bash
+git add .
+git commit -m "Update site"
+git push
 ```
 
+### 2. Create a Cloudflare Pages project
 
+In the Cloudflare dashboard:
 
----
+1. Go to **Workers & Pages**
+2. Click **Create application**
+3. Choose **Pages**
+4. Choose **Connect to Git**
+5. Select this repository
 
-## Option 2: Cloudflare Pages
+Use these build settings:
 
-1.  **Build your project**
-    Run `npm run build` to generate the `out` folder.
+- Production branch: `main`
+- Build command: `npm run build`
+- Build output directory: `out`
+- Root directory: leave empty
+- Environment variable: `NODE_VERSION=22`
 
-2.  **Create Application**
-    *   Log in to the [Cloudflare Dashboard](https://dash.cloudflare.com/).
-    *   Go to **Workers & Pages** -> **Create Application**.
-    *   Select the **Pages** tab.
-    *   Click **Drag and drop your files**.
+### 3. Disable GitHub Pages
 
-3.  **Upload**
-    *   Enter a **Project name** (this will be your subdomain, e.g., `my-site`).
-    *   Click **Create project**.
-    *   Drag and drop your `out` folder (or a zip archive of it) into the upload area.
-    *   Click **Deploy**.
+In the GitHub repository:
 
-4.  **Done!**
-    You will see your site live at `https://<project-name>.pages.dev`.
+1. Go to **Settings -> Pages**
+2. Remove any existing custom domain such as `kkshao.org.cn`
+3. Disable GitHub Pages publishing, or set the source to `None`
+
+This step is required if the domain has ever been attached to GitHub Pages before.
+
+### 4. Attach the custom domain in Cloudflare Pages
+
+In your Cloudflare Pages project:
+
+1. Open **Custom domains**
+2. Add `kkshao.org.cn`
+3. Wait until the status becomes active
+
+### 5. Remove old GitHub Pages DNS records
+
+In Cloudflare DNS, delete any records that point to GitHub Pages, including:
+
+- `A` records pointing to `185.199.108.153` through `185.199.111.153`
+- `CNAME` records pointing to `*.github.io`
+
+Do not recreate GitHub Pages DNS records after switching to Cloudflare Pages.
+
+## Verification checklist
+
+After the domain is attached and DNS is clean, verify:
+
+- `https://kkshao.org.cn/`
+- `https://kkshao.org.cn/research/`
+- `https://kkshao.org.cn/publications/`
+- `https://kkshao.org.cn/photography/`
+- `https://kkshao.org.cn/cv/`
+
+Also confirm:
+
+- the latest deployment is shown in Cloudflare Pages
+- HTTPS is active
+- the root page is no longer serving GitHub's default 404
+
+## Ongoing updates
+
+After setup is complete, updates are automatic.
+
+Your normal workflow is:
+
+```bash
+git add .
+git commit -m "Update site"
+git push
+```
+
+Cloudflare Pages will then:
+
+1. pull `main`
+2. run `npm run build`
+3. publish the new version automatically
+
+No manual upload of `out/` is needed.
