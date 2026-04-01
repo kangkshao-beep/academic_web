@@ -111,7 +111,72 @@ npm run build
 
 This generates a static `out/` directory that can be hosted anywhere.
 
-👉 **[Read the full Deployment Guide](docs/deployment.md)** for instructions on deploying to **GitHub Pages** and **Cloudflare Pages**.
+👉 **[Read the full Deployment Guide](docs/deployment.md)** for the current **Cloudflare Pages** workflow.
+
+## 🖼️ Photography Maintenance
+
+This repository keeps raw photos and deployed website assets separate.
+
+- Raw originals live in `PHOTO/` and are ignored by Git.
+- Published website images live in `public/photography/`.
+- Photography metadata lives in `content/photography.toml` and `content_zh/photography.toml`.
+
+👉 **[Read the Photography Workflow Guide](docs/photography-workflow.md)** before adding new photographs to the site.
+
+## ✍️ Updating Site Content
+
+Most future updates do **not** require code changes. You usually only need to edit content files and push to `main`.
+
+### Common update locations
+
+- Homepage profile and navigation:
+  - `content/config.toml`
+  - `content_zh/config.toml`
+- Biography:
+  - `content/bio.md`
+  - `content_zh/bio.md`
+- Homepage sections:
+  - `content/about.toml`
+  - `content_zh/about.toml`
+- Research:
+  - `content/research.toml`
+  - `content_zh/research.toml`
+- Publications:
+  - `content/publications.bib`
+- CV:
+  - `content/cv.md`
+  - `content_zh/cv.md`
+- News:
+  - `content/news.toml`
+  - `content_zh/news.toml`
+- Questions:
+  - `content/questions.toml`
+  - `content_zh/questions.toml`
+- Photography metadata:
+  - `content/photography.toml`
+  - `content_zh/photography.toml`
+
+### Photography updates
+
+- Put original files in `PHOTO/`
+- Published website images belong in:
+  - `public/photography/full/`
+  - `public/photography/thumbs/`
+- `PHOTO/` is ignored by Git, so adding files there will **not** show up in `git status`
+- If you want a new photo on the site, tell Codex which file to publish and Codex can prepare the web assets and metadata entries
+
+### Publish workflow
+
+After editing content, run:
+
+```bash
+npm run build
+git add .
+git commit -m "Update site content"
+git push
+```
+
+This repository is deployed through **Cloudflare Pages**. Pushing to `main` automatically triggers a new production deployment for `https://kkshao.org.cn`.
 
 ## 📂 Project Structure
 

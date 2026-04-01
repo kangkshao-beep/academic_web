@@ -1,6 +1,18 @@
 type = "gallery"
 title = "摄影"
-description = "这里展示的是武汉植物园这组照片中的四张作品，顺序经过打散，并补充了地点与器材信息。"
+description = "这里展示的是一组经过打散顺序的精选照片，并在能够确认时补充拍摄时间与器材信息。"
+
+[[items]]
+id = "sun-through-trees"
+thumb = "/photography/thumbs/dsc07054.jpg"
+image = "/photography/full/dsc07054.jpg"
+title = "树间夕照"
+date = "2026-03-13"
+location = "东湖磨山景区，武汉"
+camera = "Sony ILCE-6400"
+lens = "原始 JPEG 未保留镜头 EXIF"
+alt = "傍晚阳光穿过高大的树木，水边可见几位人物。"
+description = "这是一张逆光竖幅，树干构成了画面的骨架，水边的人物则把光线与空间关系压缩成一个安静的瞬间。"
 
 [[items]]
 id = "stone-bridge"

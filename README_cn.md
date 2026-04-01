@@ -120,7 +120,72 @@ npm run build
 
 运行上述命令后，会生成一个 `out/` 目录，这就是你网站的全部静态文件。
 
-👉 **[点击阅读完整的部署指南](docs/deployment_cn.md)** （包含部署到 **GitHub Pages** 和 **Cloudflare Pages** 的详细教程）。
+👉 **[点击阅读完整的部署指南](docs/deployment_cn.md)**（当前正式方案为 **Cloudflare Pages**）。
+
+## 🖼️ 摄影内容维护
+
+当前仓库将原始照片与网站发布资源分开管理：
+
+- 原图放在 `PHOTO/`，并且不受 Git 管理
+- 网站使用的图片放在 `public/photography/`
+- 摄影页索引与元数据放在 `content/photography.toml` 和 `content_zh/photography.toml`
+
+👉 **[点击阅读摄影维护流程](docs/photography-workflow_cn.md)**，了解后续新增摄影作品时应该如何处理。
+
+## ✍️ 如何更新网站内容
+
+后续大多数更新都**不需要改代码**，通常只需要修改内容文件，然后推送到 `main`。
+
+### 常见内容文件位置
+
+- 首页侧栏与导航：
+  - `content/config.toml`
+  - `content_zh/config.toml`
+- 个人简介：
+  - `content/bio.md`
+  - `content_zh/bio.md`
+- 首页区块配置：
+  - `content/about.toml`
+  - `content_zh/about.toml`
+- Research 页面：
+  - `content/research.toml`
+  - `content_zh/research.toml`
+- Publications 页面：
+  - `content/publications.bib`
+- CV 页面：
+  - `content/cv.md`
+  - `content_zh/cv.md`
+- News：
+  - `content/news.toml`
+  - `content_zh/news.toml`
+- Questions：
+  - `content/questions.toml`
+  - `content_zh/questions.toml`
+- 摄影页索引：
+  - `content/photography.toml`
+  - `content_zh/photography.toml`
+
+### 摄影内容怎么更新
+
+- 原图先放进 `PHOTO/`
+- 网站实际使用的图片应放在：
+  - `public/photography/full/`
+  - `public/photography/thumbs/`
+- `PHOTO/` 不受 Git 管理，所以只往里面加文件时，`git status` 不会显示变化
+- 如果你希望某张新照片出现在网站上，直接告诉 Codex 要发布哪个文件，Codex 可以继续帮你生成网站图片并补摄影索引
+
+### 发布流程
+
+修改内容后，执行：
+
+```bash
+npm run build
+git add .
+git commit -m "Update site content"
+git push
+```
+
+当前仓库通过 **Cloudflare Pages** 部署。只要推送到 `main`，Cloudflare 就会自动重新构建并更新 `https://kkshao.org.cn`。
 
 ## 📂 项目结构概览
 

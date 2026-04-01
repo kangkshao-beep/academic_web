@@ -108,6 +108,29 @@ Maintain a manifest for image metadata where helpful:
 - tags
 - storage URL(s)
 
+### Current photography maintenance workflow
+The current repository keeps a lightweight, curated photography section.
+
+- `PHOTO/` is the local raw photo library.
+- `PHOTO/` does **not** participate in deployment and is intentionally ignored by Git.
+- Published website assets live under:
+  - `public/photography/full/`
+  - `public/photography/thumbs/`
+- Display metadata lives in:
+  - `content/photography.toml`
+  - `content_zh/photography.toml`
+
+When new photographs are added:
+
+1. The user places original files in `PHOTO/`.
+2. The user explicitly decides which files should be published.
+3. Codex prepares web-sized images and thumbnails.
+4. Codex updates the photography metadata files.
+5. Only the generated website assets and metadata are committed.
+
+Do not assume every file in `PHOTO/` should be published.
+If EXIF metadata is incomplete, only record information that can be verified.
+
 ## Deployment assumptions
 Target deployment should remain compatible with the following direction:
 

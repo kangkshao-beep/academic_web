@@ -1,6 +1,18 @@
 type = "gallery"
 title = "Photography"
-description = "A deliberately mixed selection from my Wuhan Botanical Garden shoot, shown here as a compact slideshow with place and equipment notes."
+description = "A deliberately mixed selection shown as a compact slideshow, with confirmed time and equipment notes where available."
+
+[[items]]
+id = "sun-through-trees"
+thumb = "/photography/thumbs/dsc07054.jpg"
+image = "/photography/full/dsc07054.jpg"
+title = "Sun Through the Trees"
+date = "2026-03-13"
+location = "Moshan Scenic Area, East Lake, Wuhan"
+camera = "Sony ILCE-6400"
+lens = "Lens EXIF unavailable in source JPEG"
+alt = "Late sunlight filtering through tall trees, with a few figures visible near the water."
+description = "A backlit vertical frame that uses tree trunks as structure while holding a small human moment near the waterline."
 
 [[items]]
 id = "stone-bridge"
