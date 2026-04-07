@@ -35,4 +35,4 @@ id = "news"
 type = "list"
 title = "News"
 source = "news.toml"
-limit = 5
+limit = 10
