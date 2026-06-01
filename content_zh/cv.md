@@ -39,6 +39,14 @@
 
 ## 会议报告
 
+### 第八届全国重味物理与量子色动力学研讨会
+
+- 时间：2026年4月24日 - 4月28日
+- 地点：重庆山城国际会议中心，重庆
+- 报告题目：粲强子单举衰变的唯象学研究
+- 报告类型：分会报告
+- 材料：[讲稿](https://indico.ihep.ac.cn/event/28363/contributions/217563/attachments/102023/136840/Kangkshao.pdf) · [报告现场](media:/conferences/chongqing-hfqcd-2026-talk.jpg) · [会议合影](media:/conferences/chongqing-hfqcd-2026-group.jpg)
+
 ### 第七届 Future Tau Charm Facilities 国际研讨会
 
 - 时间：2025年11月23日 - 11月27日

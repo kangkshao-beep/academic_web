@@ -3,6 +3,8 @@ node_modules/
 out/
 .DS_Store
 PHOTO/
+public/conferences/Chongqing2026.JPG
+public/conferences/chongqing2026togteher.jpg
 *.log
 .env
 .env.local

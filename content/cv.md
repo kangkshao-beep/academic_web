@@ -39,6 +39,14 @@
 
 ## Conference Reports
 
+### The 8th National Workshop on Heavy Flavor Physics and QCD
+
+- Date: April 24-28, 2026
+- Location: Chongqing Shancheng International Conference Center, Chongqing, China
+- Talk: "Phenomenological study of inclusive charm-hadron decays"
+- Type: Parallel-session oral presentation
+- Materials: [Slides](https://indico.ihep.ac.cn/event/28363/contributions/217563/attachments/102023/136840/Kangkshao.pdf) · [Talk Photo](media:/conferences/chongqing-hfqcd-2026-talk.jpg) · [Group Photo](media:/conferences/chongqing-hfqcd-2026-group.jpg)
+
 ### The 7th International Workshop on Future Tau Charm Facilities
 
 - Date: November 23-27, 2025
