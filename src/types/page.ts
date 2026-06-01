@@ -37,8 +37,15 @@ export interface QuestionItem {
     tags: string[];
 }
 
+export interface QuestionsQuote {
+    text: string;
+    german?: string;
+    source?: string;
+}
+
 export interface QuestionsPageConfig extends BasePageConfig {
     type: 'questions';
+    quote?: QuestionsQuote;
     items: QuestionItem[];
 }
 

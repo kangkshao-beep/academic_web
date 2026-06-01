@@ -3,13 +3,14 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { QuestionItem } from '@/types/page';
+import { QuestionItem, QuestionsQuote } from '@/types/page';
 import { useMessages } from '@/lib/i18n/useMessages';
 import { cn } from '@/lib/utils';
 
 interface QuestionsListProps {
   title?: string;
   description?: string;
+  quote?: QuestionsQuote;
   questions: QuestionItem[];
   embedded?: boolean;
 }
@@ -17,6 +18,7 @@ interface QuestionsListProps {
 export default function QuestionsList({
   title,
   description,
+  quote,
   questions,
   embedded = false,
 }: QuestionsListProps) {
@@ -63,6 +65,24 @@ export default function QuestionsList({
           </Link>
         )}
       </div>
+
+      {quote && !embedded && (
+        <figure className="mb-8 border-l-4 border-accent pl-5">
+          <blockquote className="text-lg font-serif leading-relaxed text-primary">
+            {quote.text}
+          </blockquote>
+          {quote.german && (
+            <p className="mt-3 text-sm italic leading-relaxed text-neutral-600 dark:text-neutral-400">
+              {quote.german}
+            </p>
+          )}
+          {quote.source && (
+            <figcaption className="mt-3 text-xs uppercase tracking-[0.14em] text-neutral-500">
+              {quote.source}
+            </figcaption>
+          )}
+        </figure>
+      )}
 
       {!embedded && tags.length > 0 && (
         <div className="mb-6 flex flex-wrap items-center gap-2">

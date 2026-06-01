@@ -51,6 +51,7 @@ export default function DynamicPageClient({ dataByLocale, defaultLocale }: Dynam
         <QuestionsList
           title={pageData.config.title}
           description={pageData.config.description}
+          quote={pageData.config.quote}
           questions={pageData.config.items}
         />
       )}
