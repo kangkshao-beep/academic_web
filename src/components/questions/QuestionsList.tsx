@@ -138,6 +138,16 @@ export default function QuestionsList({
               <p className="mb-4 text-sm leading-relaxed text-neutral-600 dark:text-neutral-500">
                 {item.context}
               </p>
+              {item.answer && (
+                <div className="mb-4 rounded-lg border border-accent/20 bg-accent/5 px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+                    Answer
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+                    {item.answer}
+                  </p>
+                </div>
+              )}
               <div className="flex flex-wrap gap-2">
                 {item.tags.map((tag) => (
                   <span
