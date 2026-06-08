@@ -35,6 +35,7 @@ export interface QuestionItem {
     question: string;
     context: string;
     answer?: string;
+    answerDate?: string;
     tags: string[];
 }
 

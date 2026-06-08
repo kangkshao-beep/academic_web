@@ -1,6 +1,5 @@
 type = "questions"
 title = "Open Questions"
-description = "A small place for questions that shape how I think about research, learning, and work."
 
 [quote]
 text = "The formulation of a problem is often more essential than its solution. -- Albert Einstein"
@@ -13,12 +12,14 @@ date = "2026-06-08"
 question = "For large computational projects in theoretical physics, why is it necessary to spend time organizing data structures before pushing the physics calculation forward?"
 context = "The risk in large calculations often comes not only from the formulas, but also from data organization, interface conventions, and traceability of intermediate results."
 answer = "Spend one day structuring data, then ten days doing physics; on day eleven, you are still doing physics, not debugging."
+answerDate = "2026-06-08"
 tags = ["theoretical computation", "data structures", "debugging cost", "project workflow"]
 
 [[items]]
 id = "quantifying-progress-learning-work"
 date = "2026-06-01"
-question = "How can we quantify progress in learning and work, evaluate strategies for completing tasks with minimal effort and high quality, and derive general scientific strategies for learning and working?"
+question = "How can we quantify actual progress in learning and work, and build a unified metric system that evaluates task quality, time investment, and cognitive cost at the same time? On this basis, how can we identify and assess strategies that achieve optimal results with minimal input, thereby distilling a general scientific methodology for learning and work?"
 context = "The goal is to make progress visible, compare task-completion strategies, and turn personal experience into a more systematic method."
 answer = "Track visible outputs, effort, feedback, and iteration quality; optimize the strategy that improves them together."
+answerDate = "2026-06-08"
 tags = ["progress metrics", "learning strategy", "work methods", "task optimization"]

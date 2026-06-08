@@ -49,6 +49,7 @@ export interface LocaleMessages {
     video: string;
   };
   questions: {
+    answer: string;
     filterByTag: string;
     noResults: string;
   };
@@ -116,6 +117,7 @@ const en: LocaleMessages = {
     video: 'Video',
   },
   questions: {
+    answer: 'Answer',
     filterByTag: 'Filter by tag',
     noResults: 'No questions found for this tag.',
   },
@@ -183,6 +185,7 @@ const zh: LocaleMessages = {
     video: '视频',
   },
   questions: {
+    answer: '答案',
     filterByTag: '按标签筛选',
     noResults: '当前标签下没有问题。',
   },

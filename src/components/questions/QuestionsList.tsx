@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { QuestionItem, QuestionsQuote } from '@/types/page';
 import { useMessages } from '@/lib/i18n/useMessages';
+import { useLocaleStore } from '@/lib/stores/localeStore';
 import { cn } from '@/lib/utils';
 
 interface QuestionsListProps {
@@ -23,8 +24,22 @@ export default function QuestionsList({
   embedded = false,
 }: QuestionsListProps) {
   const messages = useMessages();
+  const locale = useLocaleStore((state) => state.locale);
   const resolvedTitle = title || messages.home.openQuestions;
   const [selectedTag, setSelectedTag] = useState<string>('all');
+
+  const formatAnswerDate = (date?: string) => {
+    if (!date) {
+      return null;
+    }
+
+    const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (locale === 'zh' && match) {
+      return `${match[1]}年${Number(match[2])}月${Number(match[3])}日`;
+    }
+
+    return date;
+  };
 
   const tags = useMemo(() => {
     return Array.from(new Set(questions.flatMap((item) => item.tags))).sort();
@@ -141,7 +156,12 @@ export default function QuestionsList({
               {item.answer && (
                 <div className="mb-4 rounded-lg border border-accent/20 bg-accent/5 px-4 py-3">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
-                    Answer
+                    {messages.questions.answer}
+                    {formatAnswerDate(item.answerDate || item.date) && (
+                      <span className="ml-2 normal-case tracking-normal text-accent/80">
+                        · {formatAnswerDate(item.answerDate || item.date)}
+                      </span>
+                    )}
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
                     {item.answer}
