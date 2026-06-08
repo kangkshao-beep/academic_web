@@ -20,6 +20,4 @@ id = "quantifying-progress-learning-work"
 date = "2026-06-01"
 question = "How can we quantify actual progress in learning and work, and build a unified metric system that evaluates task quality, time investment, and cognitive cost at the same time? On this basis, how can we identify and assess strategies that achieve optimal results with minimal input, thereby distilling a general scientific methodology for learning and work?"
 context = "The goal is to make progress visible, compare task-completion strategies, and turn personal experience into a more systematic method."
-answer = "Track visible outputs, effort, feedback, and iteration quality; optimize the strategy that improves them together."
-answerDate = "2026-06-08"
 tags = ["progress metrics", "learning strategy", "work methods", "task optimization"]
