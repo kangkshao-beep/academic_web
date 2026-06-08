@@ -8,6 +8,14 @@ german = "Die Formulierung eines Problems ist oft wesentlicher als seine Lösung
 source = "Albert Einstein and Leopold Infeld, The Evolution of Physics, 1938."
 
 [[items]]
+id = "data-structure-before-physics-computation"
+date = "2026-06-08"
+question = "For large computational projects in theoretical physics, why is it necessary to spend time organizing data structures before pushing the physics calculation forward?"
+context = "The risk in large calculations often comes not only from the formulas, but also from data organization, interface conventions, and traceability of intermediate results."
+answer = "Spend one day structuring data, then ten days doing physics; on day eleven, you are still doing physics, not debugging."
+tags = ["theoretical computation", "data structures", "debugging cost", "project workflow"]
+
+[[items]]
 id = "quantifying-progress-learning-work"
 date = "2026-06-01"
 question = "How can we quantify progress in learning and work, evaluate strategies for completing tasks with minimal effort and high quality, and derive general scientific strategies for learning and working?"
