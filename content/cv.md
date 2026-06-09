@@ -34,6 +34,7 @@
 
 ## Publications
 
+- **Dong Xiao and Kangkang Shao**, "Bayesian Extraction of HQET Parameters from Inclusive Semi-Leptonic Decay of the Lambda_c+ Baryon," *Chinese Physics C* **50** (2026) 063001. [DOI](https://doi.org/10.1088/1674-1137/ae4a09)
 - **Kang-Kang Shao, Chun Huang, and Qin Qin**, "Data determination of HQET parameters in inclusive charm decays," *European Physical Journal C* **85** (2025) 1011. [DOI](https://doi.org/10.1140/epjc/s10052-025-14691-z)
 - **Guo-He Yang, En-Pei Liang, Qin Qin, and Kang-Kang Shao**, "Inclusive weak-annihilation decays and lifetimes of beauty-charmed baryons," *Physical Review D* **106** (2022) 093013. [DOI](https://doi.org/10.1103/PhysRevD.106.093013)
 
