@@ -25,6 +25,10 @@ export default function PhotographySlideshow({
   const activeItem = items[activeIndex];
   const canGoPrev = activeIndex > 0;
   const canGoNext = activeIndex < items.length - 1;
+  const descriptionParagraphs = useMemo(
+    () => activeItem?.description?.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean) ?? [],
+    [activeItem?.description]
+  );
 
   const goPrev = useCallback(() => {
     setActiveIndex((current) => Math.max(current - 1, 0));
@@ -180,10 +184,12 @@ export default function PhotographySlideshow({
               </span>
             )}
           </div>
-          {activeItem.description && (
-            <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-500">
-              {activeItem.description}
-            </p>
+          {descriptionParagraphs.length > 0 && (
+            <div className="space-y-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-500">
+              {descriptionParagraphs.map((paragraph, index) => (
+                <p key={`${activeItem.id}-description-${index}`}>{paragraph}</p>
+              ))}
+            </div>
           )}
           {(activeItem.camera || activeItem.lens) && (
             <dl className="mt-4 grid gap-4 border-t border-neutral-200 pt-4 text-sm dark:border-neutral-800 sm:grid-cols-2">

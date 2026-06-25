@@ -3,6 +3,24 @@ title = "Photography"
 description = "A deliberately mixed selection shown as a compact slideshow, with confirmed time and equipment notes where available."
 
 [[items]]
+id = "wuchang-bay-blue-hour"
+thumb = "/photography/thumbs/dsc00113.jpg"
+image = "/photography/full/dsc00113.jpg"
+title = "Wuchang Bay Blue Hour"
+date = "2026-06-19"
+location = "Wuchang Bay Park, Wuhan"
+camera = "Sony ILCE-6400"
+lens = "Lens EXIF unavailable in exported JPEG"
+alt = "The lit Yingwuzhou Yangtze River Bridge at blue hour, with dark leaves in the foreground and city lights reflected on the river."
+description = """The image is built in clearly legible layers: nearby leaves press into the frame almost as silhouettes, like a quiet foreground curtain; the Yingwuzhou Yangtze River Bridge crosses the river in warm light and becomes the visual spine; farther away, another bridge and the city skyline recede into deep blue night, naturally opening the space. The result is not a flat night view but a stage with depth, held together by foreground, middle ground, and distance.
+
+What is most affecting is the restrained relationship between cool and warm tones. Blue hour is nearing its end, and both the sky and the river have settled into a deep, still blue, while the orange-gold light on the bridge towers and deck draws a warm line through it. The contrast is not aggressive, but it breathes: the warmth does not tear open the night, and the cool tones do not swallow the city. They reach a quiet balance on the water.
+
+The reflections are especially rich. Bridge lights, tower light, and city windows are stretched and broken by the river into fine, moving threads, giving the image a softer rhythm. These reflections do not compete for attention; they simply give the still bridge and skyline a watery echo, so the whole scene carries a slight sense of motion inside its calm.
+
+The distant skyline and the few clouds near the horizon leave a brighter, more breathable exit within the deep blue night. They keep the image from becoming too heavy and let the visual weight extend from the bridge into a broader urban space. Overall, this photograph holds both the depth of late blue hour and the gentle sheen of Wuhan's river night: not a busy city postcard, but a quiet, restrained, carefully layered view across the water."""
+
+[[items]]
 id = "sun-through-trees"
 thumb = "/photography/thumbs/dsc07054.jpg"
 image = "/photography/full/dsc07054.jpg"
