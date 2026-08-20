@@ -31,8 +31,6 @@ interface SectionConfig {
 interface NewsItem {
   date: string;
   content: string;
-  link_text?: string;
-  link_url?: string;
 }
 
 type PageData =

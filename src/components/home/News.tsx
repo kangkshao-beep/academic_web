@@ -1,14 +1,11 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ExternalLink } from 'lucide-react';
 import { useMessages } from '@/lib/i18n/useMessages';
 
 export interface NewsItem {
     date: string;
     content: string;
-    link_text?: string;
-    link_url?: string;
 }
 
 interface NewsProps {
@@ -40,23 +37,7 @@ export default function News({ items, title }: NewsProps) {
                 {items.map((item, index) => (
                     <div key={index} className="flex items-start space-x-3">
                         <span className="text-xs text-neutral-500 mt-1 w-24 flex-shrink-0">{item.date}</span>
-                        <p className="text-sm text-neutral-700">
-                            {item.content}
-                            {item.link_text && item.link_url && (
-                                <>
-                                    {' '}
-                                    <a
-                                        href={item.link_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-1 text-accent underline underline-offset-2 hover:text-accent-dark focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
-                                    >
-                                        {item.link_text}
-                                        <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
-                                    </a>
-                                </>
-                            )}
-                        </p>
+                        <p className="text-sm text-neutral-700">{item.content}</p>
                     </div>
                 ))}
             </div>

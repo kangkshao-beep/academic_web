@@ -40,6 +40,14 @@
 
 ## Conference Reports
 
+### The 12th National Congress and Academic Annual Meeting of the High Energy Physics Branch of the Chinese Physical Society
+
+- Date: July 17, 2026
+- Location: Guangzhou Baiyun International Convention Center, Guangzhou, China
+- Talk: "Phenomenological study of inclusive semileptonic charm-meson decays"
+- Type: Parallel-session oral presentation
+- Materials: [Slides](/conferences/guangzhou-hep-annual-meeting-2026-slides.pdf)
+
 ### The 8th National Workshop on Heavy Flavor Physics and QCD
 
 - Date: April 24-28, 2026
