@@ -33,7 +33,7 @@ export interface QuestionItem {
     id: string;
     date: string;
     question: string;
-    context: string;
+    context?: string;
     answer?: string;
     answerDate?: string;
     tags: string[];

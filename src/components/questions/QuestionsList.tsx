@@ -150,9 +150,11 @@ export default function QuestionsList({
               <h3 className="mb-2 text-lg font-semibold leading-tight text-primary">
                 {item.question}
               </h3>
-              <p className="mb-4 text-sm leading-relaxed text-neutral-600 dark:text-neutral-500">
-                {item.context}
-              </p>
+              {item.context && (
+                <p className="mb-4 text-sm leading-relaxed text-neutral-600 dark:text-neutral-500">
+                  {item.context}
+                </p>
+              )}
               {item.answer && (
                 <div className="mb-4 rounded-lg border border-accent/20 bg-accent/5 px-4 py-3">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
