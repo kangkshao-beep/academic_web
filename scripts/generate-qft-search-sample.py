@@ -3,19 +3,44 @@ import re
 
 from reportlab.lib.colors import HexColor
 from reportlab.lib.pagesizes import A4
+from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase.ttfonts import TTFError, TTFont
 from reportlab.pdfgen import canvas
 
 
 OUTPUT = Path(__file__).resolve().parents[1] / "public/notes/quantum-field-theory/2026.0827.pdf"
 PAGE_WIDTH, PAGE_HEIGHT = A4
 FONT = "Songti"
-FONT_PATH = Path("/System/Library/Fonts/Supplemental/Songti.ttc")
+FONT_CANDIDATES = [
+    Path("/System/Library/Fonts/Supplemental/Songti.ttc"),
+    Path("/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc"),
+    Path("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"),
+    Path("/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc"),
+    Path("C:/Windows/Fonts/msyh.ttc"),
+]
 ACCENT = HexColor("#B65A3C")
 INK = HexColor("#1F2937")
 MUTED = HexColor("#6B7280")
 PAPER = HexColor("#FFF8F2")
+
+
+def register_cjk_font() -> None:
+    """Prefer an installed CJK font, with a ReportLab fallback for CI environments."""
+    global FONT
+
+    for font_path in FONT_CANDIDATES:
+        if font_path.exists():
+            try:
+                pdfmetrics.registerFont(
+                    TTFont(FONT, str(font_path), subfontIndex=2 if font_path.suffix.lower() == ".ttc" else 0)
+                )
+                return
+            except TTFError:
+                continue
+
+    FONT = "STSong-Light"
+    pdfmetrics.registerFont(UnicodeCIDFont(FONT))
 
 
 def split_lines(text: str, max_width: float, font_size: float) -> list[str]:
@@ -27,6 +52,10 @@ def split_lines(text: str, max_width: float, font_size: float) -> list[str]:
     for token in tokens:
         candidate = current + token
         if current and pdfmetrics.stringWidth(candidate, FONT, font_size) > max_width:
+            if token in "，。；：！？、）】》〉」』":
+                lines.append(candidate.rstrip())
+                current = ""
+                continue
             lines.append(current.rstrip())
             current = token.lstrip()
         else:
@@ -89,7 +118,7 @@ def draw_formula(c: canvas.Canvas, formula: str, y: float) -> float:
 
 def make_pdf() -> None:
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    pdfmetrics.registerFont(TTFont(FONT, str(FONT_PATH), subfontIndex=2))
+    register_cjk_font()
     c = canvas.Canvas(str(OUTPUT), pagesize=A4, pageCompression=1)
     c.setTitle("量子场论第 0 版检索测试笔记")
     c.setAuthor("Kang-Kang Shao")

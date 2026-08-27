@@ -65,15 +65,6 @@ function routeFor(href) {
   return href.endsWith('/') ? href : `${href}/`;
 }
 
-function headingSlug(value) {
-  const normalized = cleanText(value)
-    .toLocaleLowerCase()
-    .replace(/[^\p{L}\p{N}_\-\s]/gu, '')
-    .trim()
-    .replace(/\s+/g, '-');
-  return normalized || 'section';
-}
-
 function addDocument(document) {
   const body = cleanText(document.body);
   const title = cleanText(document.title);
@@ -99,18 +90,19 @@ function addMarkdownDocuments({ locale, canonicalPrefix, title, source, href, he
   const headingPattern = /^(#{1,6})\s+(.+?)\s*#*\s*$/;
   let current = null;
   const parts = [];
+  let headingIndex = 0;
 
   for (const line of lines) {
     const match = line.match(headingPattern);
     if (match) {
       if (current) parts.push(current);
       const heading = cleanText(match[2]);
-      const base = headingSlug(heading);
       current = {
         heading,
-        id: `${headingPrefix}-${base}`,
+        id: `${headingPrefix}-heading-${headingIndex}`,
         lines: [],
       };
+      headingIndex += 1;
       continue;
     }
 

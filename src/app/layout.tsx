@@ -68,7 +68,7 @@ function buildLocaleBootstrapScript(config: ReturnType<typeof getRuntimeI18nConf
         const subtags = normalized.split('-');
         const language = subtags[0];
         const region = subtags.slice(1).find((subtag) => /^[a-z]{2}$/.test(subtag) || /^\\d{3}$/.test(subtag));
-        if (language === 'zh' && region === 'hk' && cfg.locales.includes('zh-hk')) return 'zh-hk';
+        if (language === 'zh' && (region === 'hk' || subtags.includes('hant')) && cfg.locales.includes('zh-hk')) return 'zh-hk';
         if (cfg.locales.includes(language)) return language;
         return null;
       };

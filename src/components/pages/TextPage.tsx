@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import { XMarkIcon } from '@heroicons/react/24/outline';
@@ -18,10 +18,7 @@ interface TextPageProps {
 export default function TextPage({ config, content, embedded = false }: TextPageProps) {
     const [activeMedia, setActiveMedia] = useState<{ src: string; label: string } | null>(null);
     const messages = useMessages();
-    const getHeadingId = useMemo(
-        () => createHeadingIdFactory(config.source.replace(/\.[^.]+$/, '')),
-        [config.source]
-    );
+    const getHeadingId = createHeadingIdFactory(config.source.replace(/\.[^.]+$/, ''));
 
     useEffect(() => {
         if (!activeMedia) return;
@@ -43,7 +40,7 @@ export default function TextPage({ config, content, embedded = false }: TextPage
         };
     }, [activeMedia]);
 
-    const markdownComponents = useMemo<Components>(() => ({
+    const markdownComponents: Components = {
         h1: ({ children }: { children?: ReactNode }) => <h1 id={getHeadingId(children)} className="scroll-mt-24 text-3xl font-serif font-bold text-primary mt-8 mb-4">{children}</h1>,
         h2: ({ children }: { children?: ReactNode }) => <h2 id={getHeadingId(children)} className="scroll-mt-24 text-2xl font-serif font-bold text-primary mt-8 mb-4 border-b border-neutral-200 dark:border-neutral-800 pb-2">{children}</h2>,
         h3: ({ children }: { children?: ReactNode }) => <h3 id={getHeadingId(children)} className="scroll-mt-24 text-xl font-semibold text-primary mt-6 mb-3">{children}</h3>,
@@ -95,7 +92,7 @@ export default function TextPage({ config, content, embedded = false }: TextPage
         ),
         strong: ({ children }: { children?: ReactNode }) => <strong className="font-semibold text-primary">{children}</strong>,
         em: ({ children }: { children?: ReactNode }) => <em className="italic text-neutral-600 dark:text-neutral-500">{children}</em>,
-    }), [getHeadingId, messages.common.media]);
+    };
 
     return (
         <>

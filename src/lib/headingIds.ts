@@ -1,31 +1,12 @@
-import { Children, isValidElement, type ReactNode } from 'react';
-
-function nodeText(node: ReactNode): string {
-  return Children.toArray(node)
-    .map((child) => {
-      if (typeof child === 'string' || typeof child === 'number') {
-        return String(child);
-      }
-      if (isValidElement<{ children?: ReactNode }>(child)) {
-        return nodeText(child.props.children);
-      }
-      return '';
-    })
-    .join('');
-}
-
-function slugifyHeading(value: string): string {
-  const slug = value
-    .toLocaleLowerCase()
-    .replace(/[^\p{L}\p{N}_\-\s]/gu, '')
-    .trim()
-    .replace(/\s+/g, '-');
-  return slug || 'section';
-}
+import type { ReactNode } from 'react';
 
 export function createHeadingIdFactory(prefix: string) {
+  let index = 0;
+
+  // Heading text is translated, but heading order is shared by locale files.
+  // Ordinal IDs keep search-result anchors valid when a fallback locale matched.
   return (children: ReactNode): string => {
-    const slug = slugifyHeading(nodeText(children));
-    return `${prefix}-${slug}`;
+    void children;
+    return `${prefix}-heading-${index++}`;
   };
 }

@@ -49,7 +49,7 @@ export function matchLocale(candidate: string | null | undefined, locales: strin
   const subtags = normalized.split('-');
   const language = subtags[0];
   const region = subtags.slice(1).find((subtag) => /^[a-z]{2}$/.test(subtag) || /^\d{3}$/.test(subtag));
-  if (language === 'zh' && region === 'hk' && locales.includes('zh-hk')) {
+  if (language === 'zh' && (region === 'hk' || subtags.includes('hant')) && locales.includes('zh-hk')) {
     return 'zh-hk';
   }
 
