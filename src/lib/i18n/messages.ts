@@ -9,6 +9,25 @@ export interface LocaleMessages {
   navigation: {
     openMainMenu: string;
   };
+  search: {
+    open: string;
+    title: string;
+    placeholder: string;
+    loading: string;
+    start: string;
+    noResults: string;
+    unavailable: string;
+    page: string;
+    pdf: string;
+    section: string;
+    pageNumber: string;
+    version: string;
+    language: string;
+    languageEnglish: string;
+    languageSimplified: string;
+    languageTraditional: string;
+    close: string;
+  };
   theme: {
     system: string;
     light: string;
@@ -79,6 +98,25 @@ const en: LocaleMessages = {
   },
   navigation: {
     openMainMenu: 'Open main menu',
+  },
+  search: {
+    open: 'Search site',
+    title: 'Search',
+    placeholder: 'Search the site and PDF notes',
+    loading: 'Preparing the search index...',
+    start: 'Enter a keyword to search.',
+    noResults: 'No matching content found.',
+    unavailable: 'Search is temporarily unavailable.',
+    page: 'Page',
+    pdf: 'PDF',
+    section: 'Section',
+    pageNumber: 'Page',
+    version: 'Version',
+    language: 'Language',
+    languageEnglish: 'English',
+    languageSimplified: 'Simplified Chinese',
+    languageTraditional: 'Traditional Chinese (Hong Kong)',
+    close: 'Close search',
   },
   theme: {
     system: 'System',
@@ -151,6 +189,25 @@ const zh: LocaleMessages = {
   navigation: {
     openMainMenu: '打开主菜单',
   },
+  search: {
+    open: '搜索网站',
+    title: '搜索',
+    placeholder: '搜索全站内容和 PDF 学习笔记',
+    loading: '正在准备搜索索引...',
+    start: '输入关键词开始搜索。',
+    noResults: '没有找到匹配内容。',
+    unavailable: '搜索暂时不可用。',
+    page: '网页',
+    pdf: 'PDF',
+    section: '章节',
+    pageNumber: '页码',
+    version: '版本',
+    language: '语言',
+    languageEnglish: '英文',
+    languageSimplified: '简体中文',
+    languageTraditional: '繁體中文（香港）',
+    close: '关闭搜索',
+  },
   theme: {
     system: '跟随系统',
     light: '浅色',
@@ -221,6 +278,25 @@ const zhHk: LocaleMessages = {
   },
   navigation: {
     openMainMenu: '開啟主選單',
+  },
+  search: {
+    open: '搜尋網站',
+    title: '搜尋',
+    placeholder: '搜尋全站內容和 PDF 學習筆記',
+    loading: '正在準備搜尋索引...',
+    start: '輸入關鍵字開始搜尋。',
+    noResults: '找不到匹配內容。',
+    unavailable: '搜尋暫時不可用。',
+    page: '網頁',
+    pdf: 'PDF',
+    section: '章節',
+    pageNumber: '頁碼',
+    version: '版本',
+    language: '語言',
+    languageEnglish: '英文',
+    languageSimplified: '簡體中文',
+    languageTraditional: '繁體中文（香港）',
+    close: '關閉搜尋',
   },
   theme: {
     system: '跟隨系統',

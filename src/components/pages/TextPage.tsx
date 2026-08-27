@@ -7,6 +7,7 @@ import ReactMarkdown, { type Components } from 'react-markdown';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { TextPageConfig } from '@/types/page';
 import { useMessages } from '@/lib/i18n/useMessages';
+import { createHeadingIdFactory } from '@/lib/headingIds';
 
 interface TextPageProps {
     config: TextPageConfig;
@@ -17,6 +18,10 @@ interface TextPageProps {
 export default function TextPage({ config, content, embedded = false }: TextPageProps) {
     const [activeMedia, setActiveMedia] = useState<{ src: string; label: string } | null>(null);
     const messages = useMessages();
+    const getHeadingId = useMemo(
+        () => createHeadingIdFactory(config.source.replace(/\.[^.]+$/, '')),
+        [config.source]
+    );
 
     useEffect(() => {
         if (!activeMedia) return;
@@ -39,9 +44,9 @@ export default function TextPage({ config, content, embedded = false }: TextPage
     }, [activeMedia]);
 
     const markdownComponents = useMemo<Components>(() => ({
-        h1: ({ children }: { children?: ReactNode }) => <h1 className="text-3xl font-serif font-bold text-primary mt-8 mb-4">{children}</h1>,
-        h2: ({ children }: { children?: ReactNode }) => <h2 className="text-2xl font-serif font-bold text-primary mt-8 mb-4 border-b border-neutral-200 dark:border-neutral-800 pb-2">{children}</h2>,
-        h3: ({ children }: { children?: ReactNode }) => <h3 className="text-xl font-semibold text-primary mt-6 mb-3">{children}</h3>,
+        h1: ({ children }: { children?: ReactNode }) => <h1 id={getHeadingId(children)} className="scroll-mt-24 text-3xl font-serif font-bold text-primary mt-8 mb-4">{children}</h1>,
+        h2: ({ children }: { children?: ReactNode }) => <h2 id={getHeadingId(children)} className="scroll-mt-24 text-2xl font-serif font-bold text-primary mt-8 mb-4 border-b border-neutral-200 dark:border-neutral-800 pb-2">{children}</h2>,
+        h3: ({ children }: { children?: ReactNode }) => <h3 id={getHeadingId(children)} className="scroll-mt-24 text-xl font-semibold text-primary mt-6 mb-3">{children}</h3>,
         p: ({ children }: { children?: ReactNode }) => <p className="mb-4 last:mb-0">{children}</p>,
         ul: ({ children }: { children?: ReactNode }) => <ul className="list-disc list-inside mb-4 space-y-1 ml-4">{children}</ul>,
         ol: ({ children }: { children?: ReactNode }) => <ol className="list-decimal list-inside mb-4 space-y-1 ml-4">{children}</ol>,
@@ -90,7 +95,7 @@ export default function TextPage({ config, content, embedded = false }: TextPage
         ),
         strong: ({ children }: { children?: ReactNode }) => <strong className="font-semibold text-primary">{children}</strong>,
         em: ({ children }: { children?: ReactNode }) => <em className="italic text-neutral-600 dark:text-neutral-500">{children}</em>,
-    }), [messages.common.media]);
+    }), [getHeadingId, messages.common.media]);
 
     return (
         <>

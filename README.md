@@ -183,6 +183,7 @@ Most future updates do **not** require code changes. You usually only need to ed
 
 - Publish only confirmed PDF notes under `public/notes/`
 - Maintain the current PDF version and per-course update timeline in all three `learning.toml` files
+- Keep public PDFs text-selectable; `npm run build` automatically regenerates the page- and bookmark-aware search index
 - Read the [Theory Notes Workflow Guide](docs/learning-notes-workflow.md) before publishing a new note version
 
 ### Publish workflow

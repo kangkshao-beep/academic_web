@@ -9,3 +9,4 @@ public/conferences/chongqing2026togteher.jpg
 .env
 .env.local
 .env.*.local
+public/search-index.json

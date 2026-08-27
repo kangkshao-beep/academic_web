@@ -15,6 +15,7 @@ export interface TextPageConfig extends BasePageConfig {
 }
 
 export interface CardItem {
+    id?: string;
     title: string;
     subtitle?: string;
     date?: string;
@@ -70,6 +71,7 @@ export interface GalleryPageConfig extends BasePageConfig {
 }
 
 export interface LearningUpdate {
+    id?: string;
     date: string;
     content: string;
 }

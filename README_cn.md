@@ -191,6 +191,7 @@ npm run build
 
 - 只将确认公开的 PDF 笔记放入 `public/notes/`
 - 在三份 `learning.toml` 中维护当前版本、PDF 链接和每门课的更新简讯
+- 保持公开 PDF 可选中并复制文字；`npm run build` 会自动重新生成按页、按书签识别的搜索索引
 - 发布新版本前，请阅读[学习笔记维护流程](docs/learning-notes-workflow_cn.md)
 
 ### 发布流程

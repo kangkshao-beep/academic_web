@@ -44,6 +44,12 @@ Use `YYYY.MMDD` for `version`. Whenever a new PDF is published, replace the cour
 
 Keep course IDs, versions, and PDF paths identical in the English, Simplified Chinese, and Hong Kong Traditional Chinese TOML files. Translate only course titles and update notes.
 
+## Search indexing
+
+Published PDFs under `public/` are scanned during `npm run dev` and `npm run build`. The generated `public/search-index.json` is not committed to Git; it is recreated for every deployment.
+
+For a note to appear in search, its text must be selectable in a normal PDF reader. The index records PDF text by page and uses bookmarks as chapter labels when available. A scanned or non-extractable PDF produces a build warning and is skipped without blocking publication.
+
 ## Publishing
 
 After confirming the PDF and update note, run the production build and push `main`. Cloudflare Pages will publish the new version automatically.

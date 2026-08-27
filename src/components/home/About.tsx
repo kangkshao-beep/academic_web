@@ -2,7 +2,9 @@
 
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import { useMemo } from 'react';
 import { useMessages } from '@/lib/i18n/useMessages';
+import { createHeadingIdFactory } from '@/lib/headingIds';
 
 interface AboutProps {
     content: string;
@@ -12,6 +14,7 @@ interface AboutProps {
 export default function About({ content, title }: AboutProps) {
     const messages = useMessages();
     const resolvedTitle = title || messages.home.about;
+    const getHeadingId = useMemo(() => createHeadingIdFactory('about'), []);
 
     return (
         <motion.section
@@ -23,9 +26,9 @@ export default function About({ content, title }: AboutProps) {
             <div className="text-neutral-700 dark:text-neutral-600 leading-relaxed">
                 <ReactMarkdown
                     components={{
-                        h1: ({ children }) => <h1 className="text-3xl font-serif font-bold text-primary mt-8 mb-4">{children}</h1>,
-                        h2: ({ children }) => <h2 className="text-2xl font-serif font-bold text-primary mt-8 mb-4 border-b border-neutral-200 dark:border-neutral-800 pb-2">{children}</h2>,
-                        h3: ({ children }) => <h3 className="text-xl font-semibold text-primary mt-6 mb-3">{children}</h3>,
+                        h1: ({ children }) => <h1 id={getHeadingId(children)} className="scroll-mt-24 text-3xl font-serif font-bold text-primary mt-8 mb-4">{children}</h1>,
+                        h2: ({ children }) => <h2 id={getHeadingId(children)} className="scroll-mt-24 text-2xl font-serif font-bold text-primary mt-8 mb-4 border-b border-neutral-200 dark:border-neutral-800 pb-2">{children}</h2>,
+                        h3: ({ children }) => <h3 id={getHeadingId(children)} className="scroll-mt-24 text-xl font-semibold text-primary mt-6 mb-3">{children}</h3>,
                         p: ({ children }) => <p className="mb-4 last:mb-0">{children}</p>,
                         ul: ({ children }) => <ul className="list-disc list-inside mb-4 space-y-1 ml-4">{children}</ul>,
                         ol: ({ children }) => <ol className="list-decimal list-inside mb-4 space-y-1 ml-4">{children}</ol>,

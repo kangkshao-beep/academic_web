@@ -10,7 +10,13 @@ version_pending = "Version pending"
 [[courses]]
 id = "quantum-field-theory"
 title = "Quantum Field Theory"
-updates = []
+version = "2026.0827"
+pdf = "/notes/quantum-field-theory/2026.0827.pdf"
+
+[[courses.updates]]
+id = "search-sample"
+date = "2026-08-27"
+content = "Published a temporary Version 0 retrieval sample to verify PDF full-text search, chapter labels, and page links. It can be replaced or removed when formal notes are ready."
 
 [[courses]]
 id = "gauge-field-theory"

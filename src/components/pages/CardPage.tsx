@@ -48,13 +48,17 @@ export default function CardPage({ config, embedded = false }: { config: CardPag
             </div>
 
             <div className={`grid ${embedded ? "gap-4" : "gap-6"}`}>
-                {config.items.map((item, index) => (
+                {config.items.map((item, index) => {
+                    const itemId = item.id || `item-${index + 1}`;
+
+                    return (
                     <motion.div
-                        key={index}
+                        key={itemId}
+                        id={`research-${itemId}`}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, delay: 0.1 * index }}
-                        className={`bg-white dark:bg-neutral-900 ${embedded ? "p-4" : "p-6"} rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800 hover:shadow-lg transition-all duration-200 hover:scale-[1.01]`}
+                        className={`scroll-mt-24 bg-white dark:bg-neutral-900 ${embedded ? "p-4" : "p-6"} rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800 hover:shadow-lg transition-all duration-200 hover:scale-[1.01]`}
                     >
                         <div className="flex justify-between items-start mb-2">
                             <h3 className={`${embedded ? "text-lg" : "text-xl"} font-semibold text-primary`}>{item.title}</h3>
@@ -84,7 +88,8 @@ export default function CardPage({ config, embedded = false }: { config: CardPag
                             </div>
                         )}
                     </motion.div>
-                ))}
+                    );
+                })}
             </div>
         </motion.div>
     );

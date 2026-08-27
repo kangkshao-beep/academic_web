@@ -43,6 +43,31 @@ export default function PhotographySlideshow({
   }, [items.length]);
 
   useEffect(() => {
+    const selectPhotoFromHash = () => {
+      const match = window.location.hash.match(/^#photo-(.+)$/);
+      if (!match) return;
+      const photoIndex = items.findIndex((item) => item.id === match[1]);
+      if (photoIndex >= 0) {
+        setActiveIndex(photoIndex);
+      }
+    };
+
+    selectPhotoFromHash();
+    window.addEventListener('hashchange', selectPhotoFromHash);
+    return () => window.removeEventListener('hashchange', selectPhotoFromHash);
+  }, [items]);
+
+  const activePhotoId = activeItem?.id;
+
+  useEffect(() => {
+    if (!activePhotoId || window.location.hash !== `#photo-${activePhotoId}`) return;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(`photo-${activePhotoId}`)?.scrollIntoView({ block: 'start' });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [activePhotoId]);
+
+  useEffect(() => {
     if (!items.length) {
       return;
     }
@@ -173,7 +198,7 @@ export default function PhotographySlideshow({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+        <div id={`photo-${activeItem.id}`} className="scroll-mt-24 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
           <div className="mb-2 flex flex-wrap items-center gap-3">
             <h2 className="text-2xl font-serif font-semibold text-primary">
               {activeItem.title}

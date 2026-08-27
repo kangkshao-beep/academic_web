@@ -9,6 +9,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import LanguageToggle from '@/components/ui/LanguageToggle';
+import SiteSearch from '@/components/search/SiteSearch';
 import type { SiteConfig } from '@/lib/config';
 import { useLocaleStore } from '@/lib/stores/localeStore';
 import { useMessages } from '@/lib/i18n/useMessages';
@@ -243,12 +244,14 @@ export default function Navigation({
                         );
                       })}
                     </div>
+                    <SiteSearch />
                     <LanguageToggle i18n={i18n} />
                     <ThemeToggle />
                   </div>
                 </div>
 
                 <div className="lg:hidden flex items-center space-x-2">
+                  <SiteSearch />
                   <LanguageToggle i18n={i18n} />
                   <ThemeToggle />
                   <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-neutral-600 hover:text-primary hover:bg-neutral-100 dark:hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-accent transition-colors duration-200">

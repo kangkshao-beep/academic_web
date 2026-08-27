@@ -139,10 +139,11 @@ export default function QuestionsList({
           visibleQuestions.map((item, index) => (
             <motion.article
               key={item.id}
+              id={`question-${item.id}`}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: 0.06 * index }}
-              className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900"
+              className="scroll-mt-24 rounded-xl border border-neutral-200 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900"
             >
               <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs uppercase tracking-[0.14em] text-neutral-500">
                 <span>{item.date}</span>

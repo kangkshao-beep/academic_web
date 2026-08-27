@@ -10,7 +10,13 @@ version_pending = "版本待定"
 [[courses]]
 id = "quantum-field-theory"
 title = "量子场论"
-updates = []
+version = "2026.0827"
+pdf = "/notes/quantum-field-theory/2026.0827.pdf"
+
+[[courses.updates]]
+id = "search-sample"
+date = "2026-08-27"
+content = "发布临时第 0 版检索测试样本，用于验证 PDF 全文搜索、章节识别和页码跳转；正式笔记完成后可直接覆盖或删除。"
 
 [[courses]]
 id = "gauge-field-theory"

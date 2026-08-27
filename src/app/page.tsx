@@ -30,6 +30,7 @@ interface SectionConfig {
 }
 
 interface NewsItem {
+  id?: string;
   date: string;
   content: string;
 }

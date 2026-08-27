@@ -40,10 +40,11 @@ export default function LearningPage({
           return (
             <motion.article
               key={course.id}
+              id={`course-${course.id}`}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: index * 0.06 }}
-              className="border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 sm:p-6"
+              className="scroll-mt-24 border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 sm:p-6"
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
@@ -81,15 +82,19 @@ export default function LearningPage({
 
                 {updates.length > 0 ? (
                   <ol className="mt-4 space-y-5 border-l border-neutral-200 pl-5 dark:border-neutral-700">
-                    {updates.map((update) => (
-                      <li key={`${update.date}-${update.content}`} className="relative">
+                    {updates.map((update, updateIndex) => {
+                      const updateId = update.id || `${update.date}-${updateIndex + 1}`;
+
+                      return (
+                      <li id={`course-${course.id}-update-${updateId}`} key={updateId} className="relative scroll-mt-24">
                         <span className="absolute -left-[1.68rem] top-1.5 h-2.5 w-2.5 border-2 border-white bg-accent dark:border-neutral-900" aria-hidden="true" />
                         <time className="block text-xs font-medium text-neutral-500" dateTime={update.date}>
                           {update.date}
                         </time>
                         <p className="mt-1 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{update.content}</p>
                       </li>
-                    ))}
+                      );
+                    })}
                   </ol>
                 ) : (
                   <p className="mt-3 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">{config.empty_updates}</p>

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useMessages } from '@/lib/i18n/useMessages';
 
 export interface NewsItem {
+    id?: string;
     date: string;
     content: string;
 }
@@ -34,12 +35,16 @@ export default function News({ items, title }: NewsProps) {
                 tabIndex={shouldScroll ? 0 : undefined}
                 aria-label={shouldScroll ? `${resolvedTitle} ${messages.common.scrollArea}` : undefined}
             >
-                {items.map((item, index) => (
-                    <div key={index} className="flex items-start space-x-3">
+                {items.map((item, index) => {
+                    const itemId = item.id || `${item.date || 'undated'}-${index + 1}`;
+
+                    return (
+                    <div id={`news-${itemId}`} key={itemId} className="scroll-mt-24 flex items-start space-x-3">
                         <span className="text-xs text-neutral-500 mt-1 w-24 flex-shrink-0">{item.date}</span>
                         <p className="text-sm text-neutral-700">{item.content}</p>
                     </div>
-                ))}
+                    );
+                })}
             </div>
         </motion.section>
     );

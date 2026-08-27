@@ -3,6 +3,7 @@ title = "Research"
 description = "Current directions in heavy-flavor phenomenology, effective field theory, and data-informed analysis."
 
 [[items]]
+id = "inclusive-charm-decays"
 title = "Inclusive Charm Decays"
 subtitle = "Analytic structure, decay widths, and electron-energy moments"
 date = "Current"
@@ -10,6 +11,7 @@ content = "My main ongoing project studies inclusive charm decays. I am interest
 tags = ["charm decay", "heavy flavor physics", "electron-energy moments"]
 
 [[items]]
+id = "hqet-ope-and-non-perturbative-parameters"
 title = "HQET, OPE, and Non-Perturbative Parameters"
 subtitle = "Effective-theory tools for heavy-flavor phenomenology"
 date = "Current"
@@ -17,6 +19,7 @@ content = "Heavy Quark Effective Theory and Operator Product Expansion are centr
 tags = ["HQET", "OPE", "non-perturbative physics"]
 
 [[items]]
+id = "beauty-charmed-baryons-and-weak-annihilation-decays"
 title = "Beauty-Charmed Baryons and Weak-Annihilation Decays"
 subtitle = "Lifetime structure and inclusive channels in heavy baryons"
 date = "Previous and ongoing foundation"

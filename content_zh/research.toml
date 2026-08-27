@@ -3,6 +3,7 @@ title = "研究"
 description = "当前研究主要围绕重味唯象、有效场论方法以及与实验观测量相关的数据分析。"
 
 [[items]]
+id = "inclusive-charm-decays"
 title = "半轻子单举粲衰变"
 subtitle = "解析结构、衰变宽度与电子能量矩"
 date = "当前"
@@ -10,6 +11,7 @@ content = "我目前最主要的工作是研究半轻子单举粲衰变。我关
 tags = ["粲衰变", "重味物理", "电子能量矩"]
 
 [[items]]
+id = "hqet-ope-and-non-perturbative-parameters"
 title = "HQET、OPE 与非微扰参数"
 subtitle = "重味唯象中的有效场论工具"
 date = "当前"
@@ -17,6 +19,7 @@ content = "重夸克有效理论（HQET）和算符乘积展开（OPE）是我�
 tags = ["HQET", "OPE", "非微扰物理"]
 
 [[items]]
+id = "beauty-charmed-baryons-and-weak-annihilation-decays"
 title = "beauty-charmed 重子与弱湮灭衰变"
 subtitle = "寿命结构与重重子衰变道研究"
 date = "前期工作与延续基础"
