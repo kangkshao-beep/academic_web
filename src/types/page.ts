@@ -1,5 +1,5 @@
 export interface BasePageConfig {
-    type: 'about' | 'publication' | 'card' | 'text' | 'questions' | 'gallery';
+    type: 'about' | 'publication' | 'card' | 'text' | 'questions' | 'gallery' | 'learning';
     title: string;
     description?: string;
 }
@@ -67,4 +67,27 @@ export interface GalleryItem {
 export interface GalleryPageConfig extends BasePageConfig {
     type: 'gallery';
     items: GalleryItem[];
+}
+
+export interface LearningUpdate {
+    date: string;
+    content: string;
+}
+
+export interface LearningCourse {
+    id: string;
+    title: string;
+    version?: string;
+    pdf?: string;
+    updates?: LearningUpdate[];
+}
+
+export interface LearningPageConfig extends BasePageConfig {
+    type: 'learning';
+    pdf_label: string;
+    pdf_pending: string;
+    updates_title: string;
+    empty_updates: string;
+    version_pending: string;
+    courses: LearningCourse[];
 }

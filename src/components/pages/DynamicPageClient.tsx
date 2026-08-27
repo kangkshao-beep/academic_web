@@ -5,6 +5,7 @@ import TextPage from '@/components/pages/TextPage';
 import CardPage from '@/components/pages/CardPage';
 import QuestionsList from '@/components/questions/QuestionsList';
 import PhotographySlideshow from '@/components/photography/PhotographySlideshow';
+import LearningPage from '@/components/pages/LearningPage';
 import { Publication } from '@/types/publication';
 import {
   PublicationPageConfig,
@@ -12,6 +13,7 @@ import {
   CardPageConfig,
   QuestionsPageConfig,
   GalleryPageConfig,
+  LearningPageConfig,
 } from '@/types/page';
 import { useLocaleStore } from '@/lib/stores/localeStore';
 
@@ -20,7 +22,8 @@ export type DynamicPageLocaleData =
   | { type: 'text'; config: TextPageConfig; content: string }
   | { type: 'card'; config: CardPageConfig }
   | { type: 'questions'; config: QuestionsPageConfig }
-  | { type: 'gallery'; config: GalleryPageConfig };
+  | { type: 'gallery'; config: GalleryPageConfig }
+  | { type: 'learning'; config: LearningPageConfig };
 
 interface DynamicPageClientProps {
   dataByLocale: Record<string, DynamicPageLocaleData>;
@@ -57,6 +60,9 @@ export default function DynamicPageClient({ dataByLocale, defaultLocale }: Dynam
       )}
       {pageData.type === 'gallery' && (
         <PhotographySlideshow config={pageData.config} />
+      )}
+      {pageData.type === 'learning' && (
+        <LearningPage config={pageData.config} />
       )}
     </div>
   );

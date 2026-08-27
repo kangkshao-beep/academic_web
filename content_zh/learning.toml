@@ -1,0 +1,33 @@
+type = "learning"
+title = "基础理论物理学习"
+description = "这里集中整理基础理论物理学习笔记。每门课程会链接到当前 PDF 版本，并保留简洁的更新简讯。"
+pdf_label = "查看学习笔记 PDF"
+pdf_pending = "PDF 待上传"
+updates_title = "更新简讯"
+empty_updates = "暂无更新简讯。上传新版本后，可在这里记录本次更新内容。"
+version_pending = "版本待定"
+
+[[courses]]
+id = "quantum-field-theory"
+title = "量子场论"
+updates = []
+
+[[courses]]
+id = "gauge-field-theory"
+title = "规范场论"
+updates = []
+
+[[courses]]
+id = "particle-physics"
+title = "粒子物理"
+updates = []
+
+[[courses]]
+id = "group-theory-lie-groups-and-algebras"
+title = "群论、李群李代数"
+updates = []
+
+[[courses]]
+id = "field-theory-frontiers"
+title = "场论前沿"
+updates = []

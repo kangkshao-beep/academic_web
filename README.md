@@ -152,6 +152,10 @@ Most future updates do **not** require code changes. You usually only need to ed
 - Questions:
   - `content/questions.toml`
   - `content_zh/questions.toml`
+- Theory notes:
+  - `content/learning.toml`
+  - `content_zh/learning.toml`
+  - published PDFs under `public/notes/<course-id>/<YYYY.MMDD>.pdf`
 - Photography metadata:
   - `content/photography.toml`
   - `content_zh/photography.toml`
@@ -164,6 +168,12 @@ Most future updates do **not** require code changes. You usually only need to ed
   - `public/photography/thumbs/`
 - `PHOTO/` is ignored by Git, so adding files there will **not** show up in `git status`
 - If you want a new photo on the site, tell Codex which file to publish and Codex can prepare the web assets and metadata entries
+
+### Theory notes updates
+
+- Publish only confirmed PDF notes under `public/notes/`
+- Maintain the current PDF version and per-course update timeline in the two `learning.toml` files
+- Read the [Theory Notes Workflow Guide](docs/learning-notes-workflow.md) before publishing a new note version
 
 ### Publish workflow
 

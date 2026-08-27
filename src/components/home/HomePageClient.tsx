@@ -9,6 +9,7 @@ import QuestionsList from '@/components/questions/QuestionsList';
 import PhotographySlideshow from '@/components/photography/PhotographySlideshow';
 import TextPage from '@/components/pages/TextPage';
 import CardPage from '@/components/pages/CardPage';
+import LearningPage from '@/components/pages/LearningPage';
 import type { SiteConfig } from '@/lib/config';
 import { Publication } from '@/types/publication';
 import {
@@ -17,6 +18,7 @@ import {
   TextPageConfig,
   QuestionsPageConfig,
   GalleryPageConfig,
+  LearningPageConfig,
   QuestionItem,
 } from '@/types/page';
 import { useLocaleStore } from '@/lib/stores/localeStore';
@@ -40,7 +42,8 @@ type PageData =
   | { type: 'text'; id: string; config: TextPageConfig; content: string }
   | { type: 'card'; id: string; config: CardPageConfig }
   | { type: 'questions'; id: string; config: QuestionsPageConfig }
-  | { type: 'gallery'; id: string; config: GalleryPageConfig };
+  | { type: 'gallery'; id: string; config: GalleryPageConfig }
+  | { type: 'learning'; id: string; config: LearningPageConfig };
 
 export interface HomePageLocaleData {
   author: SiteConfig['author'];
@@ -150,6 +153,12 @@ export default function HomePageClient({ dataByLocale, defaultLocale }: HomePage
               )}
               {page.type === 'gallery' && (
                 <PhotographySlideshow
+                  config={page.config}
+                  embedded={true}
+                />
+              )}
+              {page.type === 'learning' && (
+                <LearningPage
                   config={page.config}
                   embedded={true}
                 />

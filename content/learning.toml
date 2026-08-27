@@ -1,0 +1,33 @@
+type = "learning"
+title = "Foundations of Theoretical Physics"
+description = "A growing collection of study notes in theoretical physics. Each course will link to its current PDF edition and maintain a concise update record."
+pdf_label = "Open PDF notes"
+pdf_pending = "PDF pending"
+updates_title = "Update timeline"
+empty_updates = "No update notes yet. New versions will be recorded here."
+version_pending = "Version pending"
+
+[[courses]]
+id = "quantum-field-theory"
+title = "Quantum Field Theory"
+updates = []
+
+[[courses]]
+id = "gauge-field-theory"
+title = "Gauge Field Theory"
+updates = []
+
+[[courses]]
+id = "particle-physics"
+title = "Particle Physics"
+updates = []
+
+[[courses]]
+id = "group-theory-lie-groups-and-algebras"
+title = "Group Theory, Lie Groups and Lie Algebras"
+updates = []
+
+[[courses]]
+id = "field-theory-frontiers"
+title = "Field Theory Frontiers"
+updates = []

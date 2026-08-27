@@ -10,6 +10,7 @@ import {
   CardPageConfig,
   QuestionsPageConfig,
   GalleryPageConfig,
+  LearningPageConfig,
 } from '@/types/page';
 
 import { Metadata } from 'next';
@@ -65,6 +66,13 @@ function loadDynamicPageData(slug: string, locale?: string): DynamicPageLocaleDa
     return {
       type: 'gallery',
       config: pageConfig as GalleryPageConfig,
+    };
+  }
+
+  if (pageConfig.type === 'learning') {
+    return {
+      type: 'learning',
+      config: pageConfig as LearningPageConfig,
     };
   }
 

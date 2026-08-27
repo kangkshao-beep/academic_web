@@ -63,6 +63,12 @@ target = "research"
 href = "/research"
 
 [[navigation]]
+title = "Theory Notes"
+type = "page"
+target = "learning"
+href = "/learning"
+
+[[navigation]]
 title = "Questions"
 type = "page"
 target = "questions"

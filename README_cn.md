@@ -161,6 +161,10 @@ npm run build
 - Questions：
   - `content/questions.toml`
   - `content_zh/questions.toml`
+- 基础理论物理学习：
+  - `content/learning.toml`
+  - `content_zh/learning.toml`
+  - 已发布 PDF 放在 `public/notes/<course-id>/<YYYY.MMDD>.pdf`
 - 摄影页索引：
   - `content/photography.toml`
   - `content_zh/photography.toml`
@@ -173,6 +177,12 @@ npm run build
   - `public/photography/thumbs/`
 - `PHOTO/` 不受 Git 管理，所以只往里面加文件时，`git status` 不会显示变化
 - 如果你希望某张新照片出现在网站上，直接告诉 Codex 要发布哪个文件，Codex 可以继续帮你生成网站图片并补摄影索引
+
+### 学习笔记怎么更新
+
+- 只将确认公开的 PDF 笔记放入 `public/notes/`
+- 在两份 `learning.toml` 中维护当前版本、PDF 链接和每门课的更新简讯
+- 发布新版本前，请阅读[学习笔记维护流程](docs/learning-notes-workflow_cn.md)
 
 ### 发布流程
 

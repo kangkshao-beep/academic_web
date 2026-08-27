@@ -37,6 +37,12 @@ target = "research"
 href = "/research"
 
 [[navigation]]
+title = "基础理论物理学习"
+type = "page"
+target = "learning"
+href = "/learning"
+
+[[navigation]]
 title = "问题集"
 type = "page"
 target = "questions"

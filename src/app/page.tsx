@@ -10,6 +10,7 @@ import {
   CardPageConfig,
   QuestionsPageConfig,
   GalleryPageConfig,
+  LearningPageConfig,
   QuestionItem,
 } from '@/types/page';
 import { getRuntimeI18nConfig } from '@/lib/i18n/config';
@@ -39,7 +40,8 @@ type PageData =
   | { type: 'text'; id: string; config: TextPageConfig; content: string }
   | { type: 'card'; id: string; config: CardPageConfig }
   | { type: 'questions'; id: string; config: QuestionsPageConfig }
-  | { type: 'gallery'; id: string; config: GalleryPageConfig };
+  | { type: 'gallery'; id: string; config: GalleryPageConfig }
+  | { type: 'learning'; id: string; config: LearningPageConfig };
 
 function processSections(sections: SectionConfig[], locale?: string): SectionConfig[] {
   return sections.map((section: SectionConfig) => {
@@ -154,6 +156,14 @@ function loadPageDataForLocale(locale: string | undefined): HomePageLocaleData {
             type: 'gallery',
             id: item.target,
             config: pageConfig as GalleryPageConfig,
+          } as PageData;
+        }
+
+        if (pageConfig.type === 'learning') {
+          return {
+            type: 'learning',
+            id: item.target,
+            config: pageConfig as LearningPageConfig,
           } as PageData;
         }
 
