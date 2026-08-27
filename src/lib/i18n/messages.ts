@@ -28,6 +28,11 @@ export interface LocaleMessages {
     languageTraditional: string;
     close: string;
   };
+  traffic: {
+    weeklyViews: string;
+    totalViews: string;
+    label: string;
+  };
   theme: {
     system: string;
     light: string;
@@ -117,6 +122,11 @@ const en: LocaleMessages = {
     languageSimplified: 'Simplified Chinese',
     languageTraditional: 'Traditional Chinese (Hong Kong)',
     close: 'Close search',
+  },
+  traffic: {
+    weeklyViews: 'Views in last 7 days',
+    totalViews: 'Total views',
+    label: 'Site traffic',
   },
   theme: {
     system: 'System',
@@ -208,6 +218,11 @@ const zh: LocaleMessages = {
     languageTraditional: '繁體中文（香港）',
     close: '关闭搜索',
   },
+  traffic: {
+    weeklyViews: '最近一周浏览量',
+    totalViews: '累计浏览量',
+    label: '网站浏览量',
+  },
   theme: {
     system: '跟随系统',
     light: '浅色',
@@ -297,6 +312,11 @@ const zhHk: LocaleMessages = {
     languageSimplified: '簡體中文',
     languageTraditional: '繁體中文（香港）',
     close: '關閉搜尋',
+  },
+  traffic: {
+    weeklyViews: '最近一週瀏覽量',
+    totalViews: '累計瀏覽量',
+    label: '網站瀏覽量',
   },
   theme: {
     system: '跟隨系統',
