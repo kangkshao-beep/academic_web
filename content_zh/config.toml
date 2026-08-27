@@ -1,12 +1,12 @@
 [site]
 title = "邵康康"
-description = "邵康康的个人学术主页，现为华中科技大学访问者。"
+description = "邵康康的个人学术主页，现为华中科技大学物理学院博士研究生。"
 url = "https://kkshao.org.cn"
-last_updated = "2026年3月29日"
+last_updated = "2026年8月27日"
 
 [author]
 name = "邵康康"
-title = "访问者"
+title = "博士研究生"
 institution = "华中科技大学"
 
 [[author.advisors]]

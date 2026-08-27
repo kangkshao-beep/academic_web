@@ -1,13 +1,13 @@
 [site]
 title = "Kang-Kang Shao"
-description = "Research website of Kang-Kang Shao, visiting researcher at Huazhong University of Science and Technology."
+description = "Research website of Kang-Kang Shao, a PhD student at the School of Physics, Huazhong University of Science and Technology."
 url = "https://kkshao.org.cn"
 favicon = "/favicon.svg"
-last_updated = "March 29, 2026"
+last_updated = "August 27, 2026"
 
 [author]
 name = "Kang-Kang Shao"
-title = "Visiting Researcher"
+title = "PhD Student"
 institution = "Huazhong University of Science and Technology (HUST)"
 avatar = "/avatar.svg"
 

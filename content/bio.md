@@ -1,4 +1,4 @@
-I am currently a visiting researcher at Huazhong University of Science and Technology.
+I am currently a PhD student at the School of Physics, Huazhong University of Science and Technology.
 
 My research lies in high-energy physics. Particle physics aims to understand the most fundamental constituents of matter and the laws governing their interactions. Since its establishment in the 1960s and 1970s, the Standard Model of particle physics has achieved remarkable success in describing and predicting a wide range of experimental phenomena. Nevertheless, for certain processes and observables, there remain deviations or unresolved issues between Standard Model predictions and experimental measurements that call for further clarification. Carrying out high-precision studies around these questions is one of the major directions in contemporary high-energy physics. In this context, weak decays of heavy-flavor hadrons contain rich dynamical information and provide a key platform for precision tests of the Standard Model.
 
