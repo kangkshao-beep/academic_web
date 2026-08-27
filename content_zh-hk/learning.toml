@@ -1,0 +1,33 @@
+type = "learning"
+title = "基礎理論物理學習"
+description = "這裏集中整理基礎理論物理學習筆記。每門課程會連結到目前 PDF 版本，並保留簡潔的更新短訊。"
+pdf_label = "查看學習筆記 PDF"
+pdf_pending = "PDF 待上傳"
+updates_title = "更新短訊"
+empty_updates = "暫無更新短訊。上傳新版本後，可在這裏記錄本次更新內容。"
+version_pending = "版本待定"
+
+[[courses]]
+id = "quantum-field-theory"
+title = "量子場論"
+updates = []
+
+[[courses]]
+id = "gauge-field-theory"
+title = "規範場論"
+updates = []
+
+[[courses]]
+id = "particle-physics"
+title = "粒子物理"
+updates = []
+
+[[courses]]
+id = "group-theory-lie-groups-and-algebras"
+title = "羣論、李羣李代數"
+updates = []
+
+[[courses]]
+id = "field-theory-frontiers"
+title = "場論前沿"
+updates = []

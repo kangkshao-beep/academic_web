@@ -1,0 +1,4 @@
+type = "text"
+title = "履歷"
+description = "教育背景、科研經歷、見刊論文、會議報告與獲獎情況。"
+source = "cv.md"

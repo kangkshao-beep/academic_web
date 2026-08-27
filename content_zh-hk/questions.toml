@@ -1,0 +1,29 @@
+type = "questions"
+title = "問題集"
+
+[quote]
+text = "提出一個問題，往往比解決一個問題更重要。——愛因斯坦"
+german = "Die Formulierung eines Problems ist oft wesentlicher als seine Lösung."
+source = "出處：Albert Einstein 與 Leopold Infeld, The Evolution of Physics, 1938。"
+
+[[items]]
+id = "data-structure-before-physics-computation"
+date = "2026-06-08"
+question = "對於理論物理中的大型計算項目，為什麼有必要先花時間整理數據結構，而不是立刻推進物理計算？"
+context = "大型計算項目的風險往往不只來自公式本身，也來自數據組織、接口約定和中間結果的可追蹤性。"
+answer = "先花一天把數據結構理順，再花十天做物理，第十一天仍在做物理，而不是 debug。"
+answerDate = "2026-06-08"
+tags = ["理論計算", "數據結構", "調試成本", "項目工作流"]
+
+[[items]]
+id = "quantifying-progress-learning-work"
+date = "2026-06-01"
+question = "如何量化學習與工作過程中的實際進展，並構建能夠同時評價任務完成質量、時間投入與認知成本的統一指標體系？在此基礎上，如何識別並評估“最小投入下實現最優結果”的策略，從而提煉出具有一般性的科學學習與工作方法論？"
+context = "這個問題關心的是如何讓進展可見、讓策略可比較，並把個人經驗整理成更系統的學習與工作方法。"
+tags = ["進展量化", "學習策略", "工作方法", "任務優化"]
+
+[[items]]
+id = "early-academic-smooth-sailing"
+date = "2026-08-20"
+question = "在學術界，早期的順境其實是一種詛咒。"
+tags = ["學術成長"]

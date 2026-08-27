@@ -1,0 +1,81 @@
+type = "gallery"
+title = "攝影"
+description = "這裏展示的是一組經過打散順序的精選照片，並在能夠確認時補充拍攝時間與器材信息。"
+
+[[items]]
+id = "wuchang-bay-blue-hour"
+thumb = "/photography/thumbs/dsc00113.jpg"
+image = "/photography/full/dsc00113.jpg"
+title = "武昌灣藍調"
+date = "2026-06-19"
+location = "武昌灣公園，武漢"
+camera = "Sony ILCE-6400"
+lens = "導出 JPEG 未保留鏡頭 EXIF"
+alt = "藍調夜色中，鸚鵡洲長江大橋亮起橙金燈光，江面映出城市燈火，前景有暗色樹葉。"
+description = """這張照片的層次鋪陳十分清晰：近處的樹葉以近乎剪影的方式壓入畫面，像一層安靜的前景帷幕；中景的鸚鵡洲長江大橋則以温暖的燈光橫貫江面，成為畫面的視覺骨架；更遠處，另一座橋與城市天際線隱入深藍的夜色之中，使空間被自然地拉開。畫面因此不是平鋪的夜景，而是由前景、中景、遠景共同構成的一種有縱深的舞台。
+
+最動人的地方在於冷暖關係的剋制。藍調時刻已接近尾聲，天空與江面都沉入深而靜的冷藍色之中，而橋塔和橋身的橙金色燈光恰好在其中點亮一條温暖的脈絡。這種冷暖對比並不激烈，卻很有呼吸感：暖色沒有撕破夜色，冷色也沒有吞沒城市，二者在江面上達到一種含蓄的平衡。
+
+水面的倒影尤其豐富。橋燈、塔身與城市燈火被江水拉長、揉碎，形成細密而流動的光紋，為畫面增加了柔軟的節奏。但這些倒影並不喧賓奪主，它們只是讓靜止的橋與城市擁有了水的回聲，使整個畫面在沉靜中帶着微微的流動感。
+
+遠處的城市天際線和天邊幾朵雲彩，則給這片深藍色的夜景留下了明亮而透氣的出口。它們讓畫面不至於過分沉重，也使視覺重心從橋樑延展到更遼闊的城市空間。整體來看，這張照片既有藍調末期的深沉，也有江城夜色特有的温柔光澤：它不是熱鬧的城市明信片，而是一幅安靜、剋制、層次分明的江面夜景。"""
+
+[[items]]
+id = "sun-through-trees"
+thumb = "/photography/thumbs/dsc07054.jpg"
+image = "/photography/full/dsc07054.jpg"
+title = "樹間夕照"
+date = "2026-03-13"
+location = "東湖磨山景區，武漢"
+camera = "Sony ILCE-6400"
+lens = "原始 JPEG 未保留鏡頭 EXIF"
+alt = "傍晚陽光穿過高大的樹木，水邊可見幾位人物。"
+description = "這是一張逆光豎幅，樹幹構成了畫面的骨架，水邊的人物則把光線與空間關係壓縮成一個安靜的瞬間。"
+
+[[items]]
+id = "stone-bridge"
+thumb = "/photography/thumbs/dsc07698.jpg"
+image = "/photography/full/dsc07698.jpg"
+title = "石橋倒影"
+date = "2026-03-21"
+location = "武漢植物園，武漢"
+camera = "Sony ILCE-6400"
+lens = "導出 JPEG 未保留鏡頭 EXIF"
+alt = "樹林背景中的白色石橋倒映在平靜水面上。"
+description = "這是一張強調對稱、倒影和樹林縱深感的豎幅畫面。"
+
+[[items]]
+id = "flower-wall"
+thumb = "/photography/thumbs/dsc07712.jpg"
+image = "/photography/full/dsc07712.jpg"
+title = "磚牆前的花"
+date = "2026-03-21"
+location = "武漢植物園，武漢"
+camera = "Sony ILCE-6400"
+lens = "導出 JPEG 未保留鏡頭 EXIF"
+alt = "磚牆與石基前的一排彩色花朵。"
+description = "這張圖把磚牆和石頭的粗糲質感，與前景花朵的輕盈顏色放在同一畫面中。"
+
+[[items]]
+id = "tulip-field"
+thumb = "/photography/thumbs/dsc07720.jpg"
+image = "/photography/full/dsc07720.jpg"
+title = "鬱金香花田"
+date = "2026-03-21"
+location = "武漢植物園，武漢"
+camera = "Sony ILCE-6400"
+lens = "導出 JPEG 未保留鏡頭 EXIF"
+alt = "盛開的粉色、紅色、白色和黃色鬱金香花田。"
+description = "這是一張更密集的構圖，依靠重複、色帶和視線在花叢中的移動來成立。"
+
+[[items]]
+id = "tulip-close"
+thumb = "/photography/thumbs/dsc07702.jpg"
+image = "/photography/full/dsc07702.jpg"
+title = "鬱金香近景"
+date = "2026-03-21"
+location = "武漢植物園，武漢"
+camera = "Sony ILCE-6400"
+lens = "導出 JPEG 未保留鏡頭 EXIF"
+alt = "淺景深下的一組紅色鬱金香特寫。"
+description = "這張圖主要依靠淺景深和重複色塊，把花圃壓縮成接近抽象的視覺層次。"

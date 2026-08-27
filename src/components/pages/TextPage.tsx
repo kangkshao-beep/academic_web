@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { TextPageConfig } from '@/types/page';
+import { useMessages } from '@/lib/i18n/useMessages';
 
 interface TextPageProps {
     config: TextPageConfig;
@@ -15,6 +16,7 @@ interface TextPageProps {
 
 export default function TextPage({ config, content, embedded = false }: TextPageProps) {
     const [activeMedia, setActiveMedia] = useState<{ src: string; label: string } | null>(null);
+    const messages = useMessages();
 
     useEffect(() => {
         if (!activeMedia) return;
@@ -47,7 +49,7 @@ export default function TextPage({ config, content, embedded = false }: TextPage
         a: ({ href, children }: { href?: string; children?: ReactNode }) => {
             if (href?.startsWith('media:')) {
                 const mediaSrc = href.replace(/^media:/, '');
-                const label = typeof children === 'string' ? children : 'Media';
+                const label = typeof children === 'string' ? children : messages.common.media;
 
                 return (
                     <button
@@ -88,7 +90,7 @@ export default function TextPage({ config, content, embedded = false }: TextPage
         ),
         strong: ({ children }: { children?: ReactNode }) => <strong className="font-semibold text-primary">{children}</strong>,
         em: ({ children }: { children?: ReactNode }) => <em className="italic text-neutral-600 dark:text-neutral-500">{children}</em>,
-    }), []);
+    }), [messages.common.media]);
 
     return (
         <>
@@ -132,7 +134,7 @@ export default function TextPage({ config, content, embedded = false }: TextPage
                                 type="button"
                                 onClick={() => setActiveMedia(null)}
                                 className="absolute right-0 top-0 z-10 rounded-full bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
-                                aria-label="Close media preview"
+                                aria-label={messages.common.closeMediaPreview}
                             >
                                 <XMarkIcon className="h-6 w-6" />
                             </button>

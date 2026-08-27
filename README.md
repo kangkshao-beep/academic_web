@@ -93,10 +93,11 @@ Supported page types:
 PRISM now supports i18n, i.e., multi-language.
 
 *   Default language lives in `content/`.
-*   Additional languages live in `content_<locale>/` (for example: `content_zh/`, `content_en/`).
+*   Additional languages live in `content_<locale>/` (for example: `content_zh/`, `content_zh-hk/`).
 *   Keep the same filenames across directories. Example:
     *   `content/cv.md` (default)
     *   `content_zh/cv.md`
+    *   `content_zh-hk/cv.md`
 *   If a localized file is missing, PRISM automatically falls back to the default `content/` version.
 
 Configure language behavior in `content/config.toml`:
@@ -119,7 +120,7 @@ This repository keeps raw photos and deployed website assets separate.
 
 - Raw originals live in `PHOTO/` and are ignored by Git.
 - Published website images live in `public/photography/`.
-- Photography metadata lives in `content/photography.toml` and `content_zh/photography.toml`.
+- Photography metadata lives in `content/photography.toml`, `content_zh/photography.toml`, and `content_zh-hk/photography.toml`.
 
 👉 **[Read the Photography Workflow Guide](docs/photography-workflow.md)** before adding new photographs to the site.
 
@@ -132,33 +133,42 @@ Most future updates do **not** require code changes. You usually only need to ed
 - Homepage profile and navigation:
   - `content/config.toml`
   - `content_zh/config.toml`
+  - `content_zh-hk/config.toml`
 - Biography:
   - `content/bio.md`
   - `content_zh/bio.md`
+  - `content_zh-hk/bio.md`
 - Homepage sections:
   - `content/about.toml`
   - `content_zh/about.toml`
+  - `content_zh-hk/about.toml`
 - Research:
   - `content/research.toml`
   - `content_zh/research.toml`
+  - `content_zh-hk/research.toml`
 - Publications:
   - `content/publications.bib`
 - CV:
   - `content/cv.md`
   - `content_zh/cv.md`
+  - `content_zh-hk/cv.md`
 - News:
   - `content/news.toml`
   - `content_zh/news.toml`
+  - `content_zh-hk/news.toml`
 - Questions:
   - `content/questions.toml`
   - `content_zh/questions.toml`
+  - `content_zh-hk/questions.toml`
 - Theory notes:
   - `content/learning.toml`
   - `content_zh/learning.toml`
+  - `content_zh-hk/learning.toml`
   - published PDFs under `public/notes/<course-id>/<YYYY.MMDD>.pdf`
 - Photography metadata:
   - `content/photography.toml`
   - `content_zh/photography.toml`
+  - `content_zh-hk/photography.toml`
 
 ### Photography updates
 
@@ -172,7 +182,7 @@ Most future updates do **not** require code changes. You usually only need to ed
 ### Theory notes updates
 
 - Publish only confirmed PDF notes under `public/notes/`
-- Maintain the current PDF version and per-course update timeline in the two `learning.toml` files
+- Maintain the current PDF version and per-course update timeline in all three `learning.toml` files
 - Read the [Theory Notes Workflow Guide](docs/learning-notes-workflow.md) before publishing a new note version
 
 ### Publish workflow

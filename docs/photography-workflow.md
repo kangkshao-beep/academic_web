@@ -21,7 +21,9 @@ The photography page is a selected showcase, not an automatic archive. Raw files
 - `content/photography.toml`
   - English photography index and metadata
 - `content_zh/photography.toml`
-  - Chinese photography index and metadata
+  - Simplified Chinese photography index and metadata
+- `content_zh-hk/photography.toml`
+  - Hong Kong Traditional Chinese photography index and metadata
 
 ## Why new files in `PHOTO/` do not appear in `git status`
 
@@ -41,6 +43,7 @@ The current publishing workflow is:
 4. Add a matching item to:
    - `content/photography.toml`
    - `content_zh/photography.toml`
+   - `content_zh-hk/photography.toml`
 5. Verify the site locally with `npm run build` or `npm run dev`.
 6. Commit and push the generated assets and metadata.
 

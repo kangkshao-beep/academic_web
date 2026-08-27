@@ -128,10 +128,17 @@
   --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
 }
 
-/* Use Source Han Serif for Chinese headings/title text via .font-serif */
+/* Use region-appropriate CJK fonts for Chinese content. */
 html:lang(zh),
-html[data-locale^="zh"] {
+html[data-locale="zh"] {
+  --font-sans: "PingFang SC", "Source Han Sans SC", "Noto Sans CJK SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
   --font-serif: "Source Han Serif SC", "Source Han Serif CN", "Noto Serif CJK SC", "Noto Serif SC", "Songti SC", STSong, SimSun, serif;
+}
+
+html:lang(zh-hk),
+html[data-locale="zh-hk"] {
+  --font-sans: "PingFang HK", "PingFang TC", "Source Han Sans TC", "Noto Sans CJK TC", "Noto Sans TC", sans-serif;
+  --font-serif: "Source Han Serif TC", "Noto Serif CJK TC", "Noto Serif TC", "Songti TC", STSong, serif;
 }
 
 /* Dark mode styles */

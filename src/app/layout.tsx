@@ -19,7 +19,11 @@ function getMetadataBase(siteUrl: string): URL | undefined {
 export async function generateMetadata(): Promise<Metadata> {
   const config = getConfig();
   const runtimeI18n = getRuntimeI18nConfig(config.i18n);
-  const openGraphLocale = runtimeI18n.defaultLocale === 'zh' ? 'zh_CN' : 'en_US';
+  const openGraphLocale = runtimeI18n.defaultLocale === 'zh-hk'
+    ? 'zh_HK'
+    : runtimeI18n.defaultLocale === 'zh'
+      ? 'zh_CN'
+      : 'en_US';
 
   return {
     metadataBase: getMetadataBase(config.site.url),
@@ -56,12 +60,15 @@ function buildLocaleBootstrapScript(config: ReturnType<typeof getRuntimeI18nConf
     try {
       const cfg = ${serializedConfig};
       const storageKey = 'locale-storage';
-      const normalize = (value) => typeof value === 'string' ? value.trim().replace('_', '-').toLowerCase() : '';
+      const normalize = (value) => typeof value === 'string' ? value.trim().replace(/_/g, '-').toLowerCase() : '';
       const matchLocale = (candidate) => {
         const normalized = normalize(candidate);
         if (!normalized) return null;
         if (cfg.locales.includes(normalized)) return normalized;
-        const language = normalized.split('-')[0];
+        const subtags = normalized.split('-');
+        const language = subtags[0];
+        const region = subtags.slice(1).find((subtag) => /^[a-z]{2}$/.test(subtag) || /^\\d{3}$/.test(subtag));
+        if (language === 'zh' && region === 'hk' && cfg.locales.includes('zh-hk')) return 'zh-hk';
         if (cfg.locales.includes(language)) return language;
         return null;
       };

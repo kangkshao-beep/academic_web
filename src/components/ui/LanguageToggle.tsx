@@ -11,6 +11,10 @@ interface LanguageToggleProps {
   i18n: I18nRuntimeConfig;
 }
 
+function getCompactLabel(locale: string, label: string): string {
+  return locale === 'zh-hk' ? '繁中（港）' : label;
+}
+
 export default function LanguageToggle({ i18n }: LanguageToggleProps) {
   const { locale, setLocale } = useLocaleStore();
   const [mounted, setMounted] = useState(false);
@@ -26,7 +30,7 @@ export default function LanguageToggle({ i18n }: LanguageToggleProps) {
 
   if (!mounted) {
     return (
-      <div className="flex items-center justify-center w-14 h-10 rounded-lg border border-neutral-200 dark:border-[rgba(148,163,184,0.24)] bg-background dark:bg-neutral-800">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-200 bg-background dark:border-[rgba(148,163,184,0.24)] dark:bg-neutral-800 sm:w-20">
         <div className="w-6 h-4 rounded bg-neutral-300 animate-pulse" />
       </div>
     );
@@ -34,6 +38,7 @@ export default function LanguageToggle({ i18n }: LanguageToggleProps) {
 
   const currentLocale = i18n.locales.includes(locale) ? locale : i18n.defaultLocale;
   const currentLabel = i18n.labels[currentLocale] || currentLocale;
+  const compactLabel = getCompactLabel(currentLocale, currentLabel);
 
   return (
     <div className="relative">
@@ -43,8 +48,11 @@ export default function LanguageToggle({ i18n }: LanguageToggleProps) {
         type="button"
         onMouseDown={(e) => e.preventDefault()}
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={currentLabel}
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
         className={cn(
-          'flex items-center justify-center gap-1 px-2 h-10 rounded-lg',
+          'flex h-10 w-10 items-center justify-center gap-1 rounded-lg sm:w-auto sm:px-2',
           'border border-neutral-200 bg-background hover:bg-neutral-50',
           'dark:border-[rgba(148,163,184,0.24)] dark:bg-neutral-800 dark:hover:bg-neutral-700',
           'transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50',
@@ -52,9 +60,9 @@ export default function LanguageToggle({ i18n }: LanguageToggleProps) {
         )}
         title={currentLabel}
       >
-        <LanguageIcon className="h-4 w-4" />
-        <span className="text-xs font-medium">{currentLabel}</span>
-        <ChevronDownIcon className="h-3.5 w-3.5" />
+        <LanguageIcon className="h-4 w-4" aria-hidden="true" />
+        <span className="hidden text-xs font-medium sm:inline" aria-hidden="true">{compactLabel}</span>
+        <ChevronDownIcon className="hidden h-3.5 w-3.5 sm:block" aria-hidden="true" />
       </motion.button>
 
       {isOpen && (
@@ -63,7 +71,7 @@ export default function LanguageToggle({ i18n }: LanguageToggleProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: -10 }}
           className={cn(
-            'absolute right-0 mt-2 w-36 rounded-lg shadow-lg border',
+            'absolute right-0 z-50 mt-2 w-48 rounded-lg border shadow-lg',
             'bg-background border-neutral-200 dark:border-[rgba(148,163,184,0.24)]',
             'dark:bg-neutral-800 z-50'
           )}
@@ -72,12 +80,13 @@ export default function LanguageToggle({ i18n }: LanguageToggleProps) {
             {i18n.locales.map((localeOption) => (
               <button
                 key={localeOption}
+                type="button"
                 onClick={() => {
                   setLocale(localeOption);
                   setIsOpen(false);
                 }}
                 className={cn(
-                  'flex items-center justify-between w-full px-3 py-2 text-sm',
+                  'flex w-full items-center justify-between whitespace-nowrap px-3 py-2 text-sm',
                   'hover:bg-neutral-50 dark:hover:bg-neutral-700',
                   'transition-colors duration-200',
                   currentLocale === localeOption

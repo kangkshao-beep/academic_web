@@ -26,7 +26,7 @@ Current course IDs:
 
 ## Content record
 
-Find the matching course in `content/learning.toml` and `content_zh/learning.toml`, then update the current version and PDF path:
+Find the matching course in `content/learning.toml`, `content_zh/learning.toml`, and `content_zh-hk/learning.toml`, then update the current version and PDF path:
 
 ```toml
 [[courses]]
@@ -42,7 +42,7 @@ content = "Write a concise note about this update here."
 
 Use `YYYY.MMDD` for `version`. Whenever a new PDF is published, replace the course's current `version` and `pdf`, then add a `courses.updates` entry. The page automatically shows the timeline with the newest date first.
 
-Keep course IDs, versions, and PDF paths identical in the English and Chinese TOML files. Translate only course titles and update notes.
+Keep course IDs, versions, and PDF paths identical in the English, Simplified Chinese, and Hong Kong Traditional Chinese TOML files. Translate only course titles and update notes.
 
 ## Publishing
 

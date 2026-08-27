@@ -3,7 +3,7 @@ import type { I18nConfig, I18nRuntimeConfig } from '@/types/i18n';
 const DEFAULT_LOCALE = 'en';
 
 function normalizeLocaleCode(locale: string): string {
-  return locale.trim().replace('_', '-').toLowerCase();
+  return locale.trim().replace(/_/g, '-').toLowerCase();
 }
 
 function uniqueLocales(locales: string[]): string[] {
@@ -46,7 +46,14 @@ export function matchLocale(candidate: string | null | undefined, locales: strin
     return normalized;
   }
 
-  const languageOnly = normalized.split('-')[0];
+  const subtags = normalized.split('-');
+  const language = subtags[0];
+  const region = subtags.slice(1).find((subtag) => /^[a-z]{2}$/.test(subtag) || /^\d{3}$/.test(subtag));
+  if (language === 'zh' && region === 'hk' && locales.includes('zh-hk')) {
+    return 'zh-hk';
+  }
+
+  const languageOnly = language;
   if (locales.includes(languageOnly)) {
     return languageOnly;
   }

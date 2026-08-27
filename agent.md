@@ -119,6 +119,7 @@ The current repository keeps a lightweight, curated photography section.
 - Display metadata lives in:
   - `content/photography.toml`
   - `content_zh/photography.toml`
+  - `content_zh-hk/photography.toml`
 
 When new photographs are added:
 

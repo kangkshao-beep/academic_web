@@ -104,8 +104,8 @@ PRISM 支持以下几种页面类型：
 PRISM 现已支持多语言：
 
 *   默认语言内容放在 `content/`
-*   其他语言内容放在 `content_<locale>/`（例如：`content_zh/`、`content_en/`）。
-*   各语言目录保持同名文件。例如：`content/cv.md`（默认）、`content_zh/cv.md`
+*   其他语言内容放在 `content_<locale>/`（例如：`content_zh/`、`content_zh-hk/`）。
+*   各语言目录保持同名文件。例如：`content/cv.md`（默认）、`content_zh/cv.md`、`content_zh-hk/cv.md`
 *   若某个语言文件缺失，PRISM 会自动回退到默认 `content/` 中的同名文件。
 
 在 `content/config.toml` 中配置多语言行为：
@@ -128,7 +128,7 @@ npm run build
 
 - 原图放在 `PHOTO/`，并且不受 Git 管理
 - 网站使用的图片放在 `public/photography/`
-- 摄影页索引与元数据放在 `content/photography.toml` 和 `content_zh/photography.toml`
+- 摄影页索引与元数据放在 `content/photography.toml`、`content_zh/photography.toml` 和 `content_zh-hk/photography.toml`
 
 👉 **[点击阅读摄影维护流程](docs/photography-workflow_cn.md)**，了解后续新增摄影作品时应该如何处理。
 
@@ -141,33 +141,42 @@ npm run build
 - 首页侧栏与导航：
   - `content/config.toml`
   - `content_zh/config.toml`
+  - `content_zh-hk/config.toml`
 - 个人简介：
   - `content/bio.md`
   - `content_zh/bio.md`
+  - `content_zh-hk/bio.md`
 - 首页区块配置：
   - `content/about.toml`
   - `content_zh/about.toml`
+  - `content_zh-hk/about.toml`
 - Research 页面：
   - `content/research.toml`
   - `content_zh/research.toml`
+  - `content_zh-hk/research.toml`
 - Publications 页面：
   - `content/publications.bib`
 - CV 页面：
   - `content/cv.md`
   - `content_zh/cv.md`
+  - `content_zh-hk/cv.md`
 - News：
   - `content/news.toml`
   - `content_zh/news.toml`
+  - `content_zh-hk/news.toml`
 - Questions：
   - `content/questions.toml`
   - `content_zh/questions.toml`
+  - `content_zh-hk/questions.toml`
 - 基础理论物理学习：
   - `content/learning.toml`
   - `content_zh/learning.toml`
+  - `content_zh-hk/learning.toml`
   - 已发布 PDF 放在 `public/notes/<course-id>/<YYYY.MMDD>.pdf`
 - 摄影页索引：
   - `content/photography.toml`
   - `content_zh/photography.toml`
+  - `content_zh-hk/photography.toml`
 
 ### 摄影内容怎么更新
 
@@ -181,7 +190,7 @@ npm run build
 ### 学习笔记怎么更新
 
 - 只将确认公开的 PDF 笔记放入 `public/notes/`
-- 在两份 `learning.toml` 中维护当前版本、PDF 链接和每门课的更新简讯
+- 在三份 `learning.toml` 中维护当前版本、PDF 链接和每门课的更新简讯
 - 发布新版本前，请阅读[学习笔记维护流程](docs/learning-notes-workflow_cn.md)
 
 ### 发布流程

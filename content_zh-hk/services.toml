@@ -1,0 +1,9 @@
+type = "card"
+title = "學術服務"
+description = "如果之後需要單獨展示審稿、組織工作或社區參與，可以在這裏維護。"
+
+[[items]]
+title = "在這裏添加服務角色"
+subtitle = "期刊、工作坊或社區"
+date = "20XX"
+content = "用一句話説明你的審稿、組織或社區服務內容。"

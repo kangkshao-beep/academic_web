@@ -34,7 +34,7 @@ export default function QuestionsList({
     }
 
     const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (locale === 'zh' && match) {
+    if (locale.startsWith('zh') && match) {
       return `${match[1]}年${Number(match[2])}月${Number(match[3])}日`;
     }
 

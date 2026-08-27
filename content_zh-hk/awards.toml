@@ -1,0 +1,27 @@
+type = "card"
+title = "獎項"
+description = "如果你之後想把獎項、資助或獎學金獨立展示，可以在這裏維護。"
+
+[[items]]
+title = "在這裏添加獎項或資助"
+subtitle = "頒發機構"
+date = "20XX"
+content = "保持簡短、事實化。"
+
+[[items]]
+title = "在這裏添加另一條榮譽"
+subtitle = "頒發機構"
+date = "20XX"
+content = "用一句話補充背景。"
+
+[[items]]
+title = "在這裏添加另一條榮譽"
+subtitle = "頒發機構"
+date = "20XX"
+content = "用一句話補充背景。"
+
+[[items]]
+title = "在這裏添加另一條榮譽"
+subtitle = "頒發機構"
+date = "20XX"
+content = "用一句話補充背景。"

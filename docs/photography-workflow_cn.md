@@ -21,7 +21,9 @@
 - `content/photography.toml`
   - 英文摄影索引与元数据
 - `content_zh/photography.toml`
-  - 中文摄影索引与元数据
+  - 简体中文摄影索引与元数据
+- `content_zh-hk/photography.toml`
+  - 香港繁体中文摄影索引与元数据
 
 ## 为什么往 `PHOTO/` 里加图后 `git status` 没反应
 
@@ -41,6 +43,7 @@
 4. 在以下两个文件里补对应条目：
    - `content/photography.toml`
    - `content_zh/photography.toml`
+   - `content_zh-hk/photography.toml`
 5. 用 `npm run build` 或 `npm run dev` 本地检查
 6. 提交并推送生成后的图片资源和索引变更
 

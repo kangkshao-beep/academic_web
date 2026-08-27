@@ -32,7 +32,7 @@ export default function News({ items, title }: NewsProps) {
                         : ''
                 }`}
                 tabIndex={shouldScroll ? 0 : undefined}
-                aria-label={shouldScroll ? `${resolvedTitle} scroll area` : undefined}
+                aria-label={shouldScroll ? `${resolvedTitle} ${messages.common.scrollArea}` : undefined}
             >
                 {items.map((item, index) => (
                     <div key={index} className="flex items-start space-x-3">

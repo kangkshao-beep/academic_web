@@ -2,6 +2,9 @@ export interface LocaleMessages {
   common: {
     all: string;
     copyToClipboard: string;
+    media: string;
+    closeMediaPreview: string;
+    scrollArea: string;
   };
   navigation: {
     openMainMenu: string;
@@ -70,6 +73,9 @@ const en: LocaleMessages = {
   common: {
     all: 'All',
     copyToClipboard: 'Copy to clipboard',
+    media: 'Media',
+    closeMediaPreview: 'Close media preview',
+    scrollArea: 'scroll area',
   },
   navigation: {
     openMainMenu: 'Open main menu',
@@ -138,6 +144,9 @@ const zh: LocaleMessages = {
   common: {
     all: '全部',
     copyToClipboard: '复制到剪贴板',
+    media: '媒体',
+    closeMediaPreview: '关闭媒体预览',
+    scrollArea: '滚动区域',
   },
   navigation: {
     openMainMenu: '打开主菜单',
@@ -202,9 +211,81 @@ const zh: LocaleMessages = {
   },
 };
 
+const zhHk: LocaleMessages = {
+  common: {
+    all: '全部',
+    copyToClipboard: '複製到剪貼簿',
+    media: '媒體',
+    closeMediaPreview: '關閉媒體預覽',
+    scrollArea: '捲動區域',
+  },
+  navigation: {
+    openMainMenu: '開啟主選單',
+  },
+  theme: {
+    system: '跟隨系統',
+    light: '淺色',
+    dark: '深色',
+    currentTheme: '目前主題',
+    cycleTheme: '按一下切換主題',
+  },
+  profile: {
+    email: '電郵',
+    location: '地址',
+    workAddress: '辦公地址',
+    advisors: '導師',
+    click: '按一下',
+    googleMap: 'Google 地圖',
+    send: '傳送',
+    sendEmail: '傳送電郵',
+    researchInterests: '研究興趣',
+    like: '讚好',
+    liked: '已讚好',
+    thanks: '多謝支持！',
+  },
+  home: {
+    about: '關於我',
+    news: '最新動態',
+    openQuestions: '問題集',
+    selectedPublications: '精選論文',
+    viewAll: '查看全部',
+  },
+  publications: {
+    searchPlaceholder: '搜尋論文...',
+    filters: '篩選',
+    year: '年份',
+    type: '類型',
+    noResults: '找不到符合條件的論文。',
+    abstract: '摘要',
+    bibtex: 'BibTeX',
+    code: '程式碼',
+    project: '項目',
+    pdf: 'PDF',
+    slides: '講稿',
+    video: '影片',
+  },
+  questions: {
+    answer: '答案',
+    filterByTag: '按標籤篩選',
+    noResults: '目前標籤下沒有問題。',
+  },
+  photography: {
+    previous: '上一張相片',
+    next: '下一張相片',
+    noItems: '尚未加入攝影作品。',
+    camera: '相機',
+    lens: '鏡頭',
+  },
+  footer: {
+    lastUpdated: '最近更新',
+    builtWithPrism: '由 PRISM 建構',
+  },
+};
+
 export const messages: Record<string, LocaleMessages> = {
   en,
   zh,
+  'zh-hk': zhHk,
 };
 
 export function getMessages(locale: string): LocaleMessages {

@@ -1,0 +1,67 @@
+[site]
+title = "邵康康"
+description = "邵康康的個人學術主頁，現為華中科技大學物理學院博士研究生。"
+url = "https://kkshao.org.cn"
+last_updated = "2026年8月27日"
+
+[author]
+name = "邵康康"
+title = "博士研究生"
+institution = "華中科技大學"
+
+[[author.advisors]]
+name = "秦溱"
+url = "http://faculty.hust.edu.cn/QinQin/zh_CN/index/2259838/list/index.htm"
+institution = "華中科技大學"
+
+[[author.advisors]]
+name = "於福升"
+url = "https://snst.lzu.edu.cn/shiziduiwu/jiaoshou/2024/1015/277664.html"
+institution = "蘭州大學"
+
+[social]
+location = "武漢，中國"
+location_url = ""
+location_details = ["華中科技大學物理學院", "武漢，中國"]
+
+[[navigation]]
+title = "關於我"
+type = "page"
+target = "about"
+href = "/"
+
+[[navigation]]
+title = "研究"
+type = "page"
+target = "research"
+href = "/research"
+
+[[navigation]]
+title = "基礎理論物理學習"
+type = "page"
+target = "learning"
+href = "/learning"
+
+[[navigation]]
+title = "問題集"
+type = "page"
+target = "questions"
+href = "/questions"
+
+[[navigation]]
+title = "論文"
+type = "page"
+target = "publications"
+href = "/publications"
+
+[[navigation]]
+title = "攝影"
+type = "page"
+target = "photography"
+href = "/photography"
+
+[[navigation]]
+title = "履歷"
+type = "page"
+target = "cv"
+href = "/cv"

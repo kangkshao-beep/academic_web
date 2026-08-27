@@ -39,7 +39,7 @@ enable_one_page_mode = false
 
 [i18n]
 enabled = true
-locales = ["en", "zh"]
+locales = ["en", "zh", "zh-hk"]
 default_locale = "en"
 mode = "auto"
 fixed_locale = "en"
@@ -48,7 +48,8 @@ switcher = true
 
 [i18n.labels]
 en = "English"
-zh = "中文"
+zh = "简体中文"
+"zh-hk" = "繁體中文（香港）"
 
 [[navigation]]
 title = "About"

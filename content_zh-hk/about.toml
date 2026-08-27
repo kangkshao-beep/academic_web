@@ -1,0 +1,38 @@
+type = "about"
+title = "關於我"
+
+[profile]
+research_interests = [
+  "重味物理",
+  "半輕子單舉粲衰變",
+  "HQET 與 OPE",
+  "重味唯象"
+]
+
+[[sections]]
+id = "about"
+type = "markdown"
+source = "bio.md"
+title = "關於我"
+
+[[sections]]
+id = "featured_publications"
+type = "publications"
+source = "publications.bib"
+title = "精選論文"
+filter = "selected"
+limit = 4
+
+[[sections]]
+id = "open_questions"
+type = "questions"
+source = "questions.toml"
+title = "問題集"
+limit = 4
+
+[[sections]]
+id = "news"
+type = "list"
+title = "最新動態"
+source = "news.toml"
+limit = 10
