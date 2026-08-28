@@ -1,6 +1,6 @@
 # Site Traffic Counter
 
-The lower-right “Views in last 7 days” and “Total views” widget is backed by a Cloudflare Pages Function and a D1 database.
+The “Views in last 7 days” and “Total views” summary beside “Built with PRISM” in the footer is backed by a Cloudflare Pages Function and a D1 database.
 
 It records **page views**: opening a page and navigating to another page inside the site each add one view. Totals begin when the feature is enabled and cannot recreate historical traffic from before that date.
 

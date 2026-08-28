@@ -2,6 +2,7 @@
 
 import { useLocaleStore } from '@/lib/stores/localeStore';
 import { useMessages } from '@/lib/i18n/useMessages';
+import SiteTrafficWidget from '@/components/analytics/SiteTrafficWidget';
 
 interface FooterProps {
   lastUpdated?: string;
@@ -26,12 +27,13 @@ export default function Footer({ lastUpdated, lastUpdatedByLocale, defaultLocale
           <p className="text-xs text-neutral-500">
             {messages.footer.lastUpdated}: {resolvedLastUpdated}
           </p>
-          <p className="text-xs text-neutral-500 flex items-center">
+          <div className="flex max-w-full flex-wrap items-center justify-center gap-y-1 text-xs text-neutral-500">
             <a href="https://github.com/xyjoey/PRISM" target="_blank" rel="noopener noreferrer">
               {messages.footer.builtWithPrism}
             </a>
             <span className="ml-2">🚀</span>
-          </p>
+            <SiteTrafficWidget />
+          </div>
         </div>
       </div>
     </footer>

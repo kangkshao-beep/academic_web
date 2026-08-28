@@ -1,6 +1,5 @@
 'use client';
 
-import { Eye } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMessages } from '@/lib/i18n/useMessages';
@@ -30,7 +29,6 @@ export default function SiteTrafficWidget() {
   const locale = useLocaleStore((state) => state.locale);
   const messages = useMessages();
   const [stats, setStats] = useState<TrafficStats | null>(null);
-  const [isFooterVisible, setIsFooterVisible] = useState(false);
   const requestIdRef = useRef(0);
   const pageKey = pathname || '/';
 
@@ -78,19 +76,6 @@ export default function SiteTrafficWidget() {
     return () => controller.abort();
   }, [pageKey]);
 
-  useEffect(() => {
-    const footer = document.getElementById('site-footer');
-    if (!footer || !('IntersectionObserver' in window)) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsFooterVisible(entry.isIntersecting),
-      { threshold: 0.1 }
-    );
-
-    observer.observe(footer);
-    return () => observer.disconnect();
-  }, []);
-
   if (!stats) return null;
 
   const weeklyViews = numberFormatter.format(stats.weekly);
@@ -98,35 +83,18 @@ export default function SiteTrafficWidget() {
   const accessibleLabel = `${messages.traffic.label}: ${messages.traffic.weeklyViews} ${weeklyViews}; ${messages.traffic.totalViews} ${totalViews}`;
 
   return (
-    <aside
-      aria-hidden={isFooterVisible}
+    <span
       aria-label={accessibleLabel}
       aria-live="polite"
-      className={`pointer-events-none fixed z-30 max-w-[calc(100vw-2rem)] transition-opacity duration-200 ${
-        isFooterVisible ? 'invisible opacity-0' : 'opacity-100'
-      } bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))]`}
+      className="ml-3 inline-flex max-w-full flex-wrap items-baseline justify-center gap-x-2 gap-y-0.5 border-l border-neutral-300 pl-3 text-xs text-neutral-500 dark:border-neutral-700"
     >
-      <div className="flex w-[13rem] max-w-full items-center gap-2 rounded-md border border-neutral-200/80 bg-background/90 px-3 py-2.5 shadow-md backdrop-blur-md dark:border-neutral-700/80 dark:bg-neutral-900/90">
-        <Eye className="h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
-        <dl className="min-w-0 flex-1 space-y-1.5">
-          <div className="flex items-baseline justify-between gap-2">
-            <dt className="whitespace-nowrap text-[11px] leading-4 text-neutral-500 dark:text-neutral-400">
-              {messages.traffic.weeklyViews}
-            </dt>
-            <dd className="shrink-0 text-sm font-semibold tabular-nums text-primary">
-              {weeklyViews}
-            </dd>
-          </div>
-          <div className="flex items-baseline justify-between gap-2">
-            <dt className="whitespace-nowrap text-[11px] leading-4 text-neutral-500 dark:text-neutral-400">
-              {messages.traffic.totalViews}
-            </dt>
-            <dd className="shrink-0 text-sm font-semibold tabular-nums text-primary">
-              {totalViews}
-            </dd>
-          </div>
-        </dl>
-      </div>
-    </aside>
+      <span className="whitespace-nowrap">
+        {messages.traffic.weeklyViews}: <strong className="font-semibold tabular-nums text-primary">{weeklyViews}</strong>
+      </span>
+      <span aria-hidden="true">·</span>
+      <span className="whitespace-nowrap">
+        {messages.traffic.totalViews}: <strong className="font-semibold tabular-nums text-primary">{totalViews}</strong>
+      </span>
+    </span>
   );
 }

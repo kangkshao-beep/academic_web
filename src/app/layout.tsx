@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
-import SiteTrafficWidget from '@/components/analytics/SiteTrafficWidget';
 import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import { LocaleProvider } from '@/components/ui/LocaleProvider';
 import { getConfig } from '@/lib/config';
@@ -196,7 +195,6 @@ export default function RootLayout({
               lastUpdatedByLocale={lastUpdatedByLocale}
               defaultLocale={runtimeI18n.defaultLocale}
             />
-            <SiteTrafficWidget />
           </LocaleProvider>
         </ThemeProvider>
       </body>
