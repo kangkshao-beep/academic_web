@@ -1,0 +1,12 @@
+name = "academic-web"
+pages_build_output_dir = "out"
+compatibility_date = "2026-03-30"
+
+# Keep the production counter separate from Preview deployments.
+[[env.production.d1_databases]]
+binding = "TRAFFIC_DB"
+database_name = "kkshao-traffic"
+database_id = "59cfe0ae-8786-4f55-8e38-458553390060"
+
+[env.production.vars]
+TRAFFIC_ENABLED = "true"

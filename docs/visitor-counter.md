@@ -10,9 +10,8 @@ The database stores only a daily aggregate date and view count in China Standard
 
 1. In the Cloudflare dashboard, open **Workers & Pages -> D1 SQL Database** and create a database, for example `kkshao-traffic`.
 2. Open its SQL Console and run the schema in [`database/visitor-counter.sql`](../database/visitor-counter.sql).
-3. In the Pages project's **Settings -> Bindings**, add a D1 binding named `TRAFFIC_DB` and select that database. Bind it to Production only.
-4. Add the Production environment variable `TRAFFIC_ENABLED=true` in the same Pages project.
-5. Redeploy the `main` branch. Visits begin to count after the deployment completes.
+3. The repository's [`wrangler.toml`](../wrangler.toml) already declares the Production-only `TRAFFIC_DB` binding and `TRAFFIC_ENABLED=true`. Keep its database name and ID intact. Cloudflare Pages reads this configuration on `main` deployments; Preview deployments do not write to the production counter.
+4. Redeploy the `main` branch. Visits begin to count after the deployment completes.
 
 Without the D1 binding or environment variable, the widget hides itself rather than showing an incorrect zero.
 
