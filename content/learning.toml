@@ -8,6 +8,11 @@ empty_updates = "No update notes yet. New versions will be recorded here."
 version_pending = "Version pending"
 
 [[courses]]
+id = "field-theory-frontiers"
+title = "Field Theory Frontiers"
+updates = []
+
+[[courses]]
 id = "quantum-field-theory"
 title = "Quantum Field Theory"
 version = "2026.0827"
@@ -29,11 +34,11 @@ title = "Particle Physics"
 updates = []
 
 [[courses]]
-id = "group-theory-lie-groups-and-algebras"
-title = "Group Theory, Lie Groups and Lie Algebras"
+id = "differential-geometry-and-general-relativity"
+title = "Differential Geometry and General Relativity"
 updates = []
 
 [[courses]]
-id = "field-theory-frontiers"
-title = "Field Theory Frontiers"
+id = "group-theory-lie-groups-and-algebras"
+title = "Group Theory, Lie Groups and Lie Algebras"
 updates = []

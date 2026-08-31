@@ -8,6 +8,11 @@ empty_updates = "暫無更新短訊。上傳新版本後，可在這裏記錄本
 version_pending = "版本待定"
 
 [[courses]]
+id = "field-theory-frontiers"
+title = "場論前沿"
+updates = []
+
+[[courses]]
 id = "quantum-field-theory"
 title = "量子場論"
 version = "2026.0827"
@@ -29,11 +34,11 @@ title = "粒子物理"
 updates = []
 
 [[courses]]
-id = "group-theory-lie-groups-and-algebras"
-title = "羣論、李羣李代數"
+id = "differential-geometry-and-general-relativity"
+title = "微分幾何與廣義相對論"
 updates = []
 
 [[courses]]
-id = "field-theory-frontiers"
-title = "場論前沿"
+id = "group-theory-lie-groups-and-algebras"
+title = "羣論、李羣李代數"
 updates = []
