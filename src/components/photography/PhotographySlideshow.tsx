@@ -186,7 +186,7 @@ export default function PhotographySlideshow({
         className={cn(
           'gap-6',
           !embedded &&
-            'lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(20rem,2fr)] lg:items-start lg:gap-8 xl:grid-cols-[7.5rem_minmax(0,1.7fr)_minmax(22rem,0.85fr)]'
+            'lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(20rem,2fr)] lg:items-start lg:gap-8 xl:grid-cols-[8rem_minmax(0,1fr)_26rem]'
         )}
       >
         {!embedded && (
@@ -247,7 +247,7 @@ export default function PhotographySlideshow({
                     fill
                     priority
                     className="object-contain"
-                    sizes="(max-width: 1279px) 100vw, (max-width: 1600px) 58vw, 900px"
+                    sizes="(max-width: 1279px) 100vw, (max-width: 1919px) 60vw, 1200px"
                   />
                 </motion.div>
               </AnimatePresence>
@@ -398,7 +398,7 @@ export default function PhotographySlideshow({
               ref={timelineRef}
               tabIndex={0}
               aria-label={`${messages.photography.recentWorks} ${messages.common.scrollArea}`}
-              className="max-h-[18.5rem] space-y-3 overflow-y-auto overscroll-contain pr-3 [scrollbar-gutter:stable] lg:max-h-[calc(100vh-8rem)]"
+              className="max-h-[18.5rem] space-y-2 overflow-y-auto overscroll-contain pr-3 [scrollbar-gutter:stable]"
             >
               {timelineItems.map(({ item, index }) => {
                 const isActive = item.id === activeItem.id;
@@ -411,7 +411,7 @@ export default function PhotographySlideshow({
                     aria-current={isActive ? 'true' : undefined}
                     onClick={() => setActiveIndex(index)}
                     className={cn(
-                      'flex w-full items-start gap-3 border-l-2 py-2 pl-3 pr-1 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+                      'flex w-full items-start gap-3 border-l-2 py-1.5 pl-3 pr-1 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
                       isActive
                         ? 'border-accent bg-accent/10 text-primary dark:bg-accent/15'
                         : 'border-transparent text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
@@ -420,18 +420,13 @@ export default function PhotographySlideshow({
                     {item.date && (
                       <time
                         dateTime={item.date}
-                        className="mt-1 w-24 shrink-0 text-xs text-neutral-500"
+                        className="mt-0.5 w-24 shrink-0 text-xs text-neutral-500"
                       >
                         {item.date}
                       </time>
                     )}
-                    <span className="min-w-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-                      <span className="font-serif font-semibold text-primary">{item.title}</span>
-                      {item.description && (
-                        <span className="ml-2 text-neutral-600 dark:text-neutral-400">
-                          {item.description}
-                        </span>
-                      )}
+                    <span className="min-w-0 font-serif text-sm font-semibold leading-5 text-primary">
+                      {item.title}
                     </span>
                   </button>
                 );
