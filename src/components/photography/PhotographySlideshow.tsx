@@ -26,21 +26,17 @@ export default function PhotographySlideshow({
   const activeItem = items[activeIndex];
   const canGoPrev = activeIndex > 0;
   const canGoNext = activeIndex < items.length - 1;
-  const timelineItems = useMemo(() => {
-    const recentItems = items
-      .map((item, index) => ({ item, index }))
-      .sort((a, b) => {
-        const dateComparison = (b.item.date || '').localeCompare(a.item.date || '');
-        return dateComparison || a.index - b.index;
-      })
-      .slice(0, 10);
-
-    if (!activeItem || recentItems.some(({ item }) => item.id === activeItem.id)) {
-      return recentItems;
-    }
-
-    return [...recentItems.slice(0, 9), { item: activeItem, index: activeIndex }];
-  }, [activeIndex, activeItem, items]);
+  const timelineItems = useMemo(
+    () =>
+      items
+        .map((item, index) => ({ item, index }))
+        .sort((a, b) => {
+          const dateComparison = (b.item.date || '').localeCompare(a.item.date || '');
+          return dateComparison || a.index - b.index;
+        })
+        .slice(0, 10),
+    [items]
+  );
   const detailParagraphs = useMemo(() => {
     const text = activeItem?.details || activeItem?.description || '';
     return text.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean);
@@ -174,7 +170,7 @@ export default function PhotographySlideshow({
       <div
         className={cn(
           'gap-8',
-          !embedded && 'lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start'
+          !embedded && 'lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(20rem,2fr)] lg:items-start'
         )}
       >
         <div className="space-y-5">
@@ -310,7 +306,7 @@ export default function PhotographySlideshow({
         </div>
 
         {!embedded && (
-          <aside className="mt-8 border-l border-neutral-200 pl-5 dark:border-neutral-800 lg:sticky lg:top-24 lg:mt-0">
+          <aside className="mt-8 lg:sticky lg:top-24 lg:mt-0">
             <h2 className="mb-4 text-xl font-serif font-semibold text-primary">
               {messages.photography.recentWorks}
             </h2>
@@ -318,7 +314,7 @@ export default function PhotographySlideshow({
               ref={timelineRef}
               tabIndex={0}
               aria-label={`${messages.photography.recentWorks} ${messages.common.scrollArea}`}
-              className="max-h-[34rem] space-y-1 overflow-y-auto overscroll-contain pr-3 [scrollbar-gutter:stable]"
+              className="max-h-[18.5rem] space-y-3 overflow-y-auto overscroll-contain pr-3 [scrollbar-gutter:stable]"
             >
               {timelineItems.map(({ item, index }) => {
                 const isActive = item.id === activeItem.id;
@@ -331,37 +327,28 @@ export default function PhotographySlideshow({
                     aria-current={isActive ? 'true' : undefined}
                     onClick={() => setActiveIndex(index)}
                     className={cn(
-                      'relative w-full rounded-md border border-transparent px-3 py-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+                      'flex w-full items-start gap-3 border-l-2 py-2 pl-3 pr-1 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
                       isActive
                         ? 'border-accent bg-accent/10 text-primary dark:bg-accent/15'
-                        : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
+                        : 'border-transparent text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
                     )}
                   >
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        'absolute -left-[1.45rem] top-5 h-2.5 w-2.5 rounded-full border-2 border-background',
-                        isActive ? 'bg-accent' : 'bg-neutral-300 dark:bg-neutral-600'
-                      )}
-                    />
                     {item.date && (
-                      <time dateTime={item.date} className="block text-xs text-neutral-500">
+                      <time
+                        dateTime={item.date}
+                        className="mt-1 w-24 shrink-0 text-xs text-neutral-500"
+                      >
                         {item.date}
                       </time>
                     )}
-                    <span className="mt-1 block font-serif text-base font-semibold text-primary">
-                      {item.title}
+                    <span className="min-w-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+                      <span className="font-serif font-semibold text-primary">{item.title}</span>
+                      {item.description && (
+                        <span className="ml-2 text-neutral-600 dark:text-neutral-400">
+                          {item.description}
+                        </span>
+                      )}
                     </span>
-                    {item.location && (
-                      <span className="mt-1 block truncate text-xs text-neutral-500">
-                        {item.location}
-                      </span>
-                    )}
-                    {item.description && (
-                      <span className="mt-2 line-clamp-2 block text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                        {item.description}
-                      </span>
-                    )}
                   </button>
                 );
               })}
