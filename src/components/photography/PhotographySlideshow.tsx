@@ -25,10 +25,11 @@ export default function PhotographySlideshow({
   const activeItem = items[activeIndex];
   const canGoPrev = activeIndex > 0;
   const canGoNext = activeIndex < items.length - 1;
-  const descriptionParagraphs = useMemo(
-    () => activeItem?.description?.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean) ?? [],
-    [activeItem?.description]
-  );
+  const detailParagraphs = useMemo(() => {
+    const text = activeItem?.details || activeItem?.description || '';
+    return text.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean);
+  }, [activeItem?.description, activeItem?.details]);
+  const hasSeparateDetails = Boolean(activeItem?.details);
 
   const goPrev = useCallback(() => {
     setActiveIndex((current) => Math.max(current - 1, 0));
@@ -209,10 +210,15 @@ export default function PhotographySlideshow({
               </span>
             )}
           </div>
-          {descriptionParagraphs.length > 0 && (
+          {hasSeparateDetails && activeItem.description && (
+            <p className="mt-4 border-l-2 border-accent pl-4 font-serif text-base italic leading-relaxed text-primary sm:text-lg">
+              {activeItem.description}
+            </p>
+          )}
+          {detailParagraphs.length > 0 && (
             <div className="space-y-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-500">
-              {descriptionParagraphs.map((paragraph, index) => (
-                <p key={`${activeItem.id}-description-${index}`}>{paragraph}</p>
+              {detailParagraphs.map((paragraph, index) => (
+                <p key={`${activeItem.id}-details-${index}`}>{paragraph}</p>
               ))}
             </div>
           )}

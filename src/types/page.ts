@@ -63,6 +63,7 @@ export interface GalleryItem {
     lens?: string;
     alt: string;
     description?: string;
+    details?: string;
 }
 
 export interface GalleryPageConfig extends BasePageConfig {

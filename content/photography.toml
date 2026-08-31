@@ -12,6 +12,9 @@ location = "Huazhong University of Science and Technology, Wuhan"
 camera = "Sony ILCE-6400"
 alt = "A Huazhong University of Science and Technology welcome display at night, with a lit statue behind it."
 description = """At the school gate, tomorrow has been given a colour before anyone has learned the way. The crowd is still gathering, while the night turns unfamiliar names into company."""
+details = """The welcome board occupies the foreground, with its rising orange frame cutting decisively into the image and setting the direction of the composition. Above it, the illuminated statue becomes a solemn visual anchor through its upright stance and raised hand. The building, trees, and night behind it recede into a dark field, while the violet-blue board, orange frame, and pale statue create a clear but measured contrast of temperature.
+
+The result is more than a record of an arrival event. Text in the foreground, the figure in the distance, and the open night sky place the excitement of a beginning inside a campus space with a strong sense of order. The image keeps both the liveliness of the scene and the quiet of the night, letting the idea of a new journey unfold from near to far and from low to high."""
 
 [[items]]
 id = "jianghan-guan-night"
@@ -23,6 +26,9 @@ location = "Jianghan Customs House, Wuhan"
 camera = "Sony ILCE-6400"
 alt = "The illuminated Jianghan Customs House clock tower against blue-lit skyscrapers at night."
 description = """The clock keeps the river city awake while blue lines redraw the towers behind it. If time turned back for one second, who would hear their former self in the chime?"""
+details = """A low viewpoint lets the clock tower grow from the left side of the frame. Its heavy stonework, arches, and bright clock faces are placed against the linear blue lights of the towers behind it. The two vertical rhythms answer one another: the old tower is steady and deliberate, while the blue-lit high-rises are sharper and denser. A large expanse of near-black sky remains on the right, giving the luminous forms room to pause.
+
+Gold and blue are kept in a restrained relationship, suggesting the coexistence of old and new urban scales without turning the image into a spectacle. The clock faces form the clearest point of light, while the rising light strips carry the eye higher, allowing the historic building and the contemporary skyline to share the same stretch of night."""
 
 [[items]]
 id = "corridor-afterglow"
@@ -33,6 +39,9 @@ date = "2026-08-25"
 camera = "Sony ILCE-6400"
 alt = "A low-angle view down a dim indoor corridor toward a sunlit glass door, reflected on the polished floor."
 description = """Dusk spills into the floor and keeps the trees waiting behind the glass. I borrow one reflection to light the words today did not finish."""
+details = """This vertical frame compresses the corridor into a long recession: ceiling panels, side walls, and railings repeatedly converge toward the glass doors and guide the eye directly toward the light beyond them. The interior remains low-lit, while sunset diffuses through glass, foliage, and soft reflections to form a warm but not harsh centre. The reflection on the floor nearly repeats the architecture of the doors and windows, adding a second space that extends downward.
+
+Doorframes, seating, and other ordinary objects retain their texture in the shadows, keeping the image grounded in daily life rather than turning it into a pure study of light. The still order of the hallway meets the shifting gold outside, so an empty passage retains the warmth of a place someone seems to have only just left."""
 
 [[items]]
 id = "suspension-bridge-twilight"
@@ -44,6 +53,9 @@ camera = "Sony ILCE-6400"
 lens = "Sony E 18-135mm F3.5-5.6 OSS"
 alt = "A red suspension bridge tower at twilight, framed by blurred flowers with apartment towers across the water."
 description = """The bridge tower hangs the sunset in the air while the distant blocks stand quietly as the far shore. When the river wind passes, the city slowly reels in the day."""
+details = """Placed slightly left of centre, the bridge tower provides a strong vertical structure, while the suspension cables open out on both sides and establish the larger framework. Their fine repeated lines pass across the evening sky, turning the sky into part of the rhythm rather than a passive background. The blurred flowers in the foreground do not compete with the bridge; they work as a soft curtain that gives the steel structure a closer breath.
+
+Peach-coloured clouds, the warm red of the bridge, and the darkening city beyond recede in layers, while the water repeats the tower and buildings lower in the frame. The photograph holds both the force of engineered structure and the lightness of dusk. Its mood is not dramatic, but patient: a city slowly settling into the end of the day."""
 
 [[items]]
 id = "bridges-across-river"
@@ -55,6 +67,9 @@ camera = "Sony ILCE-6400"
 lens = "Sony E 18-135mm F3.5-5.6 OSS"
 alt = "Two bridges crossing a broad river, with a city skyline and warm sun reflected in distant windows."
 description = """Two bridges divide the water into before and after, and the sun leaves a brief gold in the far windows. Across steel and distance, a reunion rehearses itself as a skyline."""
+details = """Rather than treating one bridge as the sole subject, this photograph organises a broad stretch of water through several horizontal structures. The curve of the upper suspension cables crosses the sky; the middle bridge deck carries the small rhythm of vehicles and people; a lower bridge cuts a further layer across the city skyline. The water leaves quiet breathing room for all of those lines.
+
+A small reflection of gold in the distant towers becomes the most precise point of light in an otherwise cool, grey composition. Bridges and buildings at different heights and scales overlap without crowding one another. What emerges is not a busy city panorama, but a spatial arrangement jointly written by transport, the river, and the last light."""
 
 [[items]]
 id = "sunset-behind-railings"
@@ -66,6 +81,9 @@ camera = "Sony ILCE-6400"
 lens = "Sony E 18-135mm F3.5-5.6 OSS"
 alt = "A setting sun and city skyline seen through horizontal railings, with roses silhouetted in the foreground."
 description = """Railings divide the setting sun into fragments; roses keep learning how to glow in shadow. The city will not pause, yet one flower is allowed to keep the evening."""
+details = """The horizontal railings are not merely an obstruction here; they become an active visual language. They divide sky, city, and water into parallel layers, placing the roses below and the distant towers within the same rhythm. The backlit sun sits close to the centre of the frame. Its strong white light suppresses architectural detail but sharpens the railings, flower stems, and the shadows cast across the ground.
+
+Warm light slips through the gaps, carrying a sense of restraint while making an everyday urban boundary unexpectedly theatrical. The flowers remain soft in the foreground, and the distance resolves into silhouette. The result is an evening that feels brief and bright, with just enough separation to make the light memorable."""
 
 [[items]]
 id = "rose-before-sunset"
@@ -77,6 +95,9 @@ camera = "Sony ILCE-6400"
 lens = "Sony E 18-135mm F3.5-5.6 OSS"
 alt = "A peach rose beside a railing, with the low sun and city skyline softly blurred behind it."
 description = """As light crosses the railing, a rose keeps the last red of the sky. The towers offer no answer; the wind has already written farewell on the petals."""
+details = """A rose is placed at the lower right, facing a wide field of backlit sky and an indistinct city. The subject is not only the flower, but the difference in scale between flower, railing, and light: the nearby petals hold a warm edge, while the distant towers are compressed into soft dark masses. The horizontal railings pass through the frame and set a stable visual beat.
+
+The brightest region nearly erases the sky's detail, giving the light a hazy, memory-like quality. The rose therefore does not feel isolated. It becomes a small, close emotion held in front of a complex city, delicate without being weak; the repeated lines of the railings give that emotion somewhere to rest."""
 
 [[items]]
 id = "bay-after-dark"
@@ -88,6 +109,9 @@ camera = "Sony ILCE-6400"
 lens = "Sony E 18-135mm F3.5-5.6 OSS"
 alt = "A curved seaside promenade at blue hour, with a lit railing, dark water, and illuminated buildings across the bay."
 description = """Night closes slowly around the bay, and the lit shoreline becomes a line leading home. We do not say goodbye; the tide keeps speaking for the city."""
+details = """The curved path begins at the lower right and carries the eye along the shore toward a group of illuminated buildings in the distance. It is the image's clearest leading line. The sea on the left remains dark and open, while the railing, path, and trees on the right steadily gather the space. Together they balance openness and enclosure. A continuous warm curve of lights follows the coastline against the blue that remains in the sky and water.
+
+The scale of scattered walkers prevents the long path from feeling empty, while spires and distant towers rise and fall through the night. The image has the intimacy of an evening walk but retains the breadth of a bay facing a city. The shoreline light seems to lead the viewer gradually into the depth of the frame."""
 
 [[items]]
 id = "harbor-lights"
@@ -99,6 +123,9 @@ camera = "Sony ILCE-6400"
 lens = "Sony E 18-135mm F3.5-5.6 OSS"
 alt = "Illuminated gabled buildings beside water at blue hour, reflected faintly in the sea."
 description = """The rooflines resemble an unread fairy tale, and lamps wake the water. When blue drops low enough, we mistake the distance for a light left on at the door."""
+details = """The buildings sit in the lower portion of the frame, where clustered spires, rooflines, and lit windows create a clear, undulating silhouette. A deep blue sky is left with ample space above them, concentrating the effect of the lights. Along the shore, a continuous warm band links the buildings, water, and dark rocks in the foreground.
+
+The reflections on the water are not smoothed into a mirror. Small movements in the surface stretch and break them apart, adding a gentle flow to the otherwise still architecture. Cool night and golden light remain at a measured distance from one another, so the image reads less as a display of night scenery than as a quiet stage formed by shoreline, ripples, and rooftops."""
 
 [[items]]
 id = "seawall-blue-hour"
@@ -110,6 +137,9 @@ camera = "Sony ILCE-6400"
 lens = "Sony E 18-135mm F3.5-5.6 OSS"
 alt = "A stone seawall at blue hour, with people at a warmly lit railing and a distant shoreline across the water."
 description = """The stone wall keeps the sea wind behind it while gold lights the edge of dusk. Someone rests at the railing, as if waiting for a name to return with the waves."""
+details = """This vertical composition gives most of its sky and water to cool blue. The stone seawall projects diagonally from the lower right and becomes the main force connecting foreground rocks, railing, and the distant shore. Rough blocks, wet rocks, and the fine warm lights along the railing create a contrast of textures: one weighted and still, the other light and continuous, like illumination slowly moving along an edge.
+
+The figures at the railing are reduced to a small scale, but they provide exactly the measure needed to keep the open water from feeling vacant. The city in the distance softens into haze. The image's strongest feeling comes from this boundary: land has not yet ended, while night has already arrived from the sea."""
 
 [[items]]
 id = "misty-shore"
@@ -121,6 +151,9 @@ camera = "Sony ILCE-6400"
 lens = "Sony E 18-135mm F3.5-5.6 OSS"
 alt = "A person holding an umbrella at the water's edge, facing a misty sea with distant structures offshore."
 description = """Mist hides the far coast too well, but the sea preserves a ripple for everyone who leaves. One umbrella faces the waves like a waiting that refuses to explain itself."""
+details = """A large expanse of negative space establishes the mood in this vertical frame. Sky, mist, and sea almost merge into a single low-saturation blue-grey field; the horizon weakens, and distant platforms and boats remain only as faint outlines. The figure is placed at the lower right in the shallow water, where the umbrella and dark dress become the photograph's clearest and quietest visual anchor.
+
+There is no dramatic gesture between the figure and the broad water. Precisely for that reason, the difference in scale feels immediate: close by are one person, one umbrella, and small ripples; farther away is a sea that cannot quite be made out. The photograph turns mist's obscuring quality into a gentle silence that invites a longer pause."""
 
 [[items]]
 id = "wuchang-bay-blue-hour"

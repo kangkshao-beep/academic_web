@@ -351,7 +351,7 @@ function collectGallery(route, pageConfig, locale) {
       title: item.title,
       section: pageConfig.title,
       href: `${route}#photo-${item.id}`,
-      body: [item.date, item.location, item.camera, item.lens, item.alt, item.description].filter(Boolean).join(' '),
+      body: [item.date, item.location, item.camera, item.lens, item.alt, item.description, item.details].filter(Boolean).join(' '),
     });
   });
 }
