@@ -34,8 +34,7 @@ export default function PhotographySlideshow({
         .sort((a, b) => {
           const dateComparison = (b.item.date || '').localeCompare(a.item.date || '');
           return dateComparison || a.index - b.index;
-        })
-        .slice(0, 10),
+        }),
     [items]
   );
   const detailParagraphs = useMemo(() => {
@@ -398,7 +397,7 @@ export default function PhotographySlideshow({
               ref={timelineRef}
               tabIndex={0}
               aria-label={`${messages.photography.recentWorks} ${messages.common.scrollArea}`}
-              className="max-h-[18.5rem] space-y-2 overflow-y-auto overscroll-contain pr-3 [scrollbar-gutter:stable]"
+              className="max-h-[20rem] space-y-1 overflow-y-auto overscroll-contain pr-3 [scrollbar-gutter:stable]"
             >
               {timelineItems.map(({ item, index }) => {
                 const isActive = item.id === activeItem.id;
@@ -411,7 +410,7 @@ export default function PhotographySlideshow({
                     aria-current={isActive ? 'true' : undefined}
                     onClick={() => setActiveIndex(index)}
                     className={cn(
-                      'flex w-full items-start gap-3 border-l-2 py-1.5 pl-3 pr-1 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+                      'flex w-full items-start gap-3 border-l-2 py-1 pl-3 pr-1 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
                       isActive
                         ? 'border-accent bg-accent/10 text-primary dark:bg-accent/15'
                         : 'border-transparent text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
