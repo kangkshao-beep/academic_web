@@ -21,6 +21,7 @@ export default function PhotographySlideshow({
   const items = useMemo(() => config.items || [], [config.items]);
   const [activeIndex, setActiveIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
+  const thumbnailRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
 
   const activeItem = items[activeIndex];
@@ -85,6 +86,20 @@ export default function PhotographySlideshow({
       behavior: prefersReducedMotion ? 'auto' : 'smooth',
     });
   }, [activePhotoId, timelineItems]);
+
+  useEffect(() => {
+    if (!activePhotoId || !window.matchMedia('(min-width: 1280px)').matches) return;
+
+    const activeThumbnail = thumbnailRef.current?.querySelector<HTMLButtonElement>(
+      `[data-thumbnail-photo-id="${activePhotoId}"]`
+    );
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    activeThumbnail?.scrollIntoView({
+      block: 'nearest',
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    });
+  }, [activePhotoId]);
 
   useEffect(() => {
     if (!activePhotoId || window.location.hash !== `#photo-${activePhotoId}`) return;
@@ -169,67 +184,134 @@ export default function PhotographySlideshow({
 
       <div
         className={cn(
-          'gap-8',
-          !embedded && 'lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(20rem,2fr)] lg:items-start'
+          'gap-6',
+          !embedded &&
+            'lg:grid lg:grid-cols-[minmax(0,3fr)_minmax(20rem,2fr)] lg:items-start lg:gap-8 xl:grid-cols-[7.5rem_minmax(0,1.7fr)_minmax(22rem,0.85fr)]'
         )}
       >
+        {!embedded && (
+          <aside className="hidden xl:sticky xl:top-24 xl:block">
+            <div
+              ref={thumbnailRef}
+              className="max-h-[calc(100vh-8rem)] space-y-3 overflow-y-auto overscroll-contain pr-2 [scrollbar-gutter:stable]"
+            >
+              {items.map((item, index) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  data-thumbnail-photo-id={item.id}
+                  aria-current={index === activeIndex ? 'true' : undefined}
+                  aria-label={item.title}
+                  onClick={() => setActiveIndex(index)}
+                  className={cn(
+                    'block w-full overflow-hidden rounded-xl border bg-neutral-100 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent dark:bg-neutral-900',
+                    index === activeIndex
+                      ? 'border-accent ring-2 ring-accent/25'
+                      : 'border-neutral-200 hover:border-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-600'
+                  )}
+                >
+                  <div className="relative aspect-[4/3] w-full">
+                    <Image
+                      src={item.thumb}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="120px"
+                    />
+                  </div>
+                </button>
+              ))}
+            </div>
+          </aside>
+        )}
+
         <div className="space-y-5">
           <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-950 shadow-xl dark:border-neutral-800">
-          <div
-            className="relative aspect-[16/10] w-full"
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-          >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeItem.id}
-                initial={{ opacity: 0, x: 24 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -24 }}
-                transition={{ duration: 0.28 }}
-                className="absolute inset-0"
+            <div
+              className="relative aspect-[16/10] w-full xl:aspect-[3/2]"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeItem.id}
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -24 }}
+                  transition={{ duration: 0.28 }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={activeItem.image}
+                    alt={activeItem.alt}
+                    fill
+                    priority
+                    className="object-contain"
+                    sizes="(max-width: 1279px) 100vw, (max-width: 1600px) 58vw, 900px"
+                  />
+                </motion.div>
+              </AnimatePresence>
+
+              <div className="absolute right-4 top-4 rounded-full bg-black/45 px-3 py-1 text-xs tracking-[0.12em] text-white">
+                {activeIndex + 1} / {items.length}
+              </div>
+
+              <button
+                type="button"
+                onClick={goPrev}
+                disabled={!canGoPrev}
+                aria-label={messages.photography.previous}
+                className={cn(
+                  'absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/45 p-2 text-white transition-all',
+                  canGoPrev ? 'hover:bg-black/65' : 'cursor-not-allowed opacity-40'
+                )}
               >
-                <Image
-                  src={activeItem.image}
-                  alt={activeItem.alt}
-                  fill
-                  priority
-                  className="object-contain"
-                  sizes="(max-width: 1024px) 100vw, 1200px"
-                />
-              </motion.div>
-            </AnimatePresence>
-
-            <div className="absolute right-4 top-4 rounded-full bg-black/45 px-3 py-1 text-xs tracking-[0.12em] text-white">
-              {activeIndex + 1} / {items.length}
+                <ChevronLeftIcon className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={goNext}
+                disabled={!canGoNext}
+                aria-label={messages.photography.next}
+                className={cn(
+                  'absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/45 p-2 text-white transition-all',
+                  canGoNext ? 'hover:bg-black/65' : 'cursor-not-allowed opacity-40'
+                )}
+              >
+                <ChevronRightIcon className="h-5 w-5" />
+              </button>
             </div>
+          </div>
 
-            <button
-              type="button"
-              onClick={goPrev}
-              disabled={!canGoPrev}
-              aria-label={messages.photography.previous}
-              className={cn(
-                'absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/45 p-2 text-white transition-all',
-                canGoPrev ? 'hover:bg-black/65' : 'cursor-not-allowed opacity-40'
-              )}
-            >
-              <ChevronLeftIcon className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={goNext}
-              disabled={!canGoNext}
-              aria-label={messages.photography.next}
-              className={cn(
-                'absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/45 p-2 text-white transition-all',
-                canGoNext ? 'hover:bg-black/65' : 'cursor-not-allowed opacity-40'
-              )}
-            >
-              <ChevronRightIcon className="h-5 w-5" />
-            </button>
-          </div>
-          </div>
+          {!embedded && (
+            <div className="overflow-x-auto pb-2 xl:hidden">
+              <div className="flex min-w-max gap-3">
+                {items.map((item, index) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setActiveIndex(index)}
+                    className={cn(
+                      'overflow-hidden rounded-xl border bg-neutral-100 transition-all dark:bg-neutral-900',
+                      index === activeIndex
+                        ? 'border-accent shadow-md'
+                        : 'border-neutral-200 dark:border-neutral-800'
+                    )}
+                  >
+                    <div className="relative h-20 w-32 sm:h-24 sm:w-40">
+                      <Image
+                        src={item.thumb}
+                        alt={item.alt}
+                        fill
+                        className="object-cover"
+                        sizes="160px"
+                      />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div id={`photo-${activeItem.id}`} className="scroll-mt-24 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
           <div className="mb-2 flex flex-wrap items-center gap-3">
@@ -276,33 +358,35 @@ export default function PhotographySlideshow({
           )}
           </div>
 
-          <div className="overflow-x-auto pb-2">
-            <div className="flex min-w-max gap-3">
-              {items.map((item, index) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setActiveIndex(index)}
-                  className={cn(
-                    'overflow-hidden rounded-xl border bg-neutral-100 transition-all dark:bg-neutral-900',
-                    index === activeIndex
-                      ? 'border-accent shadow-md'
-                      : 'border-neutral-200 dark:border-neutral-800'
-                  )}
-                >
-                  <div className="relative h-20 w-32 sm:h-24 sm:w-40">
-                    <Image
-                      src={item.thumb}
-                      alt={item.alt}
-                      fill
-                      className="object-cover"
-                      sizes="160px"
-                    />
-                  </div>
-                </button>
-              ))}
+          {embedded && (
+            <div className="overflow-x-auto pb-2">
+              <div className="flex min-w-max gap-3">
+                {items.map((item, index) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setActiveIndex(index)}
+                    className={cn(
+                      'overflow-hidden rounded-xl border bg-neutral-100 transition-all dark:bg-neutral-900',
+                      index === activeIndex
+                        ? 'border-accent shadow-md'
+                        : 'border-neutral-200 dark:border-neutral-800'
+                    )}
+                  >
+                    <div className="relative h-20 w-32 sm:h-24 sm:w-40">
+                      <Image
+                        src={item.thumb}
+                        alt={item.alt}
+                        fill
+                        className="object-cover"
+                        sizes="160px"
+                      />
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {!embedded && (
@@ -314,7 +398,7 @@ export default function PhotographySlideshow({
               ref={timelineRef}
               tabIndex={0}
               aria-label={`${messages.photography.recentWorks} ${messages.common.scrollArea}`}
-              className="max-h-[18.5rem] space-y-3 overflow-y-auto overscroll-contain pr-3 [scrollbar-gutter:stable]"
+              className="max-h-[18.5rem] space-y-3 overflow-y-auto overscroll-contain pr-3 [scrollbar-gutter:stable] lg:max-h-[calc(100vh-8rem)]"
             >
               {timelineItems.map(({ item, index }) => {
                 const isActive = item.id === activeItem.id;

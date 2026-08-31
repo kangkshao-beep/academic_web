@@ -40,7 +40,7 @@ export default function DynamicPageClient({ dataByLocale, defaultLocale }: Dynam
   }
 
   return (
-    <div className={`${pageData.type === 'gallery' ? 'max-w-6xl' : 'max-w-4xl'} mx-auto px-4 sm:px-6 lg:px-8 py-12`}>
+    <div className={`${pageData.type === 'gallery' ? 'max-w-[90rem]' : 'max-w-4xl'} mx-auto px-4 sm:px-6 lg:px-8 py-12`}>
       {pageData.type === 'publication' && (
         <PublicationsList config={pageData.config} publications={pageData.publications} />
       )}
