@@ -21,10 +21,26 @@ export default function PhotographySlideshow({
   const items = useMemo(() => config.items || [], [config.items]);
   const [activeIndex, setActiveIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
 
   const activeItem = items[activeIndex];
   const canGoPrev = activeIndex > 0;
   const canGoNext = activeIndex < items.length - 1;
+  const timelineItems = useMemo(() => {
+    const recentItems = items
+      .map((item, index) => ({ item, index }))
+      .sort((a, b) => {
+        const dateComparison = (b.item.date || '').localeCompare(a.item.date || '');
+        return dateComparison || a.index - b.index;
+      })
+      .slice(0, 10);
+
+    if (!activeItem || recentItems.some(({ item }) => item.id === activeItem.id)) {
+      return recentItems;
+    }
+
+    return [...recentItems.slice(0, 9), { item: activeItem, index: activeIndex }];
+  }, [activeIndex, activeItem, items]);
   const detailParagraphs = useMemo(() => {
     const text = activeItem?.details || activeItem?.description || '';
     return text.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean);
@@ -59,6 +75,20 @@ export default function PhotographySlideshow({
   }, [items]);
 
   const activePhotoId = activeItem?.id;
+
+  useEffect(() => {
+    if (!activePhotoId || !window.matchMedia('(min-width: 1024px)').matches) return;
+
+    const activeTimelineItem = timelineRef.current?.querySelector<HTMLButtonElement>(
+      `[data-photo-id="${activePhotoId}"]`
+    );
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    activeTimelineItem?.scrollIntoView({
+      block: 'nearest',
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    });
+  }, [activePhotoId, timelineItems]);
 
   useEffect(() => {
     if (!activePhotoId || window.location.hash !== `#photo-${activePhotoId}`) return;
@@ -141,8 +171,14 @@ export default function PhotographySlideshow({
         )}
       </div>
 
-      <div className="space-y-5">
-        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-950 shadow-xl dark:border-neutral-800">
+      <div
+        className={cn(
+          'gap-8',
+          !embedded && 'lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start'
+        )}
+      >
+        <div className="space-y-5">
+          <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-950 shadow-xl dark:border-neutral-800">
           <div
             className="relative aspect-[16/10] w-full"
             onTouchStart={handleTouchStart}
@@ -197,9 +233,9 @@ export default function PhotographySlideshow({
               <ChevronRightIcon className="h-5 w-5" />
             </button>
           </div>
-        </div>
+          </div>
 
-        <div id={`photo-${activeItem.id}`} className="scroll-mt-24 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+          <div id={`photo-${activeItem.id}`} className="scroll-mt-24 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
           <div className="mb-2 flex flex-wrap items-center gap-3">
             <h2 className="text-2xl font-serif font-semibold text-primary">
               {activeItem.title}
@@ -242,35 +278,96 @@ export default function PhotographySlideshow({
               )}
             </dl>
           )}
-        </div>
+          </div>
 
-        <div className="overflow-x-auto pb-2">
-          <div className="flex min-w-max gap-3">
-            {items.map((item, index) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setActiveIndex(index)}
-                className={cn(
-                  'overflow-hidden rounded-xl border bg-neutral-100 transition-all dark:bg-neutral-900',
-                  index === activeIndex
-                    ? 'border-accent shadow-md'
-                    : 'border-neutral-200 dark:border-neutral-800'
-                )}
-              >
-                <div className="relative h-20 w-32 sm:h-24 sm:w-40">
-                  <Image
-                    src={item.thumb}
-                    alt={item.alt}
-                    fill
-                    className="object-cover"
-                    sizes="160px"
-                  />
-                </div>
-              </button>
-            ))}
+          <div className="overflow-x-auto pb-2">
+            <div className="flex min-w-max gap-3">
+              {items.map((item, index) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActiveIndex(index)}
+                  className={cn(
+                    'overflow-hidden rounded-xl border bg-neutral-100 transition-all dark:bg-neutral-900',
+                    index === activeIndex
+                      ? 'border-accent shadow-md'
+                      : 'border-neutral-200 dark:border-neutral-800'
+                  )}
+                >
+                  <div className="relative h-20 w-32 sm:h-24 sm:w-40">
+                    <Image
+                      src={item.thumb}
+                      alt={item.alt}
+                      fill
+                      className="object-cover"
+                      sizes="160px"
+                    />
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
+
+        {!embedded && (
+          <aside className="mt-8 border-l border-neutral-200 pl-5 dark:border-neutral-800 lg:sticky lg:top-24 lg:mt-0">
+            <h2 className="mb-4 text-xl font-serif font-semibold text-primary">
+              {messages.photography.recentWorks}
+            </h2>
+            <div
+              ref={timelineRef}
+              tabIndex={0}
+              aria-label={`${messages.photography.recentWorks} ${messages.common.scrollArea}`}
+              className="max-h-[34rem] space-y-1 overflow-y-auto overscroll-contain pr-3 [scrollbar-gutter:stable]"
+            >
+              {timelineItems.map(({ item, index }) => {
+                const isActive = item.id === activeItem.id;
+
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    data-photo-id={item.id}
+                    aria-current={isActive ? 'true' : undefined}
+                    onClick={() => setActiveIndex(index)}
+                    className={cn(
+                      'relative w-full rounded-md border border-transparent px-3 py-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+                      isActive
+                        ? 'border-accent bg-accent/10 text-primary dark:bg-accent/15'
+                        : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
+                    )}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        'absolute -left-[1.45rem] top-5 h-2.5 w-2.5 rounded-full border-2 border-background',
+                        isActive ? 'bg-accent' : 'bg-neutral-300 dark:bg-neutral-600'
+                      )}
+                    />
+                    {item.date && (
+                      <time dateTime={item.date} className="block text-xs text-neutral-500">
+                        {item.date}
+                      </time>
+                    )}
+                    <span className="mt-1 block font-serif text-base font-semibold text-primary">
+                      {item.title}
+                    </span>
+                    {item.location && (
+                      <span className="mt-1 block truncate text-xs text-neutral-500">
+                        {item.location}
+                      </span>
+                    )}
+                    {item.description && (
+                      <span className="mt-2 line-clamp-2 block text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                        {item.description}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </aside>
+        )}
       </div>
     </section>
   );

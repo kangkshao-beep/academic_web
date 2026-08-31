@@ -84,6 +84,7 @@ export interface LocaleMessages {
     previous: string;
     next: string;
     noItems: string;
+    recentWorks: string;
     camera: string;
     lens: string;
   };
@@ -179,6 +180,7 @@ const en: LocaleMessages = {
     previous: 'Previous photo',
     next: 'Next photo',
     noItems: 'No photographs added yet.',
+    recentWorks: 'Recent Works',
     camera: 'Camera',
     lens: 'Lens',
   },
@@ -274,6 +276,7 @@ const zh: LocaleMessages = {
     previous: '上一张',
     next: '下一张',
     noItems: '还没有添加摄影作品。',
+    recentWorks: '摄影动态',
     camera: '机身',
     lens: '镜头',
   },
@@ -369,6 +372,7 @@ const zhHk: LocaleMessages = {
     previous: '上一張相片',
     next: '下一張相片',
     noItems: '尚未加入攝影作品。',
+    recentWorks: '攝影動態',
     camera: '相機',
     lens: '鏡頭',
   },
