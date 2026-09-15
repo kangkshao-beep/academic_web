@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0.0",
+  "visibility": "private",
+  "generated_on": "2026-09-14",
+  "threads": [
+    {
+      "id": "synthetic-thread-a",
+      "title": "From a synthetic baseline to a mock measurement",
+      "visibility": "private",
+      "annotation_author": "assistant",
+      "status": "proposed",
+      "summary": "A small ordered path that exercises linked stages without making a citation-chain claim.",
+      "thesis_chapters": [1],
+      "stages": [
+        {
+          "label": "Vocabulary",
+          "papers": ["syntheticPrimer"],
+          "narrative": "Start with the synthetic primer."
+        },
+        {
+          "label": "Method and input",
+          "papers": ["syntheticMethod", "syntheticMeasurement"],
+          "narrative": "Compare the invented method record with its mock input."
+        }
+      ],
+      "reading_question": "Which displayed distinction depends on evidence rather than a shared tag?",
+      "question_status": "reading_prompt_not_verified_research_gap"
+    },
+    {
+      "id": "synthetic-thread-b",
+      "title": "A diagnostic stage with no paper",
+      "visibility": "private",
+      "annotation_author": "assistant",
+      "status": "proposed",
+      "summary": "This thread verifies that an intentionally empty stage remains visible.",
+      "thesis_chapters": [1],
+      "stages": [
+        {
+          "label": "Inspect a diagnostic",
+          "papers": [],
+          "narrative": "This is intentionally a document diagnostic rather than a bibliographic item."
+        },
+        {
+          "label": "Return to the primer",
+          "papers": ["syntheticPrimer"],
+          "narrative": "Use the existing record without fabricating a reference for the empty stage."
+        }
+      ],
+      "reading_question": "Does the interface preserve the empty stage without treating it as missing data?",
+      "question_status": "reading_prompt_not_verified_research_gap"
+    }
+  ]
+}

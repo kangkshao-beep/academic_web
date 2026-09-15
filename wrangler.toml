@@ -2,11 +2,23 @@ name = "academic-web"
 pages_build_output_dir = "out"
 compatibility_date = "2026-03-30"
 
+[[env.preview.r2_buckets]]
+binding = "READING_DATA"
+bucket_name = "academic-web-reading-preview"
+
+[env.preview.vars]
+READING_DATA_PREFIX = "releases/preview-synthetic-20260915-v1"
+
 # Keep the production counter separate from Preview deployments.
 [[env.production.d1_databases]]
 binding = "TRAFFIC_DB"
 database_name = "kkshao-traffic"
 database_id = "59cfe0ae-8786-4f55-8e38-458553390060"
 
+[[env.production.r2_buckets]]
+binding = "READING_DATA"
+bucket_name = "academic-web-reading-production"
+
 [env.production.vars]
 TRAFFIC_ENABLED = "true"
+READING_DATA_PREFIX = "releases/production-synthetic-20260915-v1"

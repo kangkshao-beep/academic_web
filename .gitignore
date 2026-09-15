@@ -10,3 +10,7 @@ public/conferences/chongqing2026togteher.jpg
 .env.local
 .env.*.local
 public/search-index.json
+private_seed/
+reading_v1_handoff/
+public/reading/data/
+*.tsbuildinfo

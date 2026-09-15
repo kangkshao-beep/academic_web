@@ -8,13 +8,24 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "serve:reading:private": "node scripts/serve-private-reading.mjs",
+    "test:reading:validator": "node scripts/test-reading-validator.mjs",
+    "test:reading:links": "node scripts/test-reading-links.mjs",
+    "test:reading:leaks": "node scripts/test-reading-leak-scanner.mjs",
+    "test:reading:browser": "node scripts/test-reading-browser.mjs",
+    "test:reading:browser-security": "node scripts/test-reading-browser-security.mjs",
+    "test:reading:security": "node scripts/test-reading-security.mjs",
+    "test:reading:functions": "node scripts/test-reading-functions.mjs",
+    "check:reading:leaks": "node scripts/scan-reading-leaks.mjs"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.2.0",
     "bibtex-parse-js": "^0.0.24",
     "clsx": "^2.1.1",
+    "cytoscape": "^3.34.3",
     "framer-motion": "^12.18.1",
     "lucide-react": "^0.515.0",
     "minisearch": "^7.2.0",
@@ -36,6 +47,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "lightningcss": "^1",
+    "playwright-core": "^1.63.0",
     "svg2ico": "^1.0.35",
     "tailwindcss": "^4",
     "typescript": "^5"

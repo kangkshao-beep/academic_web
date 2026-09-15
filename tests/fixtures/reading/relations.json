@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0.0",
+  "visibility": "private",
+  "generated_on": "2026-09-14",
+  "direction_rule": "source cites or uses target; curatorial links are undirected.",
+  "epistemic_warning": "Synthetic paths are interface fixtures, not claims about influence or research gaps.",
+  "edges": [
+    {
+      "id": "e1",
+      "source": "syntheticMethod",
+      "target": "syntheticPrimer",
+      "relation": "cites",
+      "layer": "citation",
+      "directed": true,
+      "note": "Synthetic citation edge used to test arrow direction.",
+      "evidence": [
+        {
+          "kind": "primary_source",
+          "url": "https://example.com/synthetic-method#references",
+          "locator": "Synthetic references",
+          "checked_on": "2026-09-14"
+        }
+      ],
+      "confidence": "high",
+      "status": "evidence_checked",
+      "visibility": "private"
+    },
+    {
+      "id": "e2",
+      "source": "syntheticMethod",
+      "target": "syntheticMeasurement",
+      "relation": "uses_data_from",
+      "layer": "documented_semantic",
+      "directed": true,
+      "note": "Synthetic semantic edge used to test evidence details.",
+      "evidence": [
+        {
+          "kind": "primary_source",
+          "url": "https://example.com/synthetic-method#inputs",
+          "locator": "Synthetic input section",
+          "checked_on": "2026-09-14"
+        },
+        {
+          "kind": "thesis_context",
+          "document_id": "synthetic-source",
+          "chapter": 1,
+          "section": "Synthetic overview",
+          "printed_pages": [1],
+          "pdf_pages": [14]
+        }
+      ],
+      "confidence": "high",
+      "status": "evidence_checked",
+      "visibility": "private"
+    },
+    {
+      "id": "e3",
+      "source": "syntheticPrimer",
+      "target": "syntheticMeasurement",
+      "relation": "curated_connection",
+      "layer": "curatorial",
+      "directed": false,
+      "note": "Synthetic proposed navigation link; it is not an evidence claim.",
+      "evidence": [
+        {
+          "kind": "thesis_context",
+          "document_id": "synthetic-source",
+          "chapter": 1,
+          "section": "Synthetic overview",
+          "printed_pages": [1],
+          "pdf_pages": [14]
+        }
+      ],
+      "confidence": "curatorial",
+      "status": "proposed",
+      "visibility": "private"
+    }
+  ],
+  "hypothesis_edges": []
+}

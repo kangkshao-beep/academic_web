@@ -1,0 +1,200 @@
+{
+  "schema_version": "1.0.0",
+  "visibility": "private",
+  "generated_on": "2026-09-14",
+  "curation_notice": "Synthetic fixture only. These records do not represent a real reading collection.",
+  "source_document": {
+    "id": "synthetic-source",
+    "filename": "synthetic-source.pdf",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "body_scope": {},
+    "bibliography_lookup": {},
+    "page_numbering": "Synthetic one-based pages with a 13-page offset."
+  },
+  "papers": [
+    {
+      "id": "syntheticPrimer",
+      "title": "A Synthetic Primer for Structured Reading",
+      "authors": ["Ada Example", "Bo Sample"],
+      "authors_complete": true,
+      "collaboration": null,
+      "year": 2018,
+      "preprint_year": 2017,
+      "journal": "Journal of Synthetic Fixtures",
+      "arxiv": "1701.00001",
+      "doi": "10.5555/synthetic.2018.1",
+      "inspire": null,
+      "entry_type": "article",
+      "role": "foundation",
+      "topics": ["baseline", "formalism"],
+      "processes": ["example-process-a"],
+      "priority": 5,
+      "priority_basis": "assistant_proposed_curatorial_relevance",
+      "reading_status": "unknown",
+      "curation_status": "proposed",
+      "origin": "thesis_ch1_7",
+      "bibliography_ref": 1,
+      "raw_thesis_citation": "Synthetic citation [1].",
+      "why_it_matters": "Establishes the vocabulary used by this synthetic browser fixture.",
+      "research_connection": "Provides a safe target for search, filters, details, and graph navigation tests.",
+      "annotation_author": "assistant",
+      "source_in_thesis": [
+        {
+          "chapter": 1,
+          "section": "Synthetic overview",
+          "printed_pages": [1],
+          "pdf_pages": [14],
+          "purpose": "Fixture provenance used only for interface verification."
+        }
+      ],
+      "verification": {
+        "identity_status": "primary_record_checked",
+        "checked_on": "2026-09-14",
+        "content_basis": "Synthetic metadata, intentionally not a real bibliographic record.",
+        "sources": [
+          {
+            "kind": "fixture",
+            "url": "https://example.com/synthetic-primer",
+            "locator": "Synthetic fixture page"
+          }
+        ],
+        "notes": ["Literal <script>window.__readingInjected = true</script> must render as text, never execute."]
+      },
+      "personal_notes": "",
+      "idea_hooks": [],
+      "visibility": "private"
+    },
+    {
+      "id": "syntheticMethod",
+      "title": "A Deliberately Invented Method Record",
+      "authors": ["Casey Placeholder"],
+      "authors_complete": false,
+      "collaboration": null,
+      "year": 2021,
+      "preprint_year": null,
+      "journal": null,
+      "arxiv": null,
+      "doi": null,
+      "inspire": null,
+      "entry_type": "proceedings",
+      "role": "method",
+      "topics": ["formalism", "calibration"],
+      "processes": ["example-process-a", "example-process-b"],
+      "priority": 4,
+      "priority_basis": "assistant_proposed_curatorial_relevance",
+      "reading_status": "unknown",
+      "curation_status": "proposed",
+      "origin": "bibliography_only",
+      "bibliography_ref": 2,
+      "raw_thesis_citation": "Synthetic bibliography-only citation [2].",
+      "why_it_matters": "Exercises proceedings labels and partial-author disclosure.",
+      "research_connection": "Tests combined topic, process, role, year, priority, and origin filters.",
+      "annotation_author": "assistant",
+      "source_in_thesis": [],
+      "verification": {
+        "identity_status": "needs_review",
+        "checked_on": "2026-09-14",
+        "content_basis": "Synthetic fixture content.",
+        "sources": [
+          {
+            "kind": "fixture",
+            "url": "https://example.com/synthetic-method",
+            "locator": "Synthetic fixture page"
+          }
+        ],
+        "notes": []
+      },
+      "personal_notes": "",
+      "idea_hooks": [],
+      "visibility": "private"
+    },
+    {
+      "id": "syntheticMeasurement",
+      "title": "Synthetic Measurement Inputs for Interface Testing",
+      "authors": ["Delta Mock", "Eli Fiction"],
+      "authors_complete": true,
+      "collaboration": "Fixture Collaboration",
+      "year": 2023,
+      "preprint_year": 2023,
+      "journal": "Mock Data Letters",
+      "arxiv": "2301.00002",
+      "doi": "10.5555/synthetic.2023.2",
+      "inspire": "1234567",
+      "entry_type": "article",
+      "role": "experiment",
+      "topics": ["measurement", "calibration"],
+      "processes": ["example-process-b"],
+      "priority": 5,
+      "priority_basis": "assistant_proposed_curatorial_relevance",
+      "reading_status": "unknown",
+      "curation_status": "proposed",
+      "origin": "external_supplement",
+      "bibliography_ref": null,
+      "raw_thesis_citation": null,
+      "why_it_matters": "Supplies a synthetic experimental node and complete identifier links.",
+      "research_connection": "Lets the graph distinguish data use from citations and reading suggestions.",
+      "annotation_author": "assistant",
+      "source_in_thesis": [],
+      "verification": {
+        "identity_status": "primary_record_checked",
+        "checked_on": "2026-09-14",
+        "content_basis": "Synthetic fixture content.",
+        "sources": [
+          {
+            "kind": "fixture",
+            "url": "https://example.com/synthetic-measurement",
+            "locator": "Synthetic fixture page"
+          }
+        ],
+        "notes": []
+      },
+      "personal_notes": "",
+      "idea_hooks": [],
+      "visibility": "private"
+    },
+    {
+      "id": "syntheticReview",
+      "title": "Reviewing a Small Synthetic Evidence Map",
+      "authors": ["Fran Test"],
+      "authors_complete": true,
+      "collaboration": null,
+      "year": 2025,
+      "preprint_year": 2024,
+      "journal": null,
+      "arxiv": "2401.00003",
+      "doi": null,
+      "inspire": null,
+      "entry_type": "preprint",
+      "role": "review",
+      "topics": ["overview"],
+      "processes": ["example-process-c"],
+      "priority": 3,
+      "priority_basis": "assistant_proposed_curatorial_relevance",
+      "reading_status": "unknown",
+      "curation_status": "proposed",
+      "origin": "external_supplement",
+      "bibliography_ref": null,
+      "raw_thesis_citation": null,
+      "why_it_matters": "Verifies that the graph eligibility threshold can exclude a valid Library item.",
+      "research_connection": "Keeps Library and graph counts intentionally different.",
+      "annotation_author": "assistant",
+      "source_in_thesis": [],
+      "verification": {
+        "identity_status": "primary_record_checked",
+        "checked_on": "2026-09-14",
+        "content_basis": "Synthetic fixture content.",
+        "sources": [
+          {
+            "kind": "fixture",
+            "url": "https://example.com/synthetic-review",
+            "locator": "Synthetic fixture page"
+          }
+        ],
+        "notes": []
+      },
+      "personal_notes": "",
+      "idea_hooks": [],
+      "visibility": "private"
+    }
+  ]
+}

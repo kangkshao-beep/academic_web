@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "visibility": "private",
+  "default_view": "library",
+  "graph": {
+    "eligible_priority_min": 4,
+    "initial_node_limit": 3,
+    "initial_focus_ids": ["syntheticPrimer", "syntheticMethod"],
+    "default_layers": ["citation", "documented_semantic"],
+    "curatorial_layer_default": false,
+    "hypothesis_layer_default": false,
+    "default_hops": 1,
+    "max_expansion_hops": 2
+  },
+  "public_seed_export_enabled": false,
+  "weekly_agent_enabled": false,
+  "web_editing_enabled": false
+}
