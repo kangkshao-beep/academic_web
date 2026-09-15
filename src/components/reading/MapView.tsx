@@ -12,6 +12,7 @@ import {
   UnfoldHorizontal,
 } from 'lucide-react';
 import { verifiedExternalUrl } from '@/lib/reading/links';
+import type { ReadingMessages } from '@/lib/reading/messages';
 import type {
   PaperRole,
   ReadingPaper,
@@ -26,6 +27,7 @@ interface MapViewProps {
   relations: ReadingRelation[];
   config: ReadingViewConfig['graph'];
   onOpenPaper: (paperId: string) => void;
+  messages: ReadingMessages;
 }
 
 interface PaperFilters {
@@ -35,35 +37,15 @@ interface PaperFilters {
   year: string;
 }
 
+type SearchStatus =
+  | { kind: 'not-found' }
+  | { kind: 'located'; title: string }
+  | null;
+
 const ALL = 'all';
 const COMPACT_GRAPH_QUERY = '(max-width: 639px)';
 const COMPACT_ANCHOR_LABEL_LIMIT = 3;
 const DEFAULT_ANCHOR_LABEL_LIMIT = 5;
-
-const ROLE_LABELS: Record<PaperRole, string> = {
-  foundation: '基础',
-  method: '方法',
-  phenomenology: '唯象',
-  experiment: '实验',
-  review: '综述',
-  frontier: '前沿',
-};
-
-const LAYER_LABELS: Record<RelationLayer, string> = {
-  citation: '引用事实',
-  documented_semantic: '有据语义关系',
-  curatorial: '建议阅读连接',
-};
-
-const RELATION_LABELS: Record<RelationType, string> = {
-  cites: '引用',
-  uses_framework_of: '使用其框架',
-  uses_data_from: '使用其数据',
-  cross_checks_against: '与其交叉检验',
-  adapts_method_of: '改编其方法',
-  updates_software_of: '更新其软件',
-  curated_connection: '建议阅读连接',
-};
 
 const ROLE_COLORS: Record<PaperRole, string> = {
   foundation: '#315f8c',
@@ -277,6 +259,7 @@ function GraphCanvas({
   selectedPaperId,
   selectedEdgeId,
   anchorLabelLimit,
+  messages,
   onNodeSelect,
   onEdgeSelect,
   onCanvasClear,
@@ -287,6 +270,7 @@ function GraphCanvas({
   selectedPaperId: string | null;
   selectedEdgeId: string | null;
   anchorLabelLimit: number;
+  messages: ReadingMessages;
   onNodeSelect: (id: string) => void;
   onEdgeSelect: (id: string) => void;
   onCanvasClear: () => void;
@@ -439,7 +423,7 @@ function GraphCanvas({
       ref={containerRef}
       className="h-[28rem] w-full overflow-hidden bg-[#fbfcfd] dark:bg-[#101827] sm:h-[34rem] xl:h-[38rem]"
       role="img"
-      aria-label={`文献关系交互图，默认标注最多 ${anchorLabelLimit} 个关键节点。图谱详情区的当前文献列表提供键盘操作方式。`}
+      aria-label={messages.map.canvasLabel(anchorLabelLimit)}
       aria-describedby="map-keyboard-fallback-description"
       data-testid="reading-graph-canvas"
       data-anchor-label-limit={anchorLabelLimit}
@@ -448,7 +432,7 @@ function GraphCanvas({
   );
 }
 
-export default function MapView({ papers, relations, config, onOpenPaper }: MapViewProps) {
+export default function MapView({ papers, relations, config, onOpenPaper, messages }: MapViewProps) {
   const compactGraphLabels = useCompactGraphLabels();
   const anchorLabelLimit = compactGraphLabels
     ? COMPACT_ANCHOR_LABEL_LIMIT
@@ -466,10 +450,15 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
   const [selectedPaperId, setSelectedPaperId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchMessage, setSearchMessage] = useState('');
+  const [searchStatus, setSearchStatus] = useState<SearchStatus>(null);
   const [fitRevision, setFitRevision] = useState(0);
   const [layoutRevision, setLayoutRevision] = useState(0);
   const focusEdgeDetailRef = useRef(false);
+  const searchMessage = searchStatus?.kind === 'located'
+    ? messages.map.located(searchStatus.title)
+    : searchStatus?.kind === 'not-found'
+      ? messages.map.noSearchMatch
+      : '';
 
   const topics = useMemo(() => sortedValues(papers.flatMap((paper) => paper.topics)), [papers]);
   const processes = useMemo(() => sortedValues(papers.flatMap((paper) => paper.processes)), [papers]);
@@ -556,10 +545,10 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
         source: relation.source,
         target: relation.target,
         layer: relation.layer,
-        shortLabel: RELATION_LABELS[relation.relation],
+        shortLabel: messages.labels.relationTypes[relation.relation],
       },
     })),
-  ], [anchorLabelIds, displayedPapers, displayedRelations]);
+  ], [anchorLabelIds, displayedPapers, displayedRelations, messages]);
 
   const selectedPaper = selectedPaperId && displayedIds.has(selectedPaperId)
     ? paperById.get(selectedPaperId) ?? null
@@ -587,7 +576,7 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
   useEffect(() => {
     if (selectedPaperId && !displayedIds.has(selectedPaperId)) {
       setSelectedPaperId(null);
-      setSearchMessage('');
+      setSearchStatus(null);
     }
   }, [displayedIds, selectedPaperId]);
 
@@ -617,7 +606,7 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
     setSelectedPaperId(null);
     setSelectedEdgeId(null);
     setSearchQuery('');
-    setSearchMessage('');
+    setSearchStatus(null);
     setLayoutRevision((revision) => revision + 1);
   }, [config.curatorial_layer_default, config.default_layers, config.initial_focus_ids]);
 
@@ -661,14 +650,14 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
         .some((value) => value.toLowerCase().includes(query))
     );
     if (!match) {
-      setSearchMessage('当前筛选范围内没有匹配文献。');
+      setSearchStatus({ kind: 'not-found' });
       return;
     }
     setVisibleIds((current) => new Set([...current, match.id]));
     setShowFullGraph(false);
     setSelectedPaperId(match.id);
     setSelectedEdgeId(null);
-    setSearchMessage(`已定位：${match.title}`);
+    setSearchStatus({ kind: 'located', title: match.title });
     setFitRevision((revision) => revision + 1);
   };
 
@@ -694,7 +683,7 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
 
   const updateFilter = (key: keyof PaperFilters, value: string) => {
     setFilters((current) => ({ ...current, [key]: value }));
-    setSearchMessage('');
+    setSearchStatus(null);
   };
 
   const openEdgeFromKeyboardList = (id: string) => {
@@ -714,10 +703,10 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
           <div className="min-w-0 flex-1">
               <h2 id="map-controls-heading" className="flex items-center gap-2 font-serif text-xl font-semibold text-primary">
                 <Network className="h-5 w-5 text-accent" aria-hidden="true" />
-                文献关系图
+                {messages.map.heading}
               </h2>
               <p className="mt-1 text-sm tabular-nums text-neutral-500">
-                优先级 {config.eligible_priority_min}+ · {eligiblePapers.length} 篇候选文献
+                {messages.map.candidateSummary(config.eligible_priority_min, eligiblePapers.length)}
               </p>
           </div>
             <div className="flex flex-wrap gap-2">
@@ -732,7 +721,7 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
                 }`}
               >
                 <UnfoldHorizontal className="h-4 w-4" aria-hidden="true" />
-                {showFullGraph ? '回到当前展开' : '显示全部筛选结果'}
+                {showFullGraph ? messages.map.returnToExpansion : messages.map.showAllResults}
               </button>
               <button
                 type="button"
@@ -740,13 +729,13 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
                 className="inline-flex min-h-10 items-center gap-2 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-primary outline-none transition-colors hover:border-accent focus:ring-2 focus:ring-accent dark:border-neutral-400 dark:bg-neutral-900"
               >
                 <RotateCcw className="h-4 w-4" aria-hidden="true" />
-                重置
+                {messages.map.reset}
               </button>
             </div>
           </div>
 
           <form onSubmit={focusSearch} className="mt-5 flex flex-col gap-2 sm:flex-row">
-            <label htmlFor="map-search" className="sr-only">搜索并定位文献</label>
+            <label htmlFor="map-search" className="sr-only">{messages.map.searchLabel}</label>
             <div className="relative min-w-0 flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" aria-hidden="true" />
               <input
@@ -754,31 +743,31 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
                 value={searchQuery}
                 onChange={(event) => {
                   setSearchQuery(event.target.value);
-                  setSearchMessage('');
+                  setSearchStatus(null);
                 }}
-                placeholder="搜索题名、作者或文献 ID"
+                placeholder={messages.map.searchPlaceholder}
                 className="min-h-10 min-w-0 w-full rounded-md border border-neutral-300 bg-white py-2 pl-9 pr-3 text-sm text-primary outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 dark:border-neutral-400 dark:bg-neutral-900"
               />
             </div>
             <button type="submit" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-background outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 dark:focus:ring-offset-neutral-900">
               <LocateFixed className="h-4 w-4" aria-hidden="true" />
-              定位
+              {messages.map.locate}
             </button>
           </form>
           <p className={searchMessage ? 'mt-2 text-xs text-neutral-500' : 'sr-only'} aria-live="polite">{searchMessage}</p>
 
           <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-5">
-            <FilterSelect label="主题" value={filters.topic} onChange={(value) => updateFilter('topic', value)} options={topics} />
-            <FilterSelect label="过程" value={filters.process} onChange={(value) => updateFilter('process', value)} options={processes} />
-            <FilterSelect label="角色" value={filters.role} onChange={(value) => updateFilter('role', value)} options={Object.keys(ROLE_LABELS)} labels={ROLE_LABELS} />
-            <FilterSelect label="年份" value={filters.year} onChange={(value) => updateFilter('year', value)} options={years.map(String)} />
-            <FilterSelect label="关系" value={relationFilter} onChange={setRelationFilter} options={relationTypes} labels={RELATION_LABELS} />
+            <FilterSelect label={messages.map.filters.topic} allLabel={messages.map.all} value={filters.topic} onChange={(value) => updateFilter('topic', value)} options={topics} />
+            <FilterSelect label={messages.map.filters.process} allLabel={messages.map.all} value={filters.process} onChange={(value) => updateFilter('process', value)} options={processes} />
+            <FilterSelect label={messages.map.filters.role} allLabel={messages.map.all} value={filters.role} onChange={(value) => updateFilter('role', value)} options={Object.keys(messages.labels.roles)} labels={messages.labels.roles} />
+            <FilterSelect label={messages.map.filters.year} allLabel={messages.map.all} value={filters.year} onChange={(value) => updateFilter('year', value)} options={years.map(String)} />
+            <FilterSelect label={messages.map.filters.relation} allLabel={messages.map.all} value={relationFilter} onChange={setRelationFilter} options={relationTypes} labels={messages.labels.relationTypes} />
           </div>
 
           <fieldset className="mt-4 border-t border-neutral-200 pt-4 dark:border-[rgba(148,163,184,0.22)]">
-            <legend className="px-1 text-xs font-semibold text-neutral-500">证据层</legend>
+            <legend className="px-1 text-xs font-semibold text-neutral-500">{messages.map.evidenceLayers}</legend>
             <div className="flex flex-wrap gap-2">
-              {(Object.keys(LAYER_LABELS) as RelationLayer[]).map((layer) => (
+              {(Object.keys(messages.labels.relationLayers) as RelationLayer[]).map((layer) => (
                 <label key={layer} className={`inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition-colors ${
                   activeLayers.has(layer)
                     ? 'border-neutral-400 bg-white text-primary dark:border-neutral-400 dark:bg-neutral-900'
@@ -791,34 +780,34 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
                     className="h-4 w-4 accent-[var(--accent)]"
                   />
                   <span className="w-6 border-t-2" style={{ borderColor: LAYER_COLORS[layer], borderStyle: LAYER_LINE_STYLES[layer] }} aria-hidden="true" />
-                  {LAYER_LABELS[layer]}
+                  {messages.labels.relationLayers[layer]}
                 </label>
               ))}
-              <span className="inline-flex min-h-9 items-center px-2 text-xs text-neutral-400">假设层为空</span>
+              <span className="inline-flex min-h-9 items-center px-2 text-xs text-neutral-400">{messages.map.hypothesisEmpty}</span>
             </div>
           </fieldset>
         </div>
       </section>
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <section className="min-w-0 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-[rgba(148,163,184,0.30)] dark:bg-neutral-900" aria-label="关系图谱">
+        <section className="min-w-0 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-[rgba(148,163,184,0.30)] dark:bg-neutral-900" aria-label={messages.map.graphRegion}>
           <div className="flex flex-col gap-3 border-b border-neutral-200 px-4 py-3 dark:border-[rgba(148,163,184,0.30)] sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <span className="inline-flex items-center gap-2 text-sm font-medium tabular-nums text-primary">
                 <span className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
-                {displayedPapers.length} 篇文献 · {displayedRelations.length} 条当前连线
+                {messages.map.graphSummary(displayedPapers.length, displayedRelations.length)}
               </span>
-              <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-neutral-500" aria-label="关系图例">
-                <LegendLine color={LAYER_COLORS.citation} style="solid" label="引用" />
-                <LegendLine color={LAYER_COLORS.documented_semantic} style="dotted" label="有据语义" />
-                <LegendLine color={LAYER_COLORS.curatorial} style="dashed" label="阅读连接" />
+              <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-neutral-500" aria-label={messages.map.relationLegend}>
+                <LegendLine color={LAYER_COLORS.citation} style="solid" label={messages.map.citationLegend} />
+                <LegendLine color={LAYER_COLORS.documented_semantic} style="dotted" label={messages.map.semanticLegend} />
+                <LegendLine color={LAYER_COLORS.curatorial} style="dashed" label={messages.map.curatorialLegend} />
               </div>
             </div>
             <div className="flex shrink-0 gap-2 self-end sm:self-auto">
-              <button type="button" onClick={() => setFitRevision((revision) => revision + 1)} title="适配视图" aria-label="适配图谱视图" className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-neutral-300 text-neutral-600 outline-none transition-colors hover:border-accent hover:text-accent focus:ring-2 focus:ring-accent dark:border-[rgba(148,163,184,0.30)] dark:text-neutral-500">
+              <button type="button" onClick={() => setFitRevision((revision) => revision + 1)} title={messages.map.fitView} aria-label={messages.map.fitView} className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-neutral-300 text-neutral-600 outline-none transition-colors hover:border-accent hover:text-accent focus:ring-2 focus:ring-accent dark:border-[rgba(148,163,184,0.30)] dark:text-neutral-500">
                 <Focus className="h-4 w-4" aria-hidden="true" />
               </button>
-              <button type="button" onClick={() => setLayoutRevision((revision) => revision + 1)} title="重新布局" aria-label="重新计算图谱布局" className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-neutral-300 text-neutral-600 outline-none transition-colors hover:border-accent hover:text-accent focus:ring-2 focus:ring-accent dark:border-[rgba(148,163,184,0.30)] dark:text-neutral-500">
+              <button type="button" onClick={() => setLayoutRevision((revision) => revision + 1)} title={messages.map.relayout} aria-label={messages.map.relayout} className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-neutral-300 text-neutral-600 outline-none transition-colors hover:border-accent hover:text-accent focus:ring-2 focus:ring-accent dark:border-[rgba(148,163,184,0.30)] dark:text-neutral-500">
                 <Network className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
@@ -831,84 +820,85 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
               selectedPaperId={selectedPaperId}
               selectedEdgeId={selectedEdgeId}
               anchorLabelLimit={anchorLabelLimit}
+              messages={messages}
               onNodeSelect={selectNode}
               onEdgeSelect={selectEdge}
               onCanvasClear={clearSelection}
             />
           ) : (
             <div className="flex h-[28rem] items-center justify-center p-8 text-center text-sm text-neutral-500 sm:h-[34rem] xl:h-[38rem]">
-              当前筛选没有可显示的文献。请调整筛选或重置图谱。
+              {messages.map.noVisiblePapers}
             </div>
           )}
           <div className="border-t border-neutral-200 px-4 py-3 dark:border-[rgba(148,163,184,0.30)]">
-            <h2 id="map-legend-heading" className="sr-only">图例与解释边界</h2>
-            <ul className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-neutral-500" aria-label="节点角色颜色">
-              {(Object.keys(ROLE_LABELS) as PaperRole[]).map((role) => (
+            <h2 id="map-legend-heading" className="sr-only">{messages.map.legendBoundary}</h2>
+            <ul className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-neutral-500" aria-label={messages.map.roleColors}>
+              {(Object.keys(messages.labels.roles) as PaperRole[]).map((role) => (
                 <li key={role} className="inline-flex items-center gap-1.5">
                   <span className="h-2.5 w-2.5 rounded-full ring-1 ring-white" style={{ backgroundColor: ROLE_COLORS[role] }} aria-hidden="true" />
-                  {ROLE_LABELS[role]}
+                  {messages.labels.roles[role]}
                 </li>
               ))}
               <li className="inline-flex items-center gap-2 border-l border-neutral-200 pl-4 dark:border-neutral-700">
                 <span className="h-2.5 w-2.5 rounded-full bg-neutral-400" aria-hidden="true" />
                 <span className="h-3.5 w-3.5 rounded-full bg-neutral-400" aria-hidden="true" />
-                优先级 4 / 5
+                {messages.map.prioritySizes}
               </li>
             </ul>
           </div>
         </section>
 
-        <aside className="min-w-0 space-y-4" aria-label="图谱详情">
+        <aside className="min-w-0 space-y-4" aria-label={messages.map.details}>
           {selectedPaper ? (
             <section className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-[rgba(148,163,184,0.30)] dark:bg-neutral-900" aria-labelledby="selected-paper-heading">
               <p className="flex items-center gap-2 text-xs font-semibold text-accent">
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: ROLE_COLORS[selectedPaper.role] }} aria-hidden="true" />
-                选中文献
+                {messages.map.selectedPaper}
               </p>
               <h3 id="selected-paper-heading" className="mt-2 break-words font-serif text-lg font-semibold leading-snug text-primary">{selectedPaper.title}</h3>
               <p className="mt-2 break-words text-sm text-neutral-600 dark:text-neutral-500">
-                {selectedPaper.authors.join(', ')}{!selectedPaper.authors_complete && '（作者列表不完整）'}
+                {selectedPaper.authors.join(', ')}{!selectedPaper.authors_complete && ` ${messages.map.partialAuthorList}`}
               </p>
               <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                <DetailTerm label="年份" value={String(selectedPaper.year)} />
-                <DetailTerm label="角色" value={ROLE_LABELS[selectedPaper.role]} />
-                <DetailTerm label="建议优先级" value={`${selectedPaper.priority} / 5`} />
-                <DetailTerm label="阅读状态" value={selectedPaper.reading_status === 'unknown' ? '未知' : selectedPaper.reading_status} />
+                <DetailTerm label={messages.map.year} value={String(selectedPaper.year)} />
+                <DetailTerm label={messages.map.role} value={messages.labels.roles[selectedPaper.role]} />
+                <DetailTerm label={messages.map.suggestedPriority} value={`${selectedPaper.priority} / 5`} />
+                <DetailTerm label={messages.map.readingStatus} value={messages.labels.statuses[selectedPaper.reading_status]} />
               </dl>
               <div className="mt-4 flex flex-wrap gap-2">
                 {config.default_hops >= 1 && (
                   <button type="button" onClick={() => expandFromSelection(config.default_hops as 1 | 2)} className="inline-flex items-center gap-2 rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-primary outline-none hover:border-accent focus:ring-2 focus:ring-accent dark:border-[rgba(148,163,184,0.30)]">
                     <UnfoldHorizontal className="h-4 w-4" aria-hidden="true" />
-                    按默认展开 {config.default_hops} 跳
+                    {messages.map.expandDefault(config.default_hops)}
                   </button>
                 )}
                 {config.default_hops !== 1 && (
-                  <button type="button" onClick={() => expandFromSelection(1)} className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-primary outline-none hover:border-accent focus:ring-2 focus:ring-accent dark:border-[rgba(148,163,184,0.30)]">展开 1 跳</button>
+                  <button type="button" onClick={() => expandFromSelection(1)} className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-primary outline-none hover:border-accent focus:ring-2 focus:ring-accent dark:border-[rgba(148,163,184,0.30)]">{messages.map.expandHops(1)}</button>
                 )}
                 {config.max_expansion_hops >= 2 && config.default_hops !== 2 && (
-                  <button type="button" onClick={() => expandFromSelection(2)} className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-primary outline-none hover:border-accent focus:ring-2 focus:ring-accent dark:border-[rgba(148,163,184,0.30)]">展开 2 跳</button>
+                  <button type="button" onClick={() => expandFromSelection(2)} className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-primary outline-none hover:border-accent focus:ring-2 focus:ring-accent dark:border-[rgba(148,163,184,0.30)]">{messages.map.expandHops(2)}</button>
                 )}
-                <button type="button" onClick={() => onOpenPaper(selectedPaper.id)} className="rounded-md bg-amber-700 px-3 py-2 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-amber-700 focus:ring-offset-2 dark:bg-accent dark:text-neutral-900 dark:focus:ring-accent dark:focus:ring-offset-neutral-900">Library 详情</button>
+                <button type="button" onClick={() => onOpenPaper(selectedPaper.id)} className="rounded-md bg-amber-700 px-3 py-2 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-amber-700 focus:ring-offset-2 dark:bg-accent dark:text-neutral-900 dark:focus:ring-accent dark:focus:ring-offset-neutral-900">{messages.map.libraryDetails}</button>
               </div>
             </section>
           ) : selectedEdge ? (
-            <EdgeDetail edge={selectedEdge} paperById={paperById} />
+            <EdgeDetail edge={selectedEdge} paperById={paperById} messages={messages} />
           ) : (
             <section className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-[rgba(148,163,184,0.30)] dark:bg-neutral-900" aria-labelledby="map-overview-heading">
-              <p className="text-xs font-semibold text-accent">图谱概览</p>
-              <h3 id="map-overview-heading" className="mt-1 font-serif text-lg font-semibold text-primary">当前范围</h3>
+              <p className="text-xs font-semibold text-accent">{messages.map.overview}</p>
+              <h3 id="map-overview-heading" className="mt-1 font-serif text-lg font-semibold text-primary">{messages.map.currentScope}</h3>
               <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-                <DetailTerm label="显示文献" value={String(displayedPapers.length)} />
-                <DetailTerm label="当前连线" value={String(displayedRelations.length)} />
-                <DetailTerm label="启用证据层" value={`${activeLayers.size} / 3`} />
-                <DetailTerm label="筛选候选" value={String(eligiblePapers.length)} />
+                <DetailTerm label={messages.map.visiblePapers} value={String(displayedPapers.length)} />
+                <DetailTerm label={messages.map.currentRelations} value={String(displayedRelations.length)} />
+                <DetailTerm label={messages.map.enabledLayers} value={`${activeLayers.size} / 3`} />
+                <DetailTerm label={messages.map.filteredCandidates} value={String(eligiblePapers.length)} />
               </dl>
             </section>
           )}
 
           {selectedPaper && (
             <section className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-[rgba(148,163,184,0.30)] dark:bg-neutral-900" aria-labelledby="adjacent-heading">
-              <h3 id="adjacent-heading" className="text-sm font-semibold text-primary">邻接文献（键盘列表）</h3>
+              <h3 id="adjacent-heading" className="text-sm font-semibold text-primary">{messages.map.adjacentPapers}</h3>
               {adjacent.length > 0 ? (
                 <ul className="mt-3 divide-y divide-neutral-200 dark:divide-neutral-700">
                   {adjacent.map(({ relation, paper }) => (
@@ -918,28 +908,30 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
                       </button>
                       <div className="mt-1 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <span className="min-w-0 break-words text-xs text-neutral-500">
-                          {relation.directed ? (relation.source === selectedPaper.id ? '向外' : '向内') : '无向'} · {RELATION_LABELS[relation.relation]} · {LAYER_LABELS[relation.layer]}
+                          {relation.directed
+                            ? (relation.source === selectedPaper.id ? messages.map.outgoing : messages.map.incoming)
+                            : messages.map.undirected} · {messages.labels.relationTypes[relation.relation]} · {messages.labels.relationLayers[relation.layer]}
                         </span>
-                        <button type="button" onClick={() => openEdgeFromKeyboardList(relation.id)} className="shrink-0 rounded-md border border-neutral-300 px-2 py-1 text-xs font-medium text-neutral-600 outline-none hover:border-accent hover:text-accent focus:ring-2 focus:ring-accent dark:border-[rgba(148,163,184,0.30)] dark:text-neutral-500" aria-label={`查看 ${paper.title} 的${RELATION_LABELS[relation.relation]}关系`}>
-                          查看关系
+                        <button type="button" onClick={() => openEdgeFromKeyboardList(relation.id)} className="shrink-0 rounded-md border border-neutral-300 px-2 py-1 text-xs font-medium text-neutral-600 outline-none hover:border-accent hover:text-accent focus:ring-2 focus:ring-accent dark:border-[rgba(148,163,184,0.30)] dark:text-neutral-500" aria-label={messages.map.viewRelationFor(paper.title, messages.labels.relationTypes[relation.relation])}>
+                          {messages.map.viewRelation}
                         </button>
                       </div>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="mt-3 text-sm text-neutral-500">当前证据层与筛选下没有邻接项。</p>
+                <p className="mt-3 text-sm text-neutral-500">{messages.map.noAdjacent}</p>
               )}
             </section>
           )}
 
           <section id="map-keyboard-fallback" className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-[rgba(148,163,184,0.30)] dark:bg-neutral-900" aria-labelledby="map-keyboard-fallback-heading">
             <div className="flex items-baseline justify-between gap-3">
-              <h3 id="map-keyboard-fallback-heading" className="text-sm font-semibold text-primary">文献索引</h3>
+              <h3 id="map-keyboard-fallback-heading" className="text-sm font-semibold text-primary">{messages.map.paperIndex}</h3>
               <span className="shrink-0 text-xs tabular-nums text-neutral-400">{displayedPapers.length}</span>
             </div>
             <p id="map-keyboard-fallback-description" className="sr-only">
-              图形画布用于指针探索；可用 Tab 键进入此列表并选择任一文献，再通过邻接列表检查关系。
+              {messages.map.keyboardDescription}
             </p>
             {displayedPapers.length > 0 ? (
               <ul className="mt-3 max-h-[30rem] divide-y divide-neutral-200 overflow-y-auto pr-1 dark:divide-neutral-700">
@@ -958,21 +950,21 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
                       <span className="block break-words text-sm font-medium leading-snug text-primary">{paper.title}</span>
                       <span className="mt-1 flex items-center gap-1.5 text-xs text-neutral-500">
                         <span className="h-2 w-2 rounded-full" style={{ backgroundColor: ROLE_COLORS[paper.role] }} aria-hidden="true" />
-                        {paper.year} · {ROLE_LABELS[paper.role]}
+                        {paper.year} · {messages.labels.roles[paper.role]}
                       </span>
                     </button>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="mt-3 text-sm text-neutral-500">当前筛选没有可选择的文献。</p>
+              <p className="mt-3 text-sm text-neutral-500">{messages.map.noSelectablePapers}</p>
             )}
           </section>
         </aside>
       </div>
 
       <p className="border-t border-neutral-200 pt-4 text-xs leading-relaxed text-neutral-500 dark:border-[rgba(148,163,184,0.30)]">
-        箭头由来源指向被引用或被使用的文献。缺少连线只表示当前图谱信息不足；阅读连接仅用于导航，不构成历史影响或研究空白的证据。
+        {messages.map.disclaimer}
       </p>
     </div>
   );
@@ -980,12 +972,14 @@ export default function MapView({ papers, relations, config, onOpenPaper }: MapV
 
 function FilterSelect({
   label,
+  allLabel,
   value,
   onChange,
   options,
   labels,
 }: {
   label: string;
+  allLabel: string;
   value: string;
   onChange: (value: string) => void;
   options: readonly string[];
@@ -995,7 +989,7 @@ function FilterSelect({
     <label className="text-xs font-medium text-neutral-600 dark:text-neutral-500">
       {label}
       <select value={value} onChange={(event) => onChange(event.target.value)} className="mt-1 block min-w-0 max-w-full w-full rounded-md border border-neutral-300 bg-white px-2 py-2 text-sm text-primary outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 dark:border-neutral-400 dark:bg-neutral-900">
-        <option value={ALL}>全部</option>
+        <option value={ALL}>{allLabel}</option>
         {options.map((option) => <option key={option} value={option}>{labels?.[option] ?? option}</option>)}
       </select>
     </label>
@@ -1011,43 +1005,56 @@ function DetailTerm({ label, value }: { label: string; value: string }) {
   );
 }
 
-function EdgeDetail({ edge, paperById }: { edge: ReadingRelation; paperById: Map<string, ReadingPaper> }) {
+function EdgeDetail({
+  edge,
+  paperById,
+  messages,
+}: {
+  edge: ReadingRelation;
+  paperById: Map<string, ReadingPaper>;
+  messages: ReadingMessages;
+}) {
   const source = paperById.get(edge.source);
   const target = paperById.get(edge.target);
   return (
     <section id="selected-edge-detail" tabIndex={-1} className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-[rgba(148,163,184,0.30)] dark:bg-neutral-900" aria-labelledby="selected-edge-heading">
       <p className="flex items-center gap-2 text-xs font-semibold text-accent">
         <span className="w-7 border-t-2" style={{ borderColor: LAYER_COLORS[edge.layer], borderStyle: LAYER_LINE_STYLES[edge.layer] }} aria-hidden="true" />
-        选中关系
+        {messages.map.selectedRelation}
       </p>
-      <h3 id="selected-edge-heading" className="mt-2 text-base font-semibold text-primary">{RELATION_LABELS[edge.relation]}</h3>
+      <h3 id="selected-edge-heading" className="mt-2 text-base font-semibold text-primary">{messages.labels.relationTypes[edge.relation]}</h3>
       <p className="mt-3 break-words text-sm leading-relaxed text-neutral-700 dark:text-neutral-600">
         <span className="font-medium">{source?.title ?? edge.source}</span>
-        <span className="mx-2 text-accent" aria-label={edge.directed ? '指向' : '双向连接'}>{edge.directed ? '→' : '—'}</span>
+        <span className="mx-2 text-accent" aria-label={edge.directed ? messages.map.pointsTo : messages.map.bidirectional}>{edge.directed ? '→' : '—'}</span>
         <span className="font-medium">{target?.title ?? edge.target}</span>
       </p>
       <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-        <DetailTerm label="证据层" value={LAYER_LABELS[edge.layer]} />
-        <DetailTerm label="方向" value={edge.directed ? '有向' : '无向'} />
-        <DetailTerm label="置信标记" value={edge.confidence === 'high' ? '高（已核证）' : '策展建议'} />
-        <DetailTerm label="状态" value={edge.status === 'evidence_checked' ? '证据已检查' : '建议'} />
+        <DetailTerm label={messages.map.evidenceLayer} value={messages.labels.relationLayers[edge.layer]} />
+        <DetailTerm label={messages.map.direction} value={edge.directed ? messages.map.directed : messages.map.undirected} />
+        <DetailTerm label={messages.map.confidence} value={edge.confidence === 'high' ? messages.map.confidenceHigh : messages.map.confidenceCuratorial} />
+        <DetailTerm label={messages.map.status} value={edge.status === 'evidence_checked' ? messages.map.evidenceChecked : messages.labels.proposed} />
       </dl>
       <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-neutral-600 dark:text-neutral-500">{edge.note}</p>
-      <h4 className="mt-5 text-sm font-semibold text-primary">证据</h4>
+      <h4 className="mt-5 text-sm font-semibold text-primary">{messages.map.evidence}</h4>
       <ul className="mt-2 space-y-3 text-xs text-neutral-600 dark:text-neutral-500">
         {edge.evidence.map((evidence, index) => {
           if (evidence.kind === 'primary_source') {
             const url = verifiedExternalUrl(evidence.url);
             return (
               <li key={`${evidence.kind}-${index}`} className="border-l-2 border-neutral-300 pl-3 dark:border-[rgba(148,163,184,0.30)]">
-                <span className="block">原始来源 · {evidence.locator} · 核对于 {evidence.checked_on}</span>
-                {url && <a href={url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="mt-1 inline-flex items-center gap-1 font-medium text-amber-700 hover:underline dark:text-accent"><ExternalLink className="h-3 w-3" aria-hidden="true" />查看证据</a>}
+                <span className="block">{messages.map.primarySource(evidence.locator, evidence.checked_on)}</span>
+                {url && <a href={url} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="mt-1 inline-flex items-center gap-1 font-medium text-amber-700 hover:underline dark:text-accent"><ExternalLink className="h-3 w-3" aria-hidden="true" />{messages.map.viewEvidence}</a>}
               </li>
             );
           }
           return (
             <li key={`${evidence.kind}-${index}`} className="border-l-2 border-neutral-300 pl-3 dark:border-[rgba(148,163,184,0.30)]">
-              论文语境：第 {evidence.chapter} 章 {evidence.section}，印刷页 {evidence.printed_pages.join(', ')} / PDF 页 {evidence.pdf_pages.join(', ')}
+              {messages.map.thesisContext(
+                evidence.chapter,
+                evidence.section,
+                evidence.printed_pages.join(', '),
+                evidence.pdf_pages.join(', ')
+              )}
             </li>
           );
         })}

@@ -172,7 +172,7 @@ async function runGenericSmoke(page) {
   await page.locator('#reading-library-results').waitFor({ state: 'visible' });
   assert(await libraryRecords.count() > 0, 'Generic smoke found no Library records.');
   assert.equal(
-    await page.getByRole('button', { name: '重试', exact: true }).count(),
+    await page.getByRole('button', { name: 'Retry', exact: true }).count(),
     0,
     'Generic smoke loaded a Reading error state.'
   );
@@ -206,6 +206,100 @@ async function runGenericSmoke(page) {
   await page.locator('#reading-threads-heading').waitFor({ state: 'visible' });
   await assertNoHorizontalOverflow(page, 'Generic mobile Threads');
   await page.setViewportSize({ width: 1440, height: 1000 });
+}
+
+async function switchLocale(page, optionName, expectedLocale) {
+  const toggle = page.locator('button[aria-haspopup="menu"]').first();
+  await toggle.click();
+  await page.getByRole('button', { name: optionName, exact: true }).click();
+  await page.waitForFunction(
+    (locale) => document.documentElement.getAttribute('data-locale') === locale,
+    expectedLocale
+  );
+}
+
+async function assertReadingLocales(page) {
+  const cases = [
+    {
+      locale: 'en', option: 'English EN', title: 'Reading',
+      description: 'A research reading index, relationship map, and thematic paths for inclusive heavy-flavor semileptonic decays.',
+      tabs: ['Library', 'Map', 'Threads'], records: 'Library records',
+      placeholder: 'Search titles, authors, identifiers, topics, processes, or annotations',
+      mapHeading: 'Literature relationship map', threadsHeading: 'Threads',
+      entryType: 'Article', role: 'Foundation', status: 'Unknown (not marked as read)',
+      forbidden: ['文献记录', '文獻記錄'],
+    },
+    {
+      locale: 'zh', option: '简体中文 ZH', title: '阅读',
+      description: '关于重味强子半轻子单举衰变的研究阅读索引、文献关系图与主题路径。',
+      tabs: ['文献库', '关系图', '主题线索'], records: '文献记录',
+      placeholder: '搜索题名、作者、标识符、主题、过程或批注',
+      mapHeading: '文献关系图', threadsHeading: '主题线索',
+      entryType: '期刊论文', role: '基础', status: '未知（未标记为已读）',
+      forbidden: ['文獻記錄', '關係圖', '閱讀狀態'],
+    },
+    {
+      locale: 'zh-hk', option: '繁體中文（香港） ZH-HK', title: '閱讀',
+      description: '重味強子半輕子單舉衰變研究的文獻索引、關係圖與閱讀脈絡。',
+      tabs: ['文獻庫', '關係圖', '閱讀脈絡'], records: '文獻記錄',
+      placeholder: '搜尋題名、作者、識別碼、主題、過程或批註',
+      mapHeading: '文獻關係圖', threadsHeading: '閱讀脈絡',
+      entryType: '期刊論文', role: '基礎', status: '未知（未標記為已讀）',
+      forbidden: ['文献记录', '关系图', '阅读状态', '筛选', '证据层'],
+    },
+  ];
+
+  for (const localeCase of cases) {
+    await switchLocale(page, localeCase.option, localeCase.locale);
+    const reading = page.getByTestId('reading-app');
+    await reading.getByRole('heading', { name: localeCase.title, level: 1, exact: true }).waitFor();
+    await waitForText(reading, localeCase.description);
+
+    for (const tabName of localeCase.tabs) {
+      assert.equal(await reading.getByRole('tab', { name: tabName, exact: true }).count(), 1);
+    }
+
+    const libraryTab = reading.getByRole('tab', { name: localeCase.tabs[0], exact: true });
+    await libraryTab.click();
+    await reading.getByRole('heading', { name: localeCase.records, exact: true }).waitFor();
+    assert.equal(
+      await reading.locator('#reading-library-search').getAttribute('placeholder'),
+      localeCase.placeholder
+    );
+    const firstPaper = reading.locator('article[id^="reading-paper-"]').first();
+    const firstPaperText = await firstPaper.innerText();
+    assert(firstPaperText.includes(localeCase.entryType), `${localeCase.locale} entry type was not localized.`);
+    assert(firstPaperText.includes(localeCase.role), `${localeCase.locale} role was not localized.`);
+    assert(firstPaperText.includes(localeCase.status), `${localeCase.locale} reading status was not localized.`);
+
+    await reading.getByRole('tab', { name: localeCase.tabs[1], exact: true }).click();
+    await reading.getByRole('heading', { name: localeCase.mapHeading, exact: true }).waitFor();
+    await reading.getByRole('tab', { name: localeCase.tabs[2], exact: true }).click();
+    await reading.getByRole('heading', { name: localeCase.threadsHeading, exact: true }).waitFor();
+
+    const readingText = await reading.innerText();
+    for (const forbidden of localeCase.forbidden) {
+      assert(!readingText.includes(forbidden), `${localeCase.locale} Reading UI contains stale text: ${forbidden}`);
+    }
+  }
+
+  await switchLocale(page, 'English EN', 'en');
+  const reading = page.getByTestId('reading-app');
+  await reading.getByRole('tab', { name: 'Map', exact: true }).click();
+  const mapPaperTitle = (await reading.locator('#map-keyboard-fallback button span').first().textContent())?.trim();
+  assert(mapPaperTitle, 'Map did not expose a paper title for the localized search-status check.');
+  const mapSearch = reading.locator('#map-search');
+  await mapSearch.fill(mapPaperTitle);
+  await mapSearch.press('Enter');
+  await waitForText(reading, `Located: ${mapPaperTitle}`);
+  await switchLocale(page, '简体中文 ZH', 'zh');
+  await waitForText(reading, `已定位：${mapPaperTitle}`);
+  assert.equal(await reading.getByText('Located:', { exact: false }).count(), 0, 'Map search status retained English after switching to zh.');
+  await switchLocale(page, '繁體中文（香港） ZH-HK', 'zh-hk');
+  await waitForText(reading, `已定位：${mapPaperTitle}`);
+
+  await switchLocale(page, 'English EN', 'en');
+  await reading.getByRole('tab', { name: 'Library', exact: true }).click();
 }
 
 async function assertAnonymousPublicPages(browser, origin) {
@@ -282,6 +376,11 @@ try {
     reducedMotion: 'reduce',
   });
   await context.addInitScript(() => {
+    try {
+      if (localStorage.getItem('locale-storage') === null) localStorage.setItem('locale-storage', 'en');
+    } catch {
+      // The origin may not expose storage during the initial blank document.
+    }
     const NativeResizeObserver = window.ResizeObserver;
     if (!NativeResizeObserver) return;
 
@@ -363,6 +462,7 @@ try {
 
   if (dataMode === 'generic') {
     await runGenericSmoke(page);
+    await assertReadingLocales(page);
   } else {
     await waitForText(page, 'Showing 4 of 4');
     await page.locator('#reading-library-search').fill('synthetic measurement');
@@ -437,31 +537,31 @@ try {
       `Desktop Map canvas height is outside the compact target (${desktopGraphHeight}px).`
     );
 
-    await waitForText(page, '2 篇文献 · 1 条当前连线');
+    await waitForText(page, '2 papers · 1 current relation');
     const canvasCount = await graph.locator('canvas').count();
     assert(canvasCount > 0, 'Cytoscape did not create canvas layers.');
     await assertGraphPainted(graph);
 
     const graphList = page.locator('#map-keyboard-fallback');
     const primerGraphButton = graphList.getByRole('button', { name: /A Synthetic Primer/ });
-    const fitButton = page.getByRole('button', { name: '适配图谱视图' });
-    const relayoutButton = page.getByRole('button', { name: '重新计算图谱布局' });
+    const fitButton = page.getByRole('button', { name: 'Fit graph view' });
+    const relayoutButton = page.getByRole('button', { name: 'Recalculate graph layout' });
     await fitButton.focus();
     await page.keyboard.press('Enter');
     await relayoutButton.focus();
     await page.keyboard.press('Enter');
     await tabTo(page, primerGraphButton, 3);
     await page.keyboard.press('Enter');
-    await waitForText(page, '邻接文献（键盘列表）');
+    await waitForText(page, 'Adjacent papers (keyboard list)');
 
-    const twoHopButton = page.getByRole('button', { name: '展开 2 跳', exact: true });
+    const twoHopButton = page.getByRole('button', { name: 'Expand 2 hops', exact: true });
     await twoHopButton.focus();
     await page.keyboard.press('Enter');
-    await waitForText(page, '3 篇文献 · 2 条当前连线');
+    await waitForText(page, '3 papers · 2 current relations');
 
     const resetMap = async () => {
-      await page.getByRole('button', { name: '重置', exact: true }).click();
-      await waitForText(page, '2 篇文献 · 1 条当前连线');
+      await page.getByRole('button', { name: 'Reset', exact: true }).click();
+      await waitForText(page, '2 papers · 1 current relation');
       await graph.locator('canvas').first().waitFor();
     };
     await resetMap();
@@ -469,58 +569,58 @@ try {
     const methodGraphButton = graphList.getByRole('button', { name: /A Deliberately Invented Method/ });
     await methodGraphButton.focus();
     await page.keyboard.press('Enter');
-    const defaultHopButton = page.getByRole('button', { name: '按默认展开 1 跳', exact: true });
+    const defaultHopButton = page.getByRole('button', { name: 'Expand default 1 hop', exact: true });
     await defaultHopButton.focus();
     await page.keyboard.press('Enter');
-    await waitForText(page, '3 篇文献 · 2 条当前连线');
+    await waitForText(page, '3 papers · 2 current relations');
     await resetMap();
 
     const mapSearch = page.locator('#map-search');
     await mapSearch.fill('Synthetic Measurement Inputs');
     await mapSearch.press('Enter');
-    await waitForText(page, '已定位：Synthetic Measurement Inputs for Interface Testing');
+    await waitForText(page, 'Located: Synthetic Measurement Inputs for Interface Testing');
     assert.equal(await page.locator('#selected-paper-heading').textContent(), 'Synthetic Measurement Inputs for Interface Testing');
-    await waitForText(page, '3 篇文献 · 2 条当前连线');
+    await waitForText(page, '3 papers · 2 current relations');
     await resetMap();
 
     const mapControls = page.locator('section[aria-labelledby="map-controls-heading"]');
     const mapFilterCases = [
-      ['主题', 'calibration', '2 篇文献 · 1 条当前连线'],
-      ['过程', 'example-process-b', '2 篇文献 · 1 条当前连线'],
-      ['角色', 'experiment', '1 篇文献 · 0 条当前连线'],
-      ['年份', '2021', '1 篇文献 · 0 条当前连线'],
-      ['关系', 'uses_data_from', '3 篇文献 · 1 条当前连线'],
+      ['Topic', 'calibration', '2 papers · 1 current relation'],
+      ['Process', 'example-process-b', '2 papers · 1 current relation'],
+      ['Role', 'experiment', '1 paper · 0 current relations'],
+      ['Year', '2021', '1 paper · 0 current relations'],
+      ['Relation', 'uses_data_from', '3 papers · 1 current relation'],
     ];
     for (const [label, value, expectedCount] of mapFilterCases) {
-      await page.getByRole('button', { name: '显示全部筛选结果', exact: true }).click();
+      await page.getByRole('button', { name: 'Show all filtered results', exact: true }).click();
       await mapControls.getByRole('combobox', { name: label, exact: true }).selectOption(value);
       await waitForText(page, expectedCount);
       await resetMap();
     }
 
-    await mapControls.getByRole('combobox', { name: '角色', exact: true }).selectOption('review');
-    await waitForText(page, '当前筛选没有可显示的文献');
+    await mapControls.getByRole('combobox', { name: 'Role', exact: true }).selectOption('review');
+    await waitForText(page, 'No papers match the current filters');
     await resetMap();
 
-    await page.getByRole('button', { name: /显示全部筛选结果/ }).click();
-    await waitForText(page, '3 篇文献 · 2 条当前连线');
+    await page.getByRole('button', { name: /Show all filtered results/ }).click();
+    await waitForText(page, '3 papers · 2 current relations');
     const measurementGraphButton = graphList.getByRole('button', { name: /Synthetic Measurement Inputs/ });
     await measurementGraphButton.focus();
     await page.keyboard.press('Enter');
-    await waitForText(page, '选中文献');
-    await page.getByRole('button', { name: /回到当前展开/ }).click();
-    await waitForText(page, '2 篇文献 · 1 条当前连线');
-    assert.equal(await page.getByText('选中文献', { exact: true }).count(), 0, 'Hidden Map selection was retained.');
+    await waitForText(page, 'Selected paper');
+    await page.getByRole('button', { name: /Return to current expansion/ }).click();
+    await waitForText(page, '2 papers · 1 current relation');
+    assert.equal(await page.getByText('Selected paper', { exact: true }).count(), 0, 'Hidden Map selection was retained.');
 
     await primerGraphButton.focus();
     await page.keyboard.press('Enter');
-    await waitForText(page, '邻接文献（键盘列表）');
-    await page.getByRole('checkbox', { name: '建议阅读连接' }).check();
+    await waitForText(page, 'Adjacent papers (keyboard list)');
+    await page.getByRole('checkbox', { name: 'Suggested reading link' }).check();
     const undirectedItem = page.locator('section[aria-labelledby="adjacent-heading"] li').filter({
-      hasText: '无向 · 建议阅读连接',
+      hasText: 'undirected · Suggested reading link',
     });
     await undirectedItem.first().waitFor();
-    const edgeButton = undirectedItem.getByRole('button', { name: /查看.*关系/ });
+    const edgeButton = undirectedItem.getByRole('button', { name: /View the .* relation/ });
     await undirectedItem.getByRole('button').first().focus();
     await page.keyboard.press('Tab');
     await expectFocused(edgeButton, 'Tab did not move from the adjacent paper to its relation button.');
@@ -528,9 +628,9 @@ try {
     const edgeDetail = page.locator('#selected-edge-detail');
     await edgeDetail.waitFor();
     await page.waitForFunction(() => document.activeElement?.id === 'selected-edge-detail');
-    assert.match(await edgeDetail.textContent(), /方向无向/);
-    assert.match(await edgeDetail.textContent(), /置信标记策展建议/);
-    assert.match(await edgeDetail.textContent(), /状态建议/);
+    assert.match(await edgeDetail.textContent(), /Directionundirected/);
+    assert.match(await edgeDetail.textContent(), /Confidence markerCuratorial suggestion/);
+    assert.match(await edgeDetail.textContent(), /Statusproposed/);
     await page.screenshot({ path: path.join(screenshotDir, 'map-desktop.png'), fullPage: false });
 
     const lifecycleStart = await page.evaluate(() => ({ ...window.__readingResizeObserverStats }));
@@ -613,6 +713,7 @@ try {
       hasTouch: true,
       isMobile: true,
     });
+    await touchContext.addInitScript(() => localStorage.setItem('locale-storage', 'en'));
     const touchPage = await touchContext.newPage();
     try {
       const touchResponse = await touchPage.goto(`${origin}/reading`, { waitUntil: 'networkidle' });
@@ -670,17 +771,17 @@ try {
     };
     await page.route(dataPattern, loadingHandler);
     const loadingReload = page.reload({ waitUntil: 'networkidle' });
-    await waitForText(page, '正在读取 Reading 数据');
+    await waitForText(page, 'Loading Reading data');
     releaseLoading();
     await loadingReload;
     await page.unroute(dataPattern, loadingHandler);
 
     const failureCases = [
-      [401, '{"error":"unavailable"}', 'Reading 数据暂不可用'],
-      [403, '{"error":"unavailable"}', 'Reading 数据暂不可用'],
-      [200, 'not valid JSON', '数据格式不符合 Reading v1 契约'],
-      [200, '{"malformed":true}', '数据格式不符合 Reading v1 契约'],
-      [503, '{"error":"unavailable"}', 'Reading 数据暂不可用'],
+      [401, '{"error":"unavailable"}', 'Reading data is temporarily unavailable'],
+      [403, '{"error":"unavailable"}', 'Reading data is temporarily unavailable'],
+      [200, 'not valid JSON', 'Data does not match the Reading v1 contract'],
+      [200, '{"malformed":true}', 'Data does not match the Reading v1 contract'],
+      [503, '{"error":"unavailable"}', 'Reading data is temporarily unavailable'],
     ];
     for (const [status, body, expected] of failureCases) {
       const handler = (route) => route.fulfill({ status, contentType: 'application/json', body });
@@ -689,8 +790,9 @@ try {
       await waitForText(page, expected);
       await page.unroute(dataPattern, handler);
     }
-    await page.getByRole('button', { name: '重试' }).click();
+    await page.getByRole('button', { name: 'Retry' }).click();
     await waitForText(page, 'Showing 4 of 4');
+    await assertReadingLocales(page);
   }
 
   await assertAnonymousPublicPages(browser, origin);

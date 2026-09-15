@@ -16,13 +16,11 @@ import {
   Users,
 } from 'lucide-react';
 import { arxivUrl, doiUrl, inspireUrl, verifiedExternalUrl } from '@/lib/reading/links';
+import type { ReadingMessages } from '@/lib/reading/messages';
 import type {
-  PaperEntryType,
-  PaperOrigin,
   PaperRole,
   ReadingPaper,
   ReadingRelation,
-  ReadingStatus,
 } from '@/lib/reading/types';
 
 interface LibraryViewProps {
@@ -31,6 +29,7 @@ interface LibraryViewProps {
   focusPaperId: string | null;
   focusRevision: number;
   onOpenPaper: (paperId: string) => void;
+  messages: ReadingMessages;
 }
 
 interface LibraryFilters {
@@ -56,37 +55,6 @@ const EMPTY_FILTERS: LibraryFilters = {
   origin: '',
 };
 
-const ROLE_LABELS: Record<PaperRole, string> = {
-  foundation: 'Foundation',
-  method: 'Method',
-  phenomenology: 'Phenomenology',
-  experiment: 'Experiment',
-  review: 'Review',
-  frontier: 'Frontier',
-};
-
-const ORIGIN_LABELS: Record<PaperOrigin, string> = {
-  thesis_ch1_7: 'Thesis Ch. 1-7',
-  bibliography_only: 'Bibliography only',
-  external_supplement: 'External supplement',
-};
-
-const ENTRY_TYPE_LABELS: Record<PaperEntryType, string> = {
-  article: 'Article',
-  book: 'Book',
-  proceedings: 'Proceedings',
-  preprint: 'Preprint',
-};
-
-const STATUS_LABELS: Record<ReadingStatus, string> = {
-  unknown: 'Unknown (not marked as read)',
-  to_read: 'To read',
-  skimmed: 'Skimmed',
-  read: 'Read',
-  deep_read: 'Deep read',
-  revisit: 'Revisit',
-};
-
 const selectClassName =
   'min-h-10 min-w-0 max-w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/30 dark:border-neutral-400 dark:bg-neutral-900 dark:text-neutral-600';
 
@@ -108,12 +76,14 @@ function FilterSelect({
   label,
   value,
   options,
+  allLabel,
   onChange,
 }: {
   id: string;
   label: string;
   value: string;
   options: SelectOption[];
+  allLabel: string;
   onChange: (value: string) => void;
 }) {
   return (
@@ -122,7 +92,7 @@ function FilterSelect({
         {label}
       </label>
       <select id={id} value={value} onChange={(event) => onChange(event.target.value)} className={selectClassName}>
-        <option value="">All {label.toLocaleLowerCase()}</option>
+        <option value="">{allLabel}</option>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -147,13 +117,13 @@ function DetailSection({ title, icon, children }: { title: string; icon: ReactNo
   );
 }
 
-function relationLabel(relation: ReadingRelation): string {
-  return relation.relation.replaceAll('_', ' ');
+function relationLabel(relation: ReadingRelation, messages: ReadingMessages): string {
+  return messages.labels.relationTypes[relation.relation];
 }
 
-function relationDirection(relation: ReadingRelation, paperId: string): string {
-  if (!relation.directed) return 'Undirected proposed connection';
-  return relation.source === paperId ? 'Outgoing relation' : 'Incoming relation';
+function relationDirection(relation: ReadingRelation, paperId: string, messages: ReadingMessages): string {
+  if (!relation.directed) return messages.library.undirectedConnection;
+  return relation.source === paperId ? messages.library.outgoingRelation : messages.library.incomingRelation;
 }
 
 function pageList(pages: number[]): string {
@@ -166,6 +136,7 @@ export default function LibraryView({
   focusPaperId,
   focusRevision,
   onOpenPaper,
+  messages,
 }: LibraryViewProps) {
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<LibraryFilters>({ ...EMPTY_FILTERS });
@@ -191,20 +162,20 @@ export default function LibraryView({
       processes: sortedStrings(papers.flatMap((paper) => paper.processes)).map((value) => ({ value, label: value })),
       roles: sortedStrings(papers.map((paper) => paper.role)).map((value) => ({
         value,
-        label: ROLE_LABELS[value as PaperRole],
+        label: messages.labels.roles[value as PaperRole],
       })),
       years: Array.from(new Set(papers.map((paper) => paper.year)))
         .sort((left, right) => right - left)
         .map((value) => ({ value: String(value), label: String(value) })),
       priorities: Array.from(new Set(papers.map((paper) => paper.priority)))
         .sort((left, right) => right - left)
-        .map((value) => ({ value: String(value), label: `Priority ${value}` })),
+        .map((value) => ({ value: String(value), label: messages.library.priorityOption(value) })),
       origins: sortedStrings(papers.map((paper) => paper.origin)).map((value) => ({
         value,
-        label: ORIGIN_LABELS[value as PaperOrigin],
+        label: messages.labels.origins[value as keyof typeof messages.labels.origins],
       })),
     }),
-    [papers]
+    [messages, papers]
   );
 
   const filteredPapers = useMemo(() => {
@@ -282,11 +253,11 @@ export default function LibraryView({
 
   return (
     <div className="space-y-7">
-      <section aria-label="Library search and filters" className="space-y-4 border-b border-neutral-200 pb-6 dark:border-[rgba(148,163,184,0.24)]">
+      <section aria-label={messages.library.filtersRegion} className="space-y-4 border-b border-neutral-200 pb-6 dark:border-[rgba(148,163,184,0.24)]">
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className="relative min-w-0 flex-1">
             <label htmlFor="reading-library-search" className="sr-only">
-              Search the Reading library
+              {messages.library.searchLabel}
             </label>
             <Search
               className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
@@ -297,58 +268,64 @@ export default function LibraryView({
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search titles, authors, identifiers, topics, processes, or annotations"
+              placeholder={messages.library.searchPlaceholder}
               autoComplete="off"
               className="min-h-10 min-w-0 w-full rounded-md border border-neutral-300 bg-white py-2 pl-10 pr-3 text-sm text-neutral-800 outline-none transition-colors placeholder:text-neutral-400 focus:border-accent focus:ring-2 focus:ring-accent/30 dark:border-neutral-400 dark:bg-neutral-900 dark:text-neutral-600"
             />
           </div>
           <button type="button" onClick={resetControls} disabled={!controlsActive} className={actionClassName}>
             <RotateCcw className="h-4 w-4" aria-hidden="true" />
-            Reset
+            {messages.library.reset}
           </button>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <FilterSelect
             id="reading-filter-topic"
-            label="Topics"
+            label={messages.library.filters.topics}
             value={filters.topic}
             options={filterOptions.topics}
+            allLabel={messages.library.allFilters.topics}
             onChange={(value) => setFilters((current) => ({ ...current, topic: value }))}
           />
           <FilterSelect
             id="reading-filter-process"
-            label="Processes"
+            label={messages.library.filters.processes}
             value={filters.process}
             options={filterOptions.processes}
+            allLabel={messages.library.allFilters.processes}
             onChange={(value) => setFilters((current) => ({ ...current, process: value }))}
           />
           <FilterSelect
             id="reading-filter-role"
-            label="Roles"
+            label={messages.library.filters.roles}
             value={filters.role}
             options={filterOptions.roles}
+            allLabel={messages.library.allFilters.roles}
             onChange={(value) => setFilters((current) => ({ ...current, role: value }))}
           />
           <FilterSelect
             id="reading-filter-year"
-            label="Years"
+            label={messages.library.filters.years}
             value={filters.year}
             options={filterOptions.years}
+            allLabel={messages.library.allFilters.years}
             onChange={(value) => setFilters((current) => ({ ...current, year: value }))}
           />
           <FilterSelect
             id="reading-filter-priority"
-            label="Priorities"
+            label={messages.library.filters.priorities}
             value={filters.priority}
             options={filterOptions.priorities}
+            allLabel={messages.library.allFilters.priorities}
             onChange={(value) => setFilters((current) => ({ ...current, priority: value }))}
           />
           <FilterSelect
             id="reading-filter-origin"
-            label="Origins"
+            label={messages.library.filters.origins}
             value={filters.origin}
             options={filterOptions.origins}
+            allLabel={messages.library.allFilters.origins}
             onChange={(value) => setFilters((current) => ({ ...current, origin: value }))}
           />
         </div>
@@ -357,21 +334,20 @@ export default function LibraryView({
       <section aria-labelledby="reading-library-results">
         <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
           <h2 id="reading-library-results" className="text-base font-semibold text-primary">
-            Library records
+            {messages.library.recordsHeading}
           </h2>
           <p className="text-sm text-neutral-500 dark:text-neutral-500" role="status" aria-live="polite">
-            Showing <span className="font-semibold text-neutral-800 dark:text-neutral-600">{filteredPapers.length}</span> of{' '}
-            {papers.length}
+            {messages.library.showing(filteredPapers.length, papers.length)}
           </p>
         </div>
 
         {filteredPapers.length === 0 ? (
           <div className="border-y border-neutral-200 py-12 text-center dark:border-[rgba(148,163,184,0.24)]">
             <Search className="mx-auto h-6 w-6 text-neutral-400" aria-hidden="true" />
-            <p className="mt-3 text-sm font-medium text-neutral-700 dark:text-neutral-600">No records match these controls.</p>
+            <p className="mt-3 text-sm font-medium text-neutral-700 dark:text-neutral-600">{messages.library.noRecords}</p>
             <button type="button" onClick={resetControls} className={`${actionClassName} mt-4`}>
               <RotateCcw className="h-4 w-4" aria-hidden="true" />
-              Clear search and filters
+              {messages.library.clearFilters}
             </button>
           </div>
         ) : (
@@ -400,17 +376,21 @@ export default function LibraryView({
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500">
                         <span className="rounded border border-neutral-200 px-2 py-0.5 dark:border-[rgba(148,163,184,0.30)]">
-                          {ENTRY_TYPE_LABELS[paper.entry_type]}
+                          {messages.labels.entryTypes[paper.entry_type]}
                         </span>
                         <span className="rounded border border-neutral-200 px-2 py-0.5 dark:border-[rgba(148,163,184,0.30)]">
-                          {ROLE_LABELS[paper.role]}
+                          {messages.labels.roles[paper.role]}
                         </span>
                         <span className="rounded border border-neutral-200 px-2 py-0.5 dark:border-[rgba(148,163,184,0.30)]">
-                          Priority {paper.priority}
-                          {paper.priority_basis === 'assistant_proposed_curatorial_relevance' ? ' · proposed' : ' · confirmed'}
+                          {messages.library.priority(
+                            paper.priority,
+                            paper.priority_basis === 'assistant_proposed_curatorial_relevance'
+                              ? messages.labels.proposed
+                              : messages.labels.confirmed
+                          )}
                         </span>
                         <span className="rounded border border-neutral-200 px-2 py-0.5 dark:border-[rgba(148,163,184,0.30)]">
-                          {ORIGIN_LABELS[paper.origin]}
+                          {messages.labels.origins[paper.origin]}
                         </span>
                       </div>
 
@@ -427,7 +407,7 @@ export default function LibraryView({
                         <span className="min-w-0 break-words">
                           {paper.authors.join(', ')}
                           {!paper.authors_complete && (
-                            <span className="ml-2 font-medium text-amber-700 dark:text-amber-300">(partial author list)</span>
+                            <span className="ml-2 font-medium text-amber-700 dark:text-amber-300">{messages.library.partialAuthorList}</span>
                           )}
                           {paper.collaboration && <span className="block text-neutral-500">{paper.collaboration}</span>}
                         </span>
@@ -440,7 +420,7 @@ export default function LibraryView({
                         </span>
                         <span className="inline-flex items-center gap-1.5">
                           <BookOpen className="h-4 w-4 text-neutral-400" aria-hidden="true" />
-                          Reading status: {STATUS_LABELS[paper.reading_status]}
+                          {messages.library.readingStatus}: {messages.labels.statuses[paper.reading_status]}
                         </span>
                       </div>
 
@@ -449,7 +429,7 @@ export default function LibraryView({
                           {paper.topics.length > 0 && (
                             <div className="flex items-start gap-2">
                               <Tag className="mt-1 h-3.5 w-3.5 shrink-0 text-neutral-400" aria-hidden="true" />
-                              <ul className="flex flex-wrap gap-1.5" aria-label="Topics">
+                              <ul className="flex flex-wrap gap-1.5" aria-label={messages.library.topics}>
                                 {paper.topics.map((topic) => (
                                   <li key={topic} className="max-w-full break-words rounded bg-neutral-100 px-2 py-1 text-xs text-neutral-700 dark:bg-neutral-800 dark:text-neutral-600">
                                     {topic}
@@ -461,7 +441,7 @@ export default function LibraryView({
                           {paper.processes.length > 0 && (
                             <div className="flex items-start gap-2">
                               <Network className="mt-1 h-3.5 w-3.5 shrink-0 text-neutral-400" aria-hidden="true" />
-                              <ul className="flex flex-wrap gap-1.5" aria-label="Processes">
+                              <ul className="flex flex-wrap gap-1.5" aria-label={messages.library.processes}>
                                 {paper.processes.map((process) => (
                                   <li key={process} className="max-w-full break-words rounded border border-neutral-200 px-2 py-1 text-xs text-neutral-600 dark:border-[rgba(148,163,184,0.30)] dark:text-neutral-500">
                                     {process}
@@ -483,7 +463,7 @@ export default function LibraryView({
                           rel="noopener noreferrer"
                           referrerPolicy="no-referrer"
                           className={actionClassName}
-                          aria-label={`Open ${link.label} record for ${paper.title} in a new tab`}
+                          aria-label={messages.library.openExternal(link.label, paper.title)}
                         >
                           {link.label}
                           <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
@@ -501,7 +481,7 @@ export default function LibraryView({
                         ) : (
                           <ChevronDown className="h-4 w-4" aria-hidden="true" />
                         )}
-                        {expanded ? 'Hide details' : 'Show details'}
+                        {expanded ? messages.library.hideDetails : messages.library.showDetails}
                       </button>
                     </div>
                   </div>
@@ -509,18 +489,18 @@ export default function LibraryView({
                   {expanded && (
                     <div id={detailId} className="mt-5 border-t border-neutral-200 pt-5 dark:border-[rgba(148,163,184,0.24)]">
                       <div className="grid gap-6 lg:grid-cols-2">
-                        <DetailSection title="Why this record is retained" icon={<BookOpen className="h-4 w-4" />}>
+                        <DetailSection title={messages.library.whyRetained} icon={<BookOpen className="h-4 w-4" />}>
                           <p className="whitespace-pre-wrap break-words">{paper.why_it_matters}</p>
                         </DetailSection>
 
-                        <DetailSection title="Research connection" icon={<Network className="h-4 w-4" />}>
+                        <DetailSection title={messages.library.researchConnection} icon={<Network className="h-4 w-4" />}>
                           <p className="whitespace-pre-wrap break-words">{paper.research_connection}</p>
                         </DetailSection>
 
-                        <DetailSection title="Thesis provenance" icon={<FileText className="h-4 w-4" />}>
+                        <DetailSection title={messages.library.thesisProvenance} icon={<FileText className="h-4 w-4" />}>
                           {paper.bibliography_ref !== null && (
                             <p className="font-medium text-neutral-800 dark:text-neutral-600">
-                              Thesis bibliography reference [{paper.bibliography_ref}]
+                              {messages.library.bibliographyReference(paper.bibliography_ref)}
                             </p>
                           )}
                           {paper.raw_thesis_citation && (
@@ -533,35 +513,38 @@ export default function LibraryView({
                               {paper.source_in_thesis.map((locator, index) => (
                                 <li key={`${locator.chapter}-${locator.section}-${index}`}>
                                   <p className="break-words font-medium text-neutral-800 dark:text-neutral-600">
-                                    Chapter {locator.chapter} · {locator.section}
+                                    {messages.library.chapter(locator.chapter, locator.section)}
                                   </p>
                                   <p className="text-neutral-600 dark:text-neutral-500">
-                                    Printed pages {pageList(locator.printed_pages)} · PDF pages {pageList(locator.pdf_pages)}
+                                    {messages.library.pageLocations(
+                                      pageList(locator.printed_pages),
+                                      pageList(locator.pdf_pages)
+                                    )}
                                   </p>
                                   <p className="mt-1 whitespace-pre-wrap break-words">{locator.purpose}</p>
                                 </li>
                               ))}
                             </ol>
                           ) : (
-                            <p className="mt-2 text-neutral-500 dark:text-neutral-500">No in-scope thesis location is assigned.</p>
+                            <p className="mt-2 text-neutral-500 dark:text-neutral-500">{messages.library.noThesisLocation}</p>
                           )}
                         </DetailSection>
 
-                        <DetailSection title="Metadata and verification" icon={<FileCheck2 className="h-4 w-4" />}>
+                        <DetailSection title={messages.library.metadataVerification} icon={<FileCheck2 className="h-4 w-4" />}>
                           <dl className="grid gap-x-3 gap-y-1 sm:grid-cols-[max-content_minmax(0,1fr)]">
-                            <dt className="font-medium text-neutral-500">Publication year</dt>
+                            <dt className="font-medium text-neutral-500">{messages.library.publicationYear}</dt>
                             <dd className="mb-2 min-w-0 break-words sm:mb-0">{paper.year}</dd>
-                            <dt className="font-medium text-neutral-500">Preprint year</dt>
-                            <dd className="mb-2 min-w-0 break-words sm:mb-0">{paper.preprint_year ?? 'Not recorded'}</dd>
-                            <dt className="font-medium text-neutral-500">Journal</dt>
-                            <dd className="mb-2 min-w-0 break-words sm:mb-0">{paper.journal ?? 'Not recorded'}</dd>
-                            <dt className="font-medium text-neutral-500">Identity status</dt>
-                            <dd className="mb-2 min-w-0 break-words sm:mb-0">{paper.verification.identity_status.replaceAll('_', ' ')}</dd>
-                            <dt className="font-medium text-neutral-500">Checked on</dt>
+                            <dt className="font-medium text-neutral-500">{messages.library.preprintYear}</dt>
+                            <dd className="mb-2 min-w-0 break-words sm:mb-0">{paper.preprint_year ?? messages.labels.notRecorded}</dd>
+                            <dt className="font-medium text-neutral-500">{messages.library.journal}</dt>
+                            <dd className="mb-2 min-w-0 break-words sm:mb-0">{paper.journal ?? messages.labels.notRecorded}</dd>
+                            <dt className="font-medium text-neutral-500">{messages.library.identityStatus}</dt>
+                            <dd className="mb-2 min-w-0 break-words sm:mb-0">{messages.labels.identityStatuses[paper.verification.identity_status]}</dd>
+                            <dt className="font-medium text-neutral-500">{messages.library.checkedOn}</dt>
                             <dd className="min-w-0 break-words">{paper.verification.checked_on}</dd>
                           </dl>
                           <p className="mt-3 whitespace-pre-wrap break-words">{paper.verification.content_basis}</p>
-                          <ul className="mt-3 space-y-2" aria-label="Verification sources">
+                          <ul className="mt-3 space-y-2" aria-label={messages.library.verificationSources}>
                             {paper.verification.sources.map((source, index) => {
                               const sourceUrl = verifiedExternalUrl(source.url);
                               return (
@@ -574,11 +557,11 @@ export default function LibraryView({
                                       referrerPolicy="no-referrer"
                                       className="inline-flex max-w-full min-w-0 items-start gap-1 break-words font-medium text-amber-700 underline decoration-transparent underline-offset-4 transition-colors hover:decoration-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 dark:text-accent dark:focus-visible:ring-accent"
                                     >
-                                      <span>{source.kind.replaceAll('_', ' ')}: {source.locator}</span>
+                                      <span>{messages.labels.verificationSourceKinds[source.kind] ?? source.kind.replaceAll('_', ' ')}: {source.locator}</span>
                                       <ExternalLink className="mt-1 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                                     </a>
                                   ) : (
-                                    <span>{source.kind.replaceAll('_', ' ')}: {source.locator}</span>
+                                    <span>{messages.labels.verificationSourceKinds[source.kind] ?? source.kind.replaceAll('_', ' ')}: {source.locator}</span>
                                   )}
                                 </li>
                               );
@@ -593,30 +576,30 @@ export default function LibraryView({
                               ))}
                             </ul>
                           ) : (
-                            <p className="mt-3 text-neutral-500 dark:text-neutral-500">No additional metadata or version notes.</p>
+                            <p className="mt-3 text-neutral-500 dark:text-neutral-500">{messages.library.noVerificationNotes}</p>
                           )}
                         </DetailSection>
 
-                        <DetailSection title="Annotation provenance" icon={<Users className="h-4 w-4" />}>
+                        <DetailSection title={messages.library.annotationProvenance} icon={<Users className="h-4 w-4" />}>
                           <dl className="grid gap-x-3 gap-y-1 sm:grid-cols-[max-content_minmax(0,1fr)]">
-                            <dt className="font-medium text-neutral-500">Annotation author</dt>
-                            <dd className="mb-2 min-w-0 break-words sm:mb-0">{paper.annotation_author === 'assistant' ? 'Assistant proposal' : 'User'}</dd>
-                            <dt className="font-medium text-neutral-500">Priority basis</dt>
-                            <dd className="mb-2 min-w-0 break-words sm:mb-0">{paper.priority_basis.replaceAll('_', ' ')}</dd>
-                            <dt className="font-medium text-neutral-500">Curation status</dt>
-                            <dd className="min-w-0 break-words">{paper.curation_status}</dd>
+                            <dt className="font-medium text-neutral-500">{messages.library.annotationAuthor}</dt>
+                            <dd className="mb-2 min-w-0 break-words sm:mb-0">{messages.labels.annotationAuthors[paper.annotation_author]}</dd>
+                            <dt className="font-medium text-neutral-500">{messages.library.priorityBasis}</dt>
+                            <dd className="mb-2 min-w-0 break-words sm:mb-0">{messages.labels.priorityBases[paper.priority_basis]}</dd>
+                            <dt className="font-medium text-neutral-500">{messages.library.curationStatus}</dt>
+                            <dd className="min-w-0 break-words">{messages.labels.curationStatuses[paper.curation_status]}</dd>
                           </dl>
                           {paper.personal_notes ? (
                             <div className="mt-3">
-                              <p className="font-medium text-neutral-800 dark:text-neutral-600">Personal notes</p>
+                              <p className="font-medium text-neutral-800 dark:text-neutral-600">{messages.library.personalNotes}</p>
                               <p className="mt-1 whitespace-pre-wrap break-words">{paper.personal_notes}</p>
                             </div>
                           ) : (
-                            <p className="mt-3 text-neutral-500 dark:text-neutral-500">No personal notes recorded.</p>
+                            <p className="mt-3 text-neutral-500 dark:text-neutral-500">{messages.library.noPersonalNotes}</p>
                           )}
                           {paper.idea_hooks.length > 0 ? (
                             <div className="mt-3">
-                              <p className="font-medium text-neutral-800 dark:text-neutral-600">Idea hooks</p>
+                              <p className="font-medium text-neutral-800 dark:text-neutral-600">{messages.library.ideaHooks}</p>
                               <ul className="mt-1 list-disc space-y-1 pl-5">
                                 {paper.idea_hooks.map((idea, index) => (
                                   <li key={index} className="whitespace-pre-wrap break-words">
@@ -626,11 +609,11 @@ export default function LibraryView({
                               </ul>
                             </div>
                           ) : (
-                            <p className="mt-2 text-neutral-500 dark:text-neutral-500">No idea hooks recorded.</p>
+                            <p className="mt-2 text-neutral-500 dark:text-neutral-500">{messages.library.noIdeaHooks}</p>
                           )}
                         </DetailSection>
 
-                        <DetailSection title="Related papers" icon={<Network className="h-4 w-4" />}>
+                        <DetailSection title={messages.library.relatedPapers} icon={<Network className="h-4 w-4" />}>
                           {relatedRelations.length > 0 ? (
                             <ul className="space-y-3">
                               {relatedRelations.map((relation) => {
@@ -648,15 +631,15 @@ export default function LibraryView({
                                       {relatedPaper.title}
                                     </button>
                                     <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
-                                      {relationDirection(relation, paper.id)} · {relationLabel(relation)} ·{' '}
-                                      {relation.layer.replaceAll('_', ' ')}
+                                      {relationDirection(relation, paper.id, messages)} · {relationLabel(relation, messages)} ·{' '}
+                                      {messages.labels.relationLayers[relation.layer]}
                                     </p>
                                   </li>
                                 );
                               })}
                             </ul>
                           ) : (
-                            <p className="text-neutral-500 dark:text-neutral-500">No recorded relations for this paper.</p>
+                            <p className="text-neutral-500 dark:text-neutral-500">{messages.library.noRelations}</p>
                           )}
                         </DetailSection>
                       </div>
