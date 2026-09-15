@@ -19,7 +19,7 @@ function roleLabel(role: ReadingPaper['role']): string {
 
 /**
  * The thread list is intentionally rendered in the order supplied by the
- * private seed. That order is a curation aid, not a claim about citation
+ * Reading dataset. That order is a curation aid, not a claim about citation
  * history or influence.
  */
 export default function ThreadsView({ threads, papers, onOpenPaper }: ThreadsViewProps) {

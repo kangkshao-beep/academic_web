@@ -604,9 +604,7 @@ export default function LibraryView({
                             <dt className="font-medium text-neutral-500">Priority basis</dt>
                             <dd className="mb-2 min-w-0 break-words sm:mb-0">{paper.priority_basis.replaceAll('_', ' ')}</dd>
                             <dt className="font-medium text-neutral-500">Curation status</dt>
-                            <dd className="mb-2 min-w-0 break-words sm:mb-0">{paper.curation_status}</dd>
-                            <dt className="font-medium text-neutral-500">Visibility</dt>
-                            <dd className="min-w-0 break-words">{paper.visibility}</dd>
+                            <dd className="min-w-0 break-words">{paper.curation_status}</dd>
                           </dl>
                           {paper.personal_notes ? (
                             <div className="mt-3">

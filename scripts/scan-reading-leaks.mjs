@@ -1,6 +1,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 
 const projectRoot = process.cwd();
@@ -218,11 +219,19 @@ for (const filename of tracked) {
   }
 }
 
+const outputAllFiles = await walk(outputRoot);
+for (const filename of outputAllFiles) {
+  const relative = path.relative(projectRoot, filename);
+  if (isPrivatePathCandidate(relative)) {
+    failures.push(`Generated private-path candidate: ${relative}`);
+  }
+}
+
 if (existsSync(path.join(outputRoot, 'reading', 'data'))) {
   failures.push('Generated output contains out/reading/data; private data must be staged only after authentication verification.');
 }
 
-const outputFiles = (await walk(outputRoot)).filter((filename) => textExtensions.has(path.extname(filename).toLowerCase()));
+const outputFiles = outputAllFiles.filter((filename) => textExtensions.has(path.extname(filename).toLowerCase()));
 if (outputFiles.some((filename) => filename.endsWith('.map'))) {
   failures.push('Generated output contains source maps.');
 }
@@ -426,11 +435,33 @@ function wasPublicAtHead(candidate, shortIdentifier) {
 
 if (privateDataDir) {
   const candidates = new Map();
+  const privateSourceHashes = new Set();
   for (const filename of ['library.json', 'relations.json', 'threads.json', 'view_config.json']) {
     const parsed = JSON.parse(await readFile(path.join(privateDataDir, filename), 'utf8'));
     collectPrivateStrings(filename, parsed, candidates);
+    if (filename === 'library.json' && /^[a-f0-9]{64}$/.test(parsed.source_document?.sha256 || '')) {
+      privateSourceHashes.add(parsed.source_document.sha256);
+    }
+  }
+  const lookupPath = path.join(privateDataDir, 'thesis_reference_lookup.json');
+  if (existsSync(lookupPath)) {
+    const lookup = JSON.parse(await readFile(lookupPath, 'utf8'));
+    collectNestedPrivateStrings(candidates, lookup, 'thesis_reference_lookup');
   }
   publicAssetHeadBodies = await readPublicPdfBodiesAtHead();
+
+  const pdfCandidates = [...new Set([
+    ...tracked
+      .map((filename) => path.join(projectRoot, filename))
+      .filter((filename) => existsSync(filename)),
+    ...outputAllFiles,
+  ])].filter((filename) => path.extname(filename).toLowerCase() === '.pdf');
+  for (const filename of pdfCandidates) {
+    const digest = createHash('sha256').update(await readFile(filename)).digest('hex');
+    if (privateSourceHashes.has(digest)) {
+      failures.push(`Private source-document PDF found at ${path.relative(projectRoot, filename)}.`);
+    }
+  }
 
   const outputBodies = await Promise.all(outputFiles.map(async (filename) => {
     const body = await readFile(filename, 'utf8');

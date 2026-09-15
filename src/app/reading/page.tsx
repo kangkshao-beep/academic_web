@@ -3,15 +3,13 @@ import ReadingApp from '@/components/reading/ReadingApp';
 
 export const metadata: Metadata = {
   title: 'Reading',
-  description: 'Private research reading workspace.',
+  description: 'A curated research reading library, relationship map, and thematic reading threads.',
   robots: {
-    index: false,
-    follow: false,
-    nocache: true,
+    index: true,
+    follow: true,
     googleBot: {
-      index: false,
-      follow: false,
-      noimageindex: true,
+      index: true,
+      follow: true,
     },
   },
   referrer: 'no-referrer',

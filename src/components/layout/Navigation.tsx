@@ -189,7 +189,7 @@ export default function Navigation({
                   </Link>
                 </motion.div>
 
-                <div className="hidden lg:block">
+                <div className="hidden xl:block">
                   <div className="ml-10 flex items-center space-x-3">
                     <div
                       ref={navContainerRef}
@@ -250,7 +250,7 @@ export default function Navigation({
                   </div>
                 </div>
 
-                <div className="lg:hidden flex items-center space-x-2">
+                <div className="xl:hidden flex items-center space-x-2">
                   <SiteSearch />
                   <LanguageToggle i18n={i18n} />
                   <ThemeToggle />
@@ -280,7 +280,7 @@ export default function Navigation({
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="lg:hidden bg-background/95 backdrop-blur-xl border-b border-neutral-200/50 shadow-lg"
+                  className="xl:hidden bg-background/95 backdrop-blur-xl border-b border-neutral-200/50 shadow-lg"
                 >
                   <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                     {effectiveItems.map((item, index) => {

@@ -7,19 +7,14 @@ import {
   resolveBrowserDataMode,
 } from './reading-browser-security.mjs';
 
-const syntheticPassword = ['synthetic', 'browser', 'secret', '49cb'].join('-');
 const environment = {
   READING_BROWSER_ORIGIN: 'https://example.invalid',
-  READING_BROWSER_USERNAME: 'synthetic-browser-user',
-  READING_BROWSER_PASSWORD: syntheticPassword,
   READING_BROWSER_DATA_MODE: 'synthetic',
   RETAINED_BROWSER_SETTING: 'retained',
 };
 
 const configuration = consumeRemoteBrowserEnvironment(environment);
 assert(configuration.origin === 'https://example.invalid', 'Remote origin was not consumed.');
-assert(configuration.username === 'synthetic-browser-user', 'Remote username was not consumed.');
-assert(configuration.password === syntheticPassword, 'Remote password was not consumed.');
 assert(configuration.dataMode === 'synthetic', 'Remote data mode was not consumed.');
 assert(
   REMOTE_BROWSER_ENV_KEYS.every((key) => !Object.hasOwn(environment, key)),
@@ -37,7 +32,7 @@ assert.throws(
   'Invalid browser data modes must be rejected.'
 );
 
-const authorization = `Basic ${Buffer.from(`synthetic-browser-user:${syntheticPassword}`).toString('base64')}`;
+const authorization = 'redacted-test-value';
 assert(hasAuthorizationHeader({ authorization }), 'Authorization presence was not detected.');
 assert(hasAuthorizationHeader({ Authorization: authorization }), 'Capitalized Authorization presence was not detected.');
 assert(!hasAuthorizationHeader({}), 'An absent Authorization header was reported as present.');
@@ -52,4 +47,4 @@ assert(denial instanceof Error, 'A public Authorization header did not fail clos
 assert(!denial.message.includes(authorization), 'Authorization value was copied into the failure message.');
 assertNoAuthorizationHeader({}, 'Synthetic public request');
 
-process.stdout.write('Reading browser credential-handling checks passed (environment cleared and header values hidden).\n');
+process.stdout.write('Reading public browser configuration checks passed (environment cleared and header values hidden).\n');

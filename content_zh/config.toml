@@ -43,6 +43,12 @@ target = "learning"
 href = "/learning"
 
 [[navigation]]
+title = "阅读"
+type = "link"
+target = "reading"
+href = "/reading"
+
+[[navigation]]
 title = "问题集"
 type = "page"
 target = "questions"

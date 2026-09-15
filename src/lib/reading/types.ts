@@ -75,16 +75,25 @@ export interface ReadingPaper {
   verification: PaperVerification;
   personal_notes: string;
   idea_hooks: string[];
-  visibility: 'private';
 }
 
 export interface ReadingLibrary {
+  schema_version: typeof READING_SCHEMA_VERSION;
+  visibility: 'public';
+  papers: ReadingPaper[];
+}
+
+export interface PrivateReadingPaper extends ReadingPaper {
+  visibility: 'private';
+}
+
+export interface PrivateReadingLibrary {
   schema_version: typeof READING_SCHEMA_VERSION;
   visibility: 'private';
   generated_on: string;
   curation_notice: string;
   source_document: ReadingSourceDocument;
-  papers: ReadingPaper[];
+  papers: PrivateReadingPaper[];
 }
 
 export interface ReadingSourceDocument {
@@ -94,7 +103,6 @@ export interface ReadingSourceDocument {
   body_scope: Record<string, unknown>;
   bibliography_lookup: Record<string, unknown>;
   page_numbering: string;
-  [key: string]: unknown;
 }
 
 export type RelationType =
@@ -117,11 +125,14 @@ export interface PrimarySourceEvidence {
 
 export interface ThesisContextEvidence {
   kind: 'thesis_context';
-  document_id: string;
   chapter: number;
   section: string;
   printed_pages: number[];
   pdf_pages: number[];
+}
+
+export interface PrivateThesisContextEvidence extends ThesisContextEvidence {
+  document_id: string;
 }
 
 export type RelationEvidence = PrimarySourceEvidence | ThesisContextEvidence;
@@ -137,16 +148,26 @@ export interface ReadingRelation {
   evidence: RelationEvidence[];
   confidence: 'high' | 'curatorial';
   status: 'evidence_checked' | 'proposed';
-  visibility: 'private';
 }
 
 export interface ReadingRelations {
+  schema_version: typeof READING_SCHEMA_VERSION;
+  visibility: 'public';
+  edges: ReadingRelation[];
+}
+
+export interface PrivateReadingRelation extends Omit<ReadingRelation, 'evidence'> {
+  evidence: Array<PrimarySourceEvidence | PrivateThesisContextEvidence>;
+  visibility: 'private';
+}
+
+export interface PrivateReadingRelations {
   schema_version: typeof READING_SCHEMA_VERSION;
   visibility: 'private';
   generated_on: string;
   direction_rule: string;
   epistemic_warning: string;
-  edges: ReadingRelation[];
+  edges: PrivateReadingRelation[];
   hypothesis_edges: [];
 }
 
@@ -159,36 +180,55 @@ export interface ReadingThreadStage {
 export interface ReadingThread {
   id: string;
   title: string;
-  visibility: 'private';
   annotation_author: 'assistant' | 'user';
   status: 'proposed' | 'accepted';
   summary: string;
   thesis_chapters: number[];
   stages: ReadingThreadStage[];
   reading_question: string;
-  question_status: 'reading_prompt_not_verified_research_gap';
 }
 
 export interface ReadingThreads {
   schema_version: typeof READING_SCHEMA_VERSION;
+  visibility: 'public';
+  threads: ReadingThread[];
+}
+
+export interface PrivateReadingThread extends ReadingThread {
+  visibility: 'private';
+  question_status: 'reading_prompt_not_verified_research_gap';
+}
+
+export interface PrivateReadingThreads {
+  schema_version: typeof READING_SCHEMA_VERSION;
   visibility: 'private';
   generated_on: string;
-  threads: ReadingThread[];
+  threads: PrivateReadingThread[];
+}
+
+export interface ReadingGraphConfig {
+  eligible_priority_min: number;
+  initial_focus_ids: string[];
+  default_layers: RelationLayer[];
+  curatorial_layer_default: boolean;
+  default_hops: number;
+  max_expansion_hops: number;
 }
 
 export interface ReadingViewConfig {
   schema_version: typeof READING_SCHEMA_VERSION;
+  visibility: 'public';
+  default_view: 'library' | 'map' | 'threads';
+  graph: ReadingGraphConfig;
+}
+
+export interface PrivateReadingViewConfig {
+  schema_version: typeof READING_SCHEMA_VERSION;
   visibility: 'private';
   default_view: 'library' | 'map' | 'threads';
-  graph: {
-    eligible_priority_min: number;
+  graph: ReadingGraphConfig & {
     initial_node_limit: number;
-    initial_focus_ids: string[];
-    default_layers: RelationLayer[];
-    curatorial_layer_default: boolean;
     hypothesis_layer_default: boolean;
-    default_hops: number;
-    max_expansion_hops: number;
   };
   public_seed_export_enabled: false;
   weekly_agent_enabled: false;
@@ -200,6 +240,13 @@ export interface ReadingBundle {
   relations: ReadingRelations;
   threads: ReadingThreads;
   viewConfig: ReadingViewConfig;
+}
+
+export interface PrivateReadingBundle {
+  library: PrivateReadingLibrary;
+  relations: PrivateReadingRelations;
+  threads: PrivateReadingThreads;
+  viewConfig: PrivateReadingViewConfig;
 }
 
 export type ReadingTab = 'library' | 'map' | 'threads';

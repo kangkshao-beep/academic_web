@@ -7,10 +7,11 @@
     "prebuild": "node scripts/build-search-index.mjs",
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build:reading:public-release": "node scripts/build-reading-public-release.mjs",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "serve:reading:private": "node scripts/serve-private-reading.mjs",
+    "serve:reading": "node scripts/serve-reading.mjs",
     "test:reading:validator": "node scripts/test-reading-validator.mjs",
     "test:reading:links": "node scripts/test-reading-links.mjs",
     "test:reading:leaks": "node scripts/test-reading-leak-scanner.mjs",
@@ -18,6 +19,7 @@
     "test:reading:browser-security": "node scripts/test-reading-browser-security.mjs",
     "test:reading:security": "node scripts/test-reading-security.mjs",
     "test:reading:functions": "node scripts/test-reading-functions.mjs",
+    "test:reading:public-release": "node scripts/test-reading-public-release.mjs",
     "check:reading:leaks": "node scripts/scan-reading-leaks.mjs"
   },
   "dependencies": {

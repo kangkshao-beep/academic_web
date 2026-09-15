@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
@@ -9,7 +8,6 @@ import { chromium } from 'playwright-core';
 import {
   assertNoAuthorizationHeader,
   consumeRemoteBrowserEnvironment,
-  hasAuthorizationHeader,
   resolveBrowserDataMode,
 } from './reading-browser-security.mjs';
 
@@ -17,8 +15,6 @@ const remoteConfiguration = consumeRemoteBrowserEnvironment(process.env);
 const configuredRemoteOrigin = remoteConfiguration.origin;
 const remoteMode = configuredRemoteOrigin !== undefined;
 const dataMode = resolveBrowserDataMode(remoteConfiguration.dataMode, remoteMode);
-let username = 'reading-browser';
-let password = 'synthetic-test-only';
 let origin = '';
 let server;
 
@@ -44,10 +40,6 @@ if (remoteMode) {
     'READING_BROWSER_ORIGIN must be an HTTPS origin, with an optional trailing slash.'
   );
 
-  username = remoteConfiguration.username;
-  password = remoteConfiguration.password;
-  assert(username, 'READING_BROWSER_USERNAME is required when READING_BROWSER_ORIGIN is set.');
-  assert(password, 'READING_BROWSER_PASSWORD is required when READING_BROWSER_ORIGIN is set.');
   origin = parsedOrigin.origin;
 }
 
@@ -69,23 +61,20 @@ await mkdir(screenshotDir, { recursive: true });
 let serverOutput = '';
 let serverError = '';
 if (!remoteMode) {
-  const credentials = `${username}:${password}`;
-  const credentialHash = createHash('sha256').update(credentials, 'utf8').digest('hex');
-  server = spawn(process.execPath, ['scripts/serve-private-reading.mjs'], {
+  server = spawn(process.execPath, ['scripts/serve-reading.mjs'], {
     cwd: process.cwd(),
     env: {
       ...process.env,
       READING_HOST: '127.0.0.1',
       READING_PORT: '0',
-      READING_PRIVATE_DATA_DIR: path.join(process.cwd(), 'tests/fixtures/reading'),
-      READING_BASIC_AUTH_SHA256: credentialHash,
+      READING_DATA_DIR: path.join(process.cwd(), 'tests/fixtures/reading'),
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
 
   server.stdout.on('data', (chunk) => {
     serverOutput += chunk.toString();
-    const match = /Private Reading server listening on (http:\/\/127\.0\.0\.1:\d+)/.exec(serverOutput);
+    const match = /Reading test server listening on (http:\/\/127\.0\.0\.1:\d+)/.exec(serverOutput);
     if (match) origin = match[1];
   });
   server.stderr.on('data', (chunk) => {
@@ -238,7 +227,44 @@ async function assertAnonymousPublicPages(browser, origin) {
       assert.equal(response?.status(), 200, `Anonymous ${pathname} did not remain public.`);
       assertNoAuthorizationHeader(response?.request().headers() ?? {}, `Anonymous ${pathname}`);
       await waitForText(publicPage, expectedText);
-      assert.equal(await publicPage.locator('nav a').filter({ hasText: /^Reading$/ }).count(), 0);
+      assert.equal(await publicPage.locator('nav a').filter({ hasText: /^Reading$/ }).count(), 1);
+    }
+
+    const navigationCases = [
+      { locale: 'en', reading: 'Reading', menu: 'Open main menu' },
+      { locale: 'zh', reading: '阅读', menu: '打开主菜单' },
+      { locale: 'zh-hk', reading: '閱讀', menu: '開啟主選單' },
+    ];
+    for (const width of [1279, 1280]) {
+      await publicPage.setViewportSize({ width, height: 900 });
+      for (const navigationCase of navigationCases) {
+        await publicPage.evaluate((locale) => localStorage.setItem('locale-storage', locale), navigationCase.locale);
+        await publicPage.goto(`${origin}/`, { waitUntil: 'networkidle' });
+        await publicPage.waitForFunction(
+          (locale) => document.documentElement.getAttribute('data-locale') === locale,
+          navigationCase.locale
+        );
+
+        const navigation = publicPage.locator('nav').first();
+        if (width < 1280) {
+          await navigation.getByRole('button', { name: navigationCase.menu, exact: true }).click();
+        } else {
+          assert.equal(
+            await navigation.getByRole('button', { name: navigationCase.menu, exact: true }).count(),
+            0,
+            `${navigationCase.locale} unexpectedly retained the compact menu at ${width}px.`
+          );
+        }
+
+        const readingLink = navigation.getByRole('link', { name: navigationCase.reading, exact: true });
+        await readingLink.waitFor({ state: 'visible' });
+        assert.equal(
+          await readingLink.count(),
+          1,
+          `${navigationCase.locale} must expose exactly one visible Reading entry at ${width}px.`
+        );
+        await assertNoHorizontalOverflow(publicPage, `${navigationCase.locale} navigation at ${width}px`);
+      }
     }
     assert.deepEqual(publicPageErrors, [], `Anonymous public-page errors: ${publicPageErrors.join(' | ')}`);
   } finally {
@@ -251,7 +277,6 @@ try {
   await waitForServer();
   browser = await chromium.launch({ executablePath, headless: true });
   const context = await browser.newContext({
-    httpCredentials: { username, password },
     viewport: { width: 1440, height: 1000 },
     colorScheme: 'light',
     reducedMotion: 'reduce',
@@ -322,10 +347,10 @@ try {
   page.on('pageerror', (error) => pageErrors.push(error.message));
 
   const readingResponse = await page.goto(`${origin}/reading`, { waitUntil: 'networkidle' });
-  assert.equal(readingResponse?.status(), 200, 'The authenticated Reading navigation did not finish successfully.');
+  assert.equal(readingResponse?.status(), 200, 'The public Reading navigation did not finish successfully.');
   assert.equal(new URL(page.url()).pathname, '/reading/', 'The canonical Reading URL did not retain its trailing slash.');
-  const protectedDataHeaders = await fetchThroughPage(page, '/reading/data/library.json?protection-space-check=1');
-  assert(hasAuthorizationHeader(protectedDataHeaders), 'The protected Reading data request did not carry HTTP Authorization.');
+  const readingDataHeaders = await fetchThroughPage(page, '/reading/data/library.json?public-access-check=1');
+  assertNoAuthorizationHeader(readingDataHeaders, 'Public Reading data request');
   for (const publicPath of [
     '/?protection-space-check=1',
     '/favicon.svg?protection-space-check=1',
@@ -405,6 +430,12 @@ try {
     await expectActiveTab(page, mapTab, 'Map tab after the final ArrowRight');
     await graph.locator('canvas').first().waitFor();
     await waitForReadingObservers(page, true, 'Second Map mount was not observed');
+    assert.equal(await graph.getAttribute('data-anchor-label-limit'), '5', 'Desktop Map must use the restrained five-label profile.');
+    const desktopGraphHeight = await graph.evaluate((element) => element.getBoundingClientRect().height);
+    assert(
+      desktopGraphHeight >= 560 && desktopGraphHeight <= 620,
+      `Desktop Map canvas height is outside the compact target (${desktopGraphHeight}px).`
+    );
 
     await waitForText(page, '2 篇文献 · 1 条当前连线');
     const canvasCount = await graph.locator('canvas').count();
@@ -554,7 +585,16 @@ try {
 
     await mapTab.click();
     await graph.locator('canvas').first().waitFor();
+    await page.waitForFunction(
+      () => document.querySelector('[data-testid="reading-graph-canvas"]')?.getAttribute('data-anchor-label-limit') === '3'
+    );
+    const mobileGraphHeight = await graph.evaluate((element) => element.getBoundingClientRect().height);
+    assert(
+      mobileGraphHeight >= 420 && mobileGraphHeight <= 470,
+      `Mobile Map canvas height is outside the compact target (${mobileGraphHeight}px).`
+    );
     await assertNoHorizontalOverflow(page, 'Mobile Map');
+    await graph.scrollIntoViewIfNeeded();
     await page.waitForTimeout(200);
     await page.screenshot({ path: path.join(screenshotDir, 'map-mobile.png'), fullPage: false });
 
@@ -567,7 +607,6 @@ try {
     await page.setViewportSize({ width: 1440, height: 1000 });
 
     const touchContext = await browser.newContext({
-      httpCredentials: { username, password },
       viewport: { width: 390, height: 844 },
       colorScheme: 'light',
       reducedMotion: 'reduce',
@@ -631,17 +670,17 @@ try {
     };
     await page.route(dataPattern, loadingHandler);
     const loadingReload = page.reload({ waitUntil: 'networkidle' });
-    await waitForText(page, '正在读取私有数据');
+    await waitForText(page, '正在读取 Reading 数据');
     releaseLoading();
     await loadingReload;
     await page.unroute(dataPattern, loadingHandler);
 
     const failureCases = [
-      [401, '{"error":"authentication"}', '需要认证'],
-      [403, '{"error":"authorization"}', '需要认证'],
+      [401, '{"error":"unavailable"}', 'Reading 数据暂不可用'],
+      [403, '{"error":"unavailable"}', 'Reading 数据暂不可用'],
       [200, 'not valid JSON', '数据格式不符合 Reading v1 契约'],
       [200, '{"malformed":true}', '数据格式不符合 Reading v1 契约'],
-      [503, '{"error":"unavailable"}', '私有数据暂不可用'],
+      [503, '{"error":"unavailable"}', 'Reading 数据暂不可用'],
     ];
     for (const [status, body, expected] of failureCases) {
       const handler = (route) => route.fulfill({ status, contentType: 'application/json', body });

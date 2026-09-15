@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useState, type KeyboardEvent } from 'react';
-import { AlertTriangle, BookOpen, KeyRound, LoaderCircle, Network, RefreshCw, Route } from 'lucide-react';
+import { AlertTriangle, BookOpen, LoaderCircle, Network, RefreshCw, Route } from 'lucide-react';
 import { loadReadingBundle, ReadingLoadError, type ReadingLoadFailure } from '@/lib/reading/load';
 import type { ReadingBundle, ReadingTab } from '@/lib/reading/types';
 import LibraryView from './LibraryView';
@@ -92,10 +92,10 @@ export default function ReadingApp() {
       <header className="border-b border-neutral-200 pb-6 dark:border-[rgba(148,163,184,0.30)]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase text-amber-700 dark:text-accent">Private · Read only</p>
+            <p className="text-xs font-semibold uppercase text-amber-700 dark:text-accent">Open · Read only</p>
             <h1 className="mt-2 font-serif text-3xl font-bold text-primary sm:text-4xl">Reading</h1>
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-500 sm:text-base">
-              Inclusive heavy-flavor semileptonic decays 的私有研究阅读记忆。
+              Inclusive heavy-flavor semileptonic decays 的研究阅读索引、关系图谱与主题线索。
             </p>
           </div>
           {bundle && (
@@ -209,33 +209,22 @@ function LoadingState() {
     <div className="flex min-h-[28rem] items-center justify-center border border-neutral-200 bg-neutral-50 p-8 text-center dark:border-[rgba(148,163,184,0.30)] dark:bg-neutral-900" role="status">
       <div>
         <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-accent motion-reduce:animate-none" aria-hidden="true" />
-        <p className="mt-3 text-sm font-medium text-primary">正在读取私有数据…</p>
+        <p className="mt-3 text-sm font-medium text-primary">正在读取 Reading 数据…</p>
       </div>
     </div>
   );
 }
 
 function ErrorState({ failure, onRetry }: { failure: FailureState; onRetry: () => void }) {
-  const authentication = failure.kind === 'authentication';
   const malformed = failure.kind === 'malformed';
-  const Icon = authentication ? KeyRound : AlertTriangle;
-  const title = authentication
-    ? '需要认证'
-    : malformed
-      ? '数据格式不符合 Reading v1 契约'
-      : '私有数据暂不可用';
+  const title = malformed ? '数据格式不符合 Reading v1 契约' : 'Reading 数据暂不可用';
 
   return (
     <div className="flex min-h-[28rem] items-center justify-center border border-neutral-200 bg-neutral-50 p-8 text-center dark:border-[rgba(148,163,184,0.30)] dark:bg-neutral-900" role="alert">
       <div className="max-w-lg">
-        <Icon className="mx-auto h-7 w-7 text-accent" aria-hidden="true" />
+        <AlertTriangle className="mx-auto h-7 w-7 text-accent" aria-hidden="true" />
         <h2 className="mt-4 font-serif text-xl font-semibold text-primary">{title}</h2>
         <p className="mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-500">{failure.message}</p>
-        {authentication && (
-          <p className="mt-2 text-xs leading-relaxed text-neutral-500">
-            Basic Auth 凭据由浏览器管理；本页不提供会误导的应用内“退出”按钮。
-          </p>
-        )}
         <button type="button" onClick={onRetry} className="mt-5 inline-flex items-center gap-2 bg-primary px-4 py-2 text-sm font-medium text-background outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 dark:focus:ring-offset-neutral-900">
           <RefreshCw className="h-4 w-4" aria-hidden="true" />
           重试

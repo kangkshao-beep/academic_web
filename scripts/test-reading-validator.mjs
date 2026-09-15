@@ -4,6 +4,7 @@ import { createRequire } from 'node:module';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { projectReadingPublicFile } from '../functions/reading/_public-data.mjs';
 
 const projectRoot = process.cwd();
 const fixtureRoot = path.join(projectRoot, 'tests/fixtures/reading');
@@ -40,7 +41,11 @@ try {
   );
 
   const require = createRequire(import.meta.url);
-  const { ReadingDataError, validateReadingBundle } = require(path.join(compileDir, 'validate.js'));
+  const {
+    ReadingDataError,
+    validatePrivateReadingBundle,
+    validateReadingBundle,
+  } = require(path.join(compileDir, 'validate.js'));
   const base = {
     library: await readJson('library.json'),
     relations: await readJson('relations.json'),
@@ -48,13 +53,21 @@ try {
     viewConfig: await readJson('view_config.json'),
   };
 
-  const valid = validateReadingBundle(clone(base));
+  const valid = validatePrivateReadingBundle(clone(base));
   assert.equal(valid.library.papers.length, 4, 'The complete synthetic bundle must be accepted.');
   assert.equal(valid.threads.threads[1].stages[0].papers.length, 0, 'An intentional empty thread stage must remain valid.');
 
-  const sourceDocumentWithExtension = clone(base);
-  sourceDocumentWithExtension.library.source_document.synthetic_extension = true;
-  validateReadingBundle(sourceDocumentWithExtension);
+  const publicBundle = {
+    library: projectReadingPublicFile('library.json', base.library, 'private'),
+    relations: projectReadingPublicFile('relations.json', base.relations, 'private'),
+    threads: projectReadingPublicFile('threads.json', base.threads, 'private'),
+    viewConfig: projectReadingPublicFile('view_config.json', base.viewConfig, 'private'),
+  };
+  assert.equal(
+    validateReadingBundle(clone(publicBundle)).viewConfig.visibility,
+    'public',
+    'The strict public projection must be accepted by the runtime validator.'
+  );
 
   const emptyNullableMetadata = clone(base);
   Object.assign(emptyNullableMetadata.library.papers[0], {
@@ -65,17 +78,17 @@ try {
     inspire: '',
     raw_thesis_citation: '',
   });
-  validateReadingBundle(emptyNullableMetadata);
+  validatePrivateReadingBundle(emptyNullableMetadata);
 
   const earlyCalendarDate = clone(base);
   earlyCalendarDate.library.generated_on = '0099-01-01';
-  validateReadingBundle(earlyCalendarDate);
+  validatePrivateReadingBundle(earlyCalendarDate);
 
-  function expectInvalid(label, mutate, expectedPath) {
-    const candidate = clone(base);
+  function expectInvalid(label, source, validator, mutate, expectedPath) {
+    const candidate = clone(source);
     mutate(candidate);
     assert.throws(
-      () => validateReadingBundle(candidate),
+      () => validator(candidate),
       (error) => {
         assert.ok(error instanceof ReadingDataError, `${label}: wrong error type.`);
         assert.equal(error.message, `数据字段无效：${expectedPath}`, `${label}: wrong private-safe field path.`);
@@ -85,7 +98,21 @@ try {
     );
   }
 
-  const cases = [
+  function expectPrivateInvalid(label, mutate, expectedPath) {
+    const candidate = clone(base);
+    mutate(candidate);
+    assert.throws(
+      () => validatePrivateReadingBundle(candidate),
+      (error) => {
+        assert.ok(error instanceof ReadingDataError, `${label}: wrong error type.`);
+        assert.equal(error.message, `数据字段无效：${expectedPath}`, `${label}: wrong private-safe field path.`);
+        return true;
+      },
+      label
+    );
+  }
+
+  const privateCases = [
     {
       label: 'authors require at least one item',
       path: 'library.papers[0].authors',
@@ -117,6 +144,11 @@ try {
       mutate: (data) => { data.library.papers[0].verification.sources[0].url = 'relative/path'; },
     },
     {
+      label: 'verification source URLs must not contain userinfo',
+      path: 'library.papers[0].verification.sources[0].url',
+      mutate: (data) => { data.library.papers[0].verification.sources[0].url = 'https://user:secret@example.com/source'; },
+    },
+    {
       label: 'topics must be unique',
       path: 'library.papers[0].topics',
       mutate: (data) => { data.library.papers[0].topics = ['baseline', 'baseline']; },
@@ -145,6 +177,31 @@ try {
       label: 'unknown paper fields are rejected',
       path: 'library.papers[0].synthetic_unknown',
       mutate: (data) => { data.library.papers[0].synthetic_unknown = true; },
+    },
+    {
+      label: 'unknown source document fields are rejected',
+      path: 'library.source_document.synthetic_extension',
+      mutate: (data) => { data.library.source_document.synthetic_extension = true; },
+    },
+    {
+      label: 'root visibility must be consistent',
+      path: 'relations.visibility',
+      mutate: (data) => { data.relations.visibility = 'public'; },
+    },
+    {
+      label: 'paper visibility must match its library',
+      path: 'library.papers[0].visibility',
+      mutate: (data) => { data.library.papers[0].visibility = 'public'; },
+    },
+    {
+      label: 'edge visibility must match its relation collection',
+      path: 'relations.edges[0].visibility',
+      mutate: (data) => { data.relations.edges[0].visibility = 'public'; },
+    },
+    {
+      label: 'thread visibility must match its thread collection',
+      path: 'threads.threads[0].visibility',
+      mutate: (data) => { data.threads.threads[0].visibility = 'public'; },
     },
     {
       label: 'paper IDs must be unique',
@@ -265,11 +322,105 @@ try {
     },
   ];
 
-  for (const testCase of cases) {
-    expectInvalid(testCase.label, testCase.mutate, testCase.path);
+  for (const testCase of privateCases) {
+    expectPrivateInvalid(testCase.label, testCase.mutate, testCase.path);
   }
 
-  process.stdout.write(`Reading runtime validator checks passed (${cases.length + 2} synthetic cases).\n`);
+  const publicCases = [
+    {
+      label: 'public library rejects private root metadata',
+      path: 'library.source_document',
+      mutate: (data) => { data.library.source_document = { canary: 'must-not-pass' }; },
+    },
+    {
+      label: 'public paper rejects record visibility',
+      path: 'library.papers[0].visibility',
+      mutate: (data) => { data.library.papers[0].visibility = 'public'; },
+    },
+    {
+      label: 'public thesis locator rejects unknown fields',
+      path: 'library.papers[0].source_in_thesis[0].private_locator',
+      mutate: (data) => { data.library.papers[0].source_in_thesis[0].private_locator = 'must-not-pass'; },
+    },
+    {
+      label: 'public verification rejects unknown fields',
+      path: 'library.papers[0].verification.private_note',
+      mutate: (data) => { data.library.papers[0].verification.private_note = 'must-not-pass'; },
+    },
+    {
+      label: 'public verification source rejects unknown fields',
+      path: 'library.papers[0].verification.sources[0].private_locator',
+      mutate: (data) => { data.library.papers[0].verification.sources[0].private_locator = 'must-not-pass'; },
+    },
+    {
+      label: 'public relations reject private root metadata',
+      path: 'relations.generated_on',
+      mutate: (data) => { data.relations.generated_on = '2026-09-15'; },
+    },
+    {
+      label: 'public edge rejects record visibility',
+      path: 'relations.edges[0].visibility',
+      mutate: (data) => { data.relations.edges[0].visibility = 'public'; },
+    },
+    {
+      label: 'public primary evidence rejects unknown fields',
+      path: 'relations.edges[0].evidence[0].private_note',
+      mutate: (data) => { data.relations.edges[0].evidence[0].private_note = 'must-not-pass'; },
+    },
+    {
+      label: 'public thesis evidence rejects document IDs',
+      path: 'relations.edges[1].evidence[1].document_id',
+      mutate: (data) => { data.relations.edges[1].evidence[1].document_id = 'must-not-pass'; },
+    },
+    {
+      label: 'public threads reject private root metadata',
+      path: 'threads.generated_on',
+      mutate: (data) => { data.threads.generated_on = '2026-09-15'; },
+    },
+    {
+      label: 'public thread rejects question status',
+      path: 'threads.threads[0].question_status',
+      mutate: (data) => { data.threads.threads[0].question_status = 'reading_prompt_not_verified_research_gap'; },
+    },
+    {
+      label: 'public thread stage rejects unknown fields',
+      path: 'threads.threads[0].stages[0].private_note',
+      mutate: (data) => { data.threads.threads[0].stages[0].private_note = 'must-not-pass'; },
+    },
+    {
+      label: 'public view config rejects private feature flags',
+      path: 'view_config.weekly_agent_enabled',
+      mutate: (data) => { data.viewConfig.weekly_agent_enabled = false; },
+    },
+    {
+      label: 'public graph rejects private controls',
+      path: 'view_config.graph.initial_node_limit',
+      mutate: (data) => { data.viewConfig.graph.initial_node_limit = 3; },
+    },
+    {
+      label: 'public URLs reject userinfo',
+      path: 'relations.edges[0].evidence[0].url',
+      mutate: (data) => { data.relations.edges[0].evidence[0].url = 'https://user:secret@example.com/evidence'; },
+    },
+    {
+      label: 'public values retain their declared types',
+      path: 'view_config.graph.default_hops',
+      mutate: (data) => { data.viewConfig.graph.default_hops = '1'; },
+    },
+  ];
+
+  for (const testCase of publicCases) {
+    expectInvalid(
+      testCase.label,
+      publicBundle,
+      validateReadingBundle,
+      testCase.mutate,
+      testCase.path
+    );
+  }
+
+  const caseCount = privateCases.length + publicCases.length + 4;
+  process.stdout.write(`Reading runtime validator checks passed (${caseCount} synthetic cases).\n`);
 } finally {
   await rm(compileDir, { recursive: true, force: true });
 }

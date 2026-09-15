@@ -1,9 +1,9 @@
 import {
-  authorizeReadingRequest,
-  readingAuthErrorResponse,
+  READING_DATA_CACHE_CONTROL,
+  READING_ERROR_CACHE_CONTROL,
   readingSecurityHeaders,
-  type ReadingAuthEnv,
-} from '../_auth';
+} from '../_security';
+import { projectReadingPublicFile } from '../_public-data.mjs';
 
 interface ReadingR2Object {
   body: ReadableStream<Uint8Array>;
@@ -11,10 +11,9 @@ interface ReadingR2Object {
 
 interface ReadingR2Bucket {
   get: (key: string) => Promise<ReadingR2Object | null>;
-  head: (key: string) => Promise<unknown | null>;
 }
 
-interface ReadingDataEnv extends ReadingAuthEnv {
+interface ReadingDataEnv {
   READING_DATA?: ReadingR2Bucket;
   READING_DATA_PREFIX?: string;
 }
@@ -35,30 +34,58 @@ const ALLOWED_FILES = new Set([
 ]);
 
 const RESPONSE_HEADERS = {
-  'Cache-Control': 'private, no-store',
   'Content-Type': 'application/json; charset=UTF-8',
-  'Referrer-Policy': 'no-referrer',
-  'X-Content-Type-Options': 'nosniff',
-  'X-Robots-Tag': 'noindex, nofollow, noarchive',
 };
+const MAX_PUBLIC_DATA_BYTES = 32 * 1024 * 1024;
 
 function response(status: number, body: BodyInit | null): Response {
-  return new Response(body, { status, headers: readingSecurityHeaders(RESPONSE_HEADERS) });
+  const cacheControl = status >= 200 && status < 300
+    ? READING_DATA_CACHE_CONTROL
+    : READING_ERROR_CACHE_CONTROL;
+  return new Response(body, {
+    status,
+    headers: readingSecurityHeaders(RESPONSE_HEADERS, cacheControl),
+  });
+}
+
+async function readJson(object: ReadingR2Object): Promise<unknown> {
+  const reader = object.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > MAX_PUBLIC_DATA_BYTES) {
+        await reader.cancel();
+        throw new Error('Reading data object is too large.');
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  return JSON.parse(text);
 }
 
 export async function onRequest(context: ReadingDataContext): Promise<Response> {
-  const authorization = await authorizeReadingRequest(context.request, context.env);
-  if (authorization === 'unavailable') {
-    return readingAuthErrorResponse(503, 'Reading authentication is unavailable.');
-  }
-  if (authorization === 'unauthorized') {
-    return readingAuthErrorResponse(401, 'Authentication required.', true);
-  }
-
   if (context.request.method !== 'GET' && context.request.method !== 'HEAD') {
     return new Response(JSON.stringify({ error: 'Method not allowed.' }), {
       status: 405,
-      headers: readingSecurityHeaders({ ...RESPONSE_HEADERS, Allow: 'GET, HEAD' }),
+      headers: readingSecurityHeaders(
+        { ...RESPONSE_HEADERS, Allow: 'GET, HEAD' },
+        READING_ERROR_CACHE_CONTROL
+      ),
     });
   }
 
@@ -74,15 +101,17 @@ export async function onRequest(context: ReadingDataContext): Promise<Response> 
 
   const key = `${prefix}/${filename}`;
   try {
-    if (context.request.method === 'HEAD') {
-      const metadata = await bucket.head(key);
-      return response(metadata ? 200 : 404, null);
+    const object = await bucket.get(key);
+    if (!object) {
+      return response(404, JSON.stringify({ error: 'Reading data was not found.' }));
     }
 
-    const object = await bucket.get(key);
-    return object
-      ? response(200, object.body)
-      : response(404, JSON.stringify({ error: 'Reading data was not found.' }));
+    const value = await readJson(object);
+    const publicValue = projectReadingPublicFile(filename, value, 'public');
+    return response(
+      200,
+      context.request.method === 'HEAD' ? null : JSON.stringify(publicValue)
+    );
   } catch {
     return response(503, JSON.stringify({ error: 'Reading data is unavailable.' }));
   }

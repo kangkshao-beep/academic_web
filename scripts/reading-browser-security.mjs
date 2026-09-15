@@ -1,15 +1,11 @@
 export const REMOTE_BROWSER_ENV_KEYS = [
   'READING_BROWSER_ORIGIN',
-  'READING_BROWSER_USERNAME',
-  'READING_BROWSER_PASSWORD',
   'READING_BROWSER_DATA_MODE',
 ];
 
 export function consumeRemoteBrowserEnvironment(environment) {
   const configuration = {
     origin: environment.READING_BROWSER_ORIGIN,
-    username: environment.READING_BROWSER_USERNAME,
-    password: environment.READING_BROWSER_PASSWORD,
     dataMode: environment.READING_BROWSER_DATA_MODE,
   };
 

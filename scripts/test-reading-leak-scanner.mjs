@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -13,6 +14,8 @@ const contentProbePath = path.join(projectRoot, 'content', contentProbeName);
 const baselineContentPath = path.join(projectRoot, 'content', 'publications.bib');
 const generatedProbeName = `reading-leak-probe-${process.pid}.html`;
 const generatedProbePath = path.join(projectRoot, 'out', generatedProbeName);
+const generatedPdfProbeName = `reading-source-document-probe-${process.pid}.pdf`;
+const generatedPdfProbePath = path.join(projectRoot, 'out', generatedPdfProbeName);
 const rootCanary = ['SYNTHETIC', 'READING', 'TRACKED', 'BODY', 'CANARY', '8f31c2'].join('_');
 const contentCanary = ['SYNTHETIC', 'READING', 'PUBLIC', 'CONTENT', 'CANARY', 'e2107d'].join('_');
 let originalBaselineContent;
@@ -70,6 +73,7 @@ async function expectSyntheticFieldCoverage() {
     bodyScopeValue: ['SYNTHETIC', 'BODY', 'SCOPE', 'VALUE', '99a10e'].join('_'),
     lookupKey: ['SYNTHETIC', 'PRIVATE', 'LOOKUP', 'KEY', 'b091d3'].join('_'),
     lookupValue: ['SYNTHETIC', 'NESTED', 'LOOKUP', 'VALUE', 'ce1204'].join('_'),
+    separateLookupValue: ['SYNTHETIC', 'SEPARATE', 'LOOKUP', 'VALUE', '7d61a0'].join('_'),
     extensionKey: ['SYNTHETIC', 'SOURCE', 'EXTENSION', 'KEY', '162df0'].join('_'),
     extensionValue: ['SYNTHETIC', 'SOURCE', 'EXTENSION', 'VALUE', '34aa6e'].join('_'),
     author: ['SYNTHETIC', 'AUTHOR', 'CANARY', 'aU91'].join('_'),
@@ -121,6 +125,11 @@ async function expectSyntheticFieldCoverage() {
     { mode: 0o600 }
   );
   await writeFile(
+    path.join(privateDir, 'thesis_reference_lookup.json'),
+    JSON.stringify({ private_entry: { nested_value: probes.separateLookupValue } }),
+    { mode: 0o600 }
+  );
+  await writeFile(
     rootProbePath,
     `${Object.values(probes).join('\n')}\n`,
     { mode: 0o600 }
@@ -134,6 +143,7 @@ async function expectSyntheticFieldCoverage() {
     'library.source_document.page_numbering',
     'library.source_document.body_scope.values[0].values[0]',
     'library.source_document.bibliography_lookup.values[0].values[0]',
+    'thesis_reference_lookup.values[0].values[0]',
     'library.source_document.extensions[0].value',
     'library.papers[0].authors[0]',
     'library.papers[0].collaboration',
@@ -226,6 +236,20 @@ try {
   assertPrivateValueHidden(generatedResult, publicBaseline);
   await rm(generatedProbePath, { force: true });
 
+  const privatePdfBytes = Buffer.from('Synthetic private source-document binary fixture.');
+  const privatePdfHash = createHash('sha256').update(privatePdfBytes).digest('hex');
+  const privatePdfLibrary = privateLibrary();
+  privatePdfLibrary.source_document.sha256 = privatePdfHash;
+  await writePrivateLibrary(privatePdfLibrary);
+  await writeFile(generatedPdfProbePath, privatePdfBytes);
+  const privatePdfResult = scannerResult();
+  assert.notEqual(privatePdfResult.status, 0, 'Leak scanner accepted the private source-document PDF bytes.');
+  assert.match(privatePdfResult.stderr, new RegExp(`Private source-document PDF found at out/${generatedPdfProbeName}`));
+  assertPrivateValueHidden(privatePdfResult, privatePdfHash);
+  await rm(generatedPdfProbePath, { force: true });
+
+  await writePrivateTitle(publicBaseline);
+
   originalBaselineContent = await readFile(baselineContentPath, 'utf8');
   await writeFile(
     baselineContentPath,
@@ -250,5 +274,6 @@ try {
   await rm(rootProbePath, { force: true });
   await rm(contentProbePath, { force: true });
   await rm(generatedProbePath, { force: true });
+  await rm(generatedPdfProbePath, { force: true });
   await rm(privateDir, { recursive: true, force: true });
 }

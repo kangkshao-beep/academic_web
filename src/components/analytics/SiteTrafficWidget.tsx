@@ -31,7 +31,6 @@ export default function SiteTrafficWidget() {
   const [stats, setStats] = useState<TrafficStats | null>(null);
   const requestIdRef = useRef(0);
   const pageKey = pathname;
-  const isPrivateReading = pageKey === '/reading' || pageKey?.startsWith('/reading/') === true;
 
   const numberFormatter = useMemo(
     () => new Intl.NumberFormat(getNumberLocale(locale)),
@@ -39,9 +38,9 @@ export default function SiteTrafficWidget() {
   );
 
   useEffect(() => {
-    // Wait for the router to resolve the pathname so a private route can
-    // never briefly record a view as the public root.
-    if (!pageKey || isPrivateReading) {
+    // Wait for the router to resolve the pathname so the initial render does
+    // not accidentally record a view against the public root.
+    if (!pageKey) {
       setStats(null);
       return;
     }
@@ -82,9 +81,9 @@ export default function SiteTrafficWidget() {
     void recordPageView();
 
     return () => controller.abort();
-  }, [isPrivateReading, pageKey]);
+  }, [pageKey]);
 
-  if (!pageKey || isPrivateReading || !stats) return null;
+  if (!pageKey || !stats) return null;
 
   const weeklyViews = numberFormatter.format(stats.weekly);
   const totalViews = numberFormatter.format(stats.total);

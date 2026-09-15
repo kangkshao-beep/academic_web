@@ -70,6 +70,12 @@ target = "learning"
 href = "/learning"
 
 [[navigation]]
+title = "Reading"
+type = "link"
+target = "reading"
+href = "/reading"
+
+[[navigation]]
 title = "Questions"
 type = "page"
 target = "questions"
