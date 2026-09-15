@@ -5,6 +5,7 @@ import Footer from '@/components/layout/Footer';
 import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import { LocaleProvider } from '@/components/ui/LocaleProvider';
 import { getConfig } from '@/lib/config';
+import { buildLocaleBootstrapScript } from '@/lib/i18n/bootstrap';
 import { getRuntimeI18nConfig } from '@/lib/i18n/config';
 import type { SiteConfig } from '@/lib/config';
 
@@ -51,59 +52,6 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: config.site.title,
     },
   };
-}
-
-function buildLocaleBootstrapScript(config: ReturnType<typeof getRuntimeI18nConfig>): string {
-  const serializedConfig = JSON.stringify(config).replace(/</g, '\\u003c');
-
-  return `
-    try {
-      const cfg = ${serializedConfig};
-      const storageKey = 'locale-storage';
-      const normalize = (value) => typeof value === 'string' ? value.trim().replace(/_/g, '-').toLowerCase() : '';
-      const matchLocale = (candidate) => {
-        const normalized = normalize(candidate);
-        if (!normalized) return null;
-        if (cfg.locales.includes(normalized)) return normalized;
-        const subtags = normalized.split('-');
-        const language = subtags[0];
-        const region = subtags.slice(1).find((subtag) => /^[a-z]{2}$/.test(subtag) || /^\\d{3}$/.test(subtag));
-        if (language === 'zh' && (region === 'hk' || subtags.includes('hant')) && cfg.locales.includes('zh-hk')) return 'zh-hk';
-        if (cfg.locales.includes(language)) return language;
-        return null;
-      };
-
-      let resolved = null;
-
-      if (cfg.persist) {
-        resolved = matchLocale(localStorage.getItem(storageKey));
-      }
-
-      if (!resolved) {
-        if (cfg.mode === 'fixed') {
-          resolved = cfg.fixedLocale;
-        } else {
-          resolved = matchLocale(navigator.language);
-        }
-      }
-
-      if (!resolved) {
-        resolved = cfg.defaultLocale;
-      }
-
-      const root = document.documentElement;
-      root.lang = resolved;
-      root.setAttribute('data-locale', resolved);
-
-      if (cfg.persist) {
-        localStorage.setItem(storageKey, resolved);
-      }
-    } catch (e) {
-      const root = document.documentElement;
-      root.lang = '${config.defaultLocale}';
-      root.setAttribute('data-locale', '${config.defaultLocale}');
-    }
-  `;
 }
 
 function buildLocalizedConfigMaps(

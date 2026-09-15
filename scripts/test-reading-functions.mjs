@@ -50,6 +50,10 @@ async function assertReadingRoutes(filename, label) {
     '/reading/index.txt',
     '/reading/data/library.json',
     '/reading/data/view_config.json',
+    '/reading/weekly/',
+    '/reading/weekly/index.html',
+    '/reading/weekly/index.txt',
+    '/reading/weekly/data/topics.json',
   ]) {
     const included = routes.include.some((pattern) => routeMatches(pattern, pathname));
     const excluded = routes.exclude.some((pattern) => routeMatches(pattern, pathname));
@@ -79,10 +83,14 @@ const PAGE_CACHE = 'public, max-age=0, must-revalidate';
 const DATA_CACHE = 'public, max-age=60, s-maxage=300, stale-while-revalidate=60';
 const ERROR_CACHE = 'no-store';
 const securityModule = await transpileTypeScript('../functions/reading/_security.ts');
+const weeklyAuthModule = await transpileTypeScript('../functions/reading/weekly/_auth.ts');
 const publicDataSource = await readFile(new URL('../functions/reading/_public-data.mjs', import.meta.url), 'utf8');
 const publicDataModule = `data:text/javascript;base64,${Buffer.from(publicDataSource, 'utf8').toString('base64')}`;
 const [{ onRequest: secureReading }, { onRequest: readData }] = await Promise.all([
-  importTypeScript('../functions/reading/_middleware.ts', { './_security': securityModule }),
+  importTypeScript('../functions/reading/_middleware.ts', {
+    './_security': securityModule,
+    './weekly/_auth': weeklyAuthModule,
+  }),
   importTypeScript('../functions/reading/data/[filename].ts', {
     '../_security': securityModule,
     '../_public-data.mjs': publicDataModule,
@@ -117,9 +125,6 @@ for (const method of ['GET', 'HEAD']) {
 }
 
 for (const pathname of [
-  '/reading/weekly',
-  '/reading/weekly/',
-  '/reading/weekly/2026-09-15',
   '/reading/data/weekly.json',
   '/reading/%77eekly',
   '/reading/weekly%2F2026-09-15',

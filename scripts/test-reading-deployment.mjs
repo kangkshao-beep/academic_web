@@ -8,9 +8,17 @@ const DISALLOWED_PATHS = [
   '/reading/data/export.json',
   '/reading/data/thesis_reference_lookup.json',
   '/reading/data/weekly.json',
-  '/reading/weekly',
-  '/reading/weekly/',
+  '/reading/%77eekly',
+  '/reading/weekly%2Fdata%2Ftopics.json',
 ];
+const WEEKLY_PROTECTED_PATHS = [
+  '/reading/weekly/',
+  '/reading/weekly/index.html',
+  '/reading/weekly/index.txt',
+  '/reading/weekly/data/topics.json',
+  '/reading/weekly/data/unknown.json',
+];
+const WEEKLY_BLOCKED_ALIASES = ['/reading/weekly.html', '/reading/weekly.txt'];
 const PUBLIC_PATHS = ['/', '/publications/', '/learning/', '/search-index.json'];
 const MAX_BODY_BYTES = 32 * 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 20_000;
@@ -183,6 +191,31 @@ function assertReadingSecurityHeaders(response, cacheKind) {
   requireCondition(!response.headers.has('access-control-allow-origin'));
 }
 
+function assertWeeklySecurityHeaders(response, challenge = false) {
+  const cacheControl = headerTokens(response.headers, 'cache-control');
+  const cdnCacheControl = headerTokens(response.headers, 'cdn-cache-control');
+  const robots = headerTokens(response.headers, 'x-robots-tag');
+  const vary = headerTokens(response.headers, 'vary');
+  const contentSecurityPolicy = contentSecurityPolicyDirectives(
+    response.headers.get('content-security-policy') || ''
+  );
+  requireCondition(cacheControl.includes('private') && cacheControl.includes('no-store'));
+  requireCondition(cdnCacheControl.includes('no-store'));
+  requireCondition(vary.includes('authorization'));
+  requireCondition(robots.includes('noindex'));
+  requireCondition(robots.includes('nofollow'));
+  requireCondition(robots.includes('noarchive'));
+  requireCondition(response.headers.get('referrer-policy')?.toLowerCase() === 'no-referrer');
+  requireCondition(response.headers.get('x-content-type-options')?.toLowerCase() === 'nosniff');
+  requireCondition(response.headers.get('x-frame-options')?.toUpperCase() === 'DENY');
+  requireCondition(contentSecurityPolicy.get('default-src')?.includes("'self'"));
+  requireCondition(contentSecurityPolicy.get('object-src')?.includes("'none'"));
+  requireCondition(contentSecurityPolicy.get('frame-ancestors')?.includes("'none'"));
+  requireCondition(!response.headers.has('access-control-allow-origin'));
+  requireCondition(response.headers.has('www-authenticate') === challenge);
+  if (challenge) requireCondition(/^Basic\b/i.test(response.headers.get('www-authenticate') || ''));
+}
+
 function parseReadingJson(filename, body) {
   const value = JSON.parse(body);
   requireExactKeys(value, ROOT_KEYS[filename]);
@@ -318,6 +351,34 @@ async function verifyOrigin(origin) {
         if (method === 'HEAD') requireCondition(body === '');
       });
     }
+  }
+
+  for (const method of ['GET', 'HEAD']) {
+    await check(origin, '/reading/weekly', { method }, (response, body) => {
+      requireCondition(response.status === 308);
+      assertWeeklySecurityHeaders(response);
+      requireCondition(body === '');
+      assertSafeReadingRedirect(response, origin, '/reading/weekly/');
+    });
+  }
+
+  for (const pathname of WEEKLY_PROTECTED_PATHS) {
+    for (const method of ['GET', 'HEAD']) {
+      await check(origin, pathname, { method }, (response, body) => {
+        requireCondition(response.status === 401);
+        assertWeeklySecurityHeaders(response, true);
+        requireCondition(!CANARY || !body.includes(CANARY));
+        if (method === 'HEAD') requireCondition(body === '');
+      });
+    }
+  }
+
+  for (const pathname of WEEKLY_BLOCKED_ALIASES) {
+    await check(origin, pathname, {}, (response, body) => {
+      requireCondition(response.status === 404);
+      assertWeeklySecurityHeaders(response);
+      requireCondition(!CANARY || !body.includes(CANARY));
+    });
   }
 
   for (const pathname of ['/reading', '/reading/', '/reading/data/library.json']) {

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import os from 'node:os';
@@ -10,6 +11,10 @@ const fixtureDir = path.join(process.cwd(), 'tests/fixtures/reading');
 const filenames = ['library.json', 'relations.json', 'threads.json', 'view_config.json'];
 const pageCache = 'public, max-age=0, must-revalidate';
 const dataCache = 'public, max-age=60, s-maxage=300, stale-while-revalidate=60';
+const weeklyCredentials = 'weekly-test:test-only-password';
+const weeklyHash = createHash('sha256').update(weeklyCredentials, 'utf8').digest('hex');
+const weeklyAuthorization = `Basic ${Buffer.from(weeklyCredentials, 'utf8').toString('base64')}`;
+const invalidWeeklyAuthorization = `Basic ${Buffer.from('invalid:credentials', 'utf8').toString('base64')}`;
 const expectedPublicData = new Map();
 
 await Promise.all(filenames.map(async (filename) => {
@@ -26,6 +31,8 @@ const child = spawn(process.execPath, ['scripts/serve-reading.mjs'], {
     ...process.env,
     READING_HOST: '127.0.0.1',
     READING_DATA_DIR: dataDir,
+    READING_WEEKLY_DATA_DIR: path.join(process.cwd(), 'tests/fixtures/reading-weekly'),
+    READING_WEEKLY_BASIC_AUTH_SHA256: weeklyHash,
     READING_PORT: '0',
   },
   stdio: ['ignore', 'pipe', 'pipe'],
@@ -77,6 +84,20 @@ function assertSecurityHeaders(response, pathname, cacheControl) {
     `${pathname} lacks the same-origin CSP.`
   );
   assert(!response.headers.has('access-control-allow-origin'), `${pathname} unexpectedly enables CORS.`);
+}
+
+function assertPrivateHeaders(response, pathname, challenge = false) {
+  assert(response.headers.get('cache-control') === 'private, no-store', `${pathname} lacks private no-store.`);
+  assert(response.headers.get('cdn-cache-control') === 'no-store', `${pathname} lacks CDN no-store.`);
+  assert(response.headers.get('vary') === 'Authorization', `${pathname} does not vary on Authorization.`);
+  assert(response.headers.get('cross-origin-resource-policy') === 'same-origin', `${pathname} lacks same-origin resource policy.`);
+  assert(response.headers.get('x-robots-tag') === 'noindex, nofollow, noarchive', `${pathname} lacks robot exclusion.`);
+  assert(response.headers.get('referrer-policy') === 'no-referrer', `${pathname} lacks no-referrer.`);
+  assert(response.headers.get('x-content-type-options') === 'nosniff', `${pathname} lacks nosniff.`);
+  assert(response.headers.get('x-frame-options') === 'DENY', `${pathname} lacks frame denial.`);
+  assert(response.headers.get('content-security-policy')?.includes("default-src 'self'"), `${pathname} lacks CSP.`);
+  assert(!response.headers.has('access-control-allow-origin'), `${pathname} unexpectedly enables CORS.`);
+  assert(response.headers.has('www-authenticate') === challenge, `${pathname} has the wrong challenge state.`);
 }
 
 async function request(pathname, { method = 'GET', headers = {} } = {}) {
@@ -133,8 +154,6 @@ try {
     '/reading/data/thesis_reference_lookup.json',
     '/reading/data/not-an-export.json',
     '/reading/data/weekly.json',
-    '/reading/weekly',
-    '/reading/weekly/2026-09-15',
   ]) {
     const response = await request(pathname);
     const body = await response.text();
@@ -142,6 +161,59 @@ try {
     assert(!body.includes(canary), `Disallowed path ${pathname} exposed the synthetic canary.`);
     assertSecurityHeaders(response, pathname, 'no-store');
   }
+
+  for (const method of ['GET', 'HEAD']) {
+    const response = await request('/reading/weekly', { method });
+    assert(response.status === 308, `${method} /reading/weekly returned ${response.status}.`);
+    assert(response.headers.get('location') === '/reading/weekly/', 'Weekly redirect has the wrong target.');
+    assert((await response.text()) === '', 'Weekly redirect returned a body.');
+    assertPrivateHeaders(response, `${method} /reading/weekly`);
+  }
+
+  for (const pathname of [
+    '/reading/weekly/',
+    '/reading/weekly/index.html',
+    '/reading/weekly/index.txt',
+    '/reading/weekly/data/topics.json',
+  ]) {
+    for (const method of ['GET', 'HEAD']) {
+      const response = await request(pathname, { method });
+      assert(response.status === 401, `Anonymous ${method} ${pathname} returned ${response.status}.`);
+      assert((await response.text()).includes('Synthetic current topic') === false, `${pathname} leaked weekly data.`);
+      assertPrivateHeaders(response, `${method} ${pathname}`, true);
+    }
+    const invalid = await request(pathname, { headers: { Authorization: invalidWeeklyAuthorization } });
+    assert(invalid.status === 401, `Invalid credentials reached ${pathname}.`);
+    assertPrivateHeaders(invalid, `invalid ${pathname}`, true);
+  }
+
+  const authorizedWeeklyPage = await request('/reading/weekly/', {
+    headers: { Authorization: weeklyAuthorization },
+  });
+  assert(authorizedWeeklyPage.status === 200, 'Authorized weekly page did not load.');
+  assertPrivateHeaders(authorizedWeeklyPage, 'authorized weekly page');
+
+  const authorizedWeeklyData = await request('/reading/weekly/data/topics.json', {
+    headers: { Authorization: weeklyAuthorization },
+  });
+  const authorizedWeeklyBody = await authorizedWeeklyData.text();
+  assert(authorizedWeeklyData.status === 200, 'Authorized weekly data did not load.');
+  assert(authorizedWeeklyBody.includes('Synthetic current topic'), 'Authorized weekly data is missing its fixture.');
+  assertPrivateHeaders(authorizedWeeklyData, 'authorized weekly data');
+
+  for (const pathname of [
+    '/reading/weekly/data/export.json',
+    '/reading/weekly/data/thesis_reference_lookup.json',
+  ]) {
+    const response = await request(pathname, { headers: { Authorization: weeklyAuthorization } });
+    assert(response.status === 404, `Authorized disallowed weekly path ${pathname} returned ${response.status}.`);
+    assertPrivateHeaders(response, pathname);
+  }
+
+  const afterWeeklyPrime = await request('/reading/weekly/data/topics.json');
+  assert(afterWeeklyPrime.status === 401, 'Weekly cache-prime regression returned private data anonymously.');
+  assert((await afterWeeklyPrime.text()).includes('Synthetic current topic') === false, 'Weekly cache prime leaked data.');
+  assertPrivateHeaders(afterWeeklyPrime, 'weekly cache prime', true);
 
   for (const pathname of ['/reading', '/reading/', '/reading/data/library.json']) {
     const response = await request(pathname, { method: 'POST' });

@@ -126,6 +126,27 @@ async function assertNoHorizontalOverflow(page, label) {
   );
 }
 
+async function assertFullyVisibleInViewport(locator, label) {
+  const bounds = await locator.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      left: rect.left,
+      right: rect.right,
+      top: rect.top,
+      bottom: rect.bottom,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+    };
+  });
+  assert(
+    bounds.left >= -1
+      && bounds.right <= bounds.viewportWidth + 1
+      && bounds.top >= -1
+      && bounds.bottom <= bounds.viewportHeight + 1,
+    `${label} is clipped outside the viewport.`
+  );
+}
+
 async function assertGraphPainted(graph) {
   assert(await graph.evaluate((container) => [...container.querySelectorAll('canvas')].some((canvas) => {
     const drawing = canvas.getContext('2d');
@@ -198,6 +219,10 @@ async function runGenericSmoke(page) {
   await page.setViewportSize({ width: 390, height: 844 });
   await libraryTab.click();
   await page.locator('#reading-library-results').waitFor({ state: 'visible' });
+  const weeklyEntry = page.locator('a[href="/reading/weekly/"]');
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await assertFullyVisibleInViewport(weeklyEntry, 'Generic mobile Weekly entry');
+  assert.equal((await weeklyEntry.innerText()).trim(), 'Weekly topics');
   await assertNoHorizontalOverflow(page, 'Generic mobile Library');
   await mapTab.click();
   await graph.locator('canvas').first().waitFor();
@@ -211,7 +236,7 @@ async function runGenericSmoke(page) {
 async function switchLocale(page, optionName, expectedLocale) {
   const toggle = page.locator('button[aria-haspopup="menu"]').first();
   await toggle.click();
-  await page.getByRole('button', { name: optionName, exact: true }).click();
+  await page.getByRole('menuitemradio', { name: optionName, exact: true }).click();
   await page.waitForFunction(
     (locale) => document.documentElement.getAttribute('data-locale') === locale,
     expectedLocale

@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { motion } from 'framer-motion';
 import { LanguageIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 import { useLocaleStore } from '@/lib/stores/localeStore';
+import { useMessages } from '@/lib/i18n/useMessages';
 import type { I18nRuntimeConfig } from '@/types/i18n';
 
 interface LanguageToggleProps {
@@ -17,8 +18,12 @@ function getCompactLabel(locale: string, label: string): string {
 
 export default function LanguageToggle({ i18n }: LanguageToggleProps) {
   const { locale, setLocale } = useLocaleStore();
+  const messages = useMessages();
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const menuId = useId();
 
   useEffect(() => {
     setMounted(true);
@@ -39,18 +44,77 @@ export default function LanguageToggle({ i18n }: LanguageToggleProps) {
   const currentLocale = i18n.locales.includes(locale) ? locale : i18n.defaultLocale;
   const currentLabel = i18n.labels[currentLocale] || currentLocale;
   const compactLabel = getCompactLabel(currentLocale, currentLabel);
+  const triggerLabel = `${messages.search.language}: ${currentLabel}`;
+
+  const focusOption = (index: number) => {
+    const count = i18n.locales.length;
+    optionRefs.current[(index + count) % count]?.focus();
+  };
+
+  const openMenu = (target: 'selected' | 'first' | 'last' = 'selected') => {
+    setIsOpen(true);
+    window.requestAnimationFrame(() => {
+      const selectedIndex = Math.max(0, i18n.locales.indexOf(currentLocale));
+      focusOption(target === 'first' ? 0 : target === 'last' ? i18n.locales.length - 1 : selectedIndex);
+    });
+  };
+
+  const closeMenu = (restoreFocus = true) => {
+    setIsOpen(false);
+    if (restoreFocus) window.requestAnimationFrame(() => triggerRef.current?.focus());
+  };
+
+  const handleTriggerKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      openMenu(event.key === 'ArrowDown' ? 'first' : 'last');
+    }
+    if (event.key === 'Escape' && isOpen) {
+      event.preventDefault();
+      closeMenu();
+    }
+  };
+
+  const handleOptionKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+      event.preventDefault();
+      focusOption(index + 1);
+    } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+      event.preventDefault();
+      focusOption(index - 1);
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      focusOption(0);
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      focusOption(i18n.locales.length - 1);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      closeMenu();
+    }
+  };
 
   return (
-    <div className="relative">
+    <div
+      className="relative"
+      onBlur={(event) => {
+        if (isOpen && !event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          setIsOpen(false);
+        }
+      }}
+    >
       <motion.button
+        ref={triggerRef}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         type="button"
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label={currentLabel}
+        onClick={() => (isOpen ? closeMenu(false) : openMenu())}
+        onKeyDown={handleTriggerKeyDown}
+        aria-label={triggerLabel}
         aria-expanded={isOpen}
         aria-haspopup="menu"
+        aria-controls={menuId}
+        data-testid="language-toggle"
         className={cn(
           'flex h-10 w-10 items-center justify-center gap-1 rounded-lg sm:w-auto sm:px-2',
           'border border-neutral-200 bg-background hover:bg-neutral-50',
@@ -58,7 +122,7 @@ export default function LanguageToggle({ i18n }: LanguageToggleProps) {
           'transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50',
           'text-neutral-600 hover:text-primary dark:text-neutral-400 dark:hover:text-white'
         )}
-        title={currentLabel}
+        title={triggerLabel}
       >
         <LanguageIcon className="h-4 w-4" aria-hidden="true" />
         <span className="hidden text-xs font-medium sm:inline" aria-hidden="true">{compactLabel}</span>
@@ -67,6 +131,9 @@ export default function LanguageToggle({ i18n }: LanguageToggleProps) {
 
       {isOpen && (
         <motion.div
+          id={menuId}
+          role="menu"
+          aria-label={messages.search.language}
           initial={{ opacity: 0, scale: 0.95, y: -10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: -10 }}
@@ -77,14 +144,19 @@ export default function LanguageToggle({ i18n }: LanguageToggleProps) {
           )}
         >
           <div className="py-1">
-            {i18n.locales.map((localeOption) => (
+            {i18n.locales.map((localeOption, index) => (
               <button
                 key={localeOption}
+                ref={(element) => { optionRefs.current[index] = element; }}
                 type="button"
+                role="menuitemradio"
+                aria-checked={currentLocale === localeOption}
+                tabIndex={currentLocale === localeOption ? 0 : -1}
                 onClick={() => {
                   setLocale(localeOption);
-                  setIsOpen(false);
+                  closeMenu();
                 }}
+                onKeyDown={(event) => handleOptionKeyDown(event, index)}
                 className={cn(
                   'flex w-full items-center justify-between whitespace-nowrap px-3 py-2 text-sm',
                   'hover:bg-neutral-50 dark:hover:bg-neutral-700',
@@ -105,7 +177,8 @@ export default function LanguageToggle({ i18n }: LanguageToggleProps) {
       {isOpen && (
         <div
           className="fixed inset-0 z-40"
-          onClick={() => setIsOpen(false)}
+          onClick={() => closeMenu()}
+          aria-hidden="true"
         />
       )}
     </div>

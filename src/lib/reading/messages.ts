@@ -22,6 +22,8 @@ export interface ReadingMessages {
     countSummary: (papers: number, relations: number, threads: number) => string;
     viewNavigation: string;
     tabs: Record<'library' | 'map' | 'threads', string>;
+    weekly: string;
+    weeklyAria: string;
     dataNoticeLabel: string;
     dataNotice: string;
     loading: string;
@@ -219,6 +221,8 @@ const en: ReadingMessages = {
     countSummary: (papers, relations, threads) => `${papers} ${papers === 1 ? 'paper' : 'papers'} · ${relations} ${relations === 1 ? 'relation' : 'relations'} · ${threads} ${threads === 1 ? 'thread' : 'threads'}`,
     viewNavigation: 'Reading views',
     tabs: { library: 'Library', map: 'Map', threads: 'Threads' },
+    weekly: 'Weekly topics',
+    weeklyAria: 'Open protected weekly topics',
     dataNoticeLabel: 'Reading data notice',
     dataNotice: 'Priorities, descriptions, and reading order retain the proposal provenance recorded in the data. An unknown reading status does not mean read. This browser does not save edits, notes, or filter state.',
     loading: 'Loading Reading data…',
@@ -274,7 +278,7 @@ const en: ReadingMessages = {
 
 const zh: ReadingMessages = {
   app: {
-    eyebrow: '公开 · 只读', title: '阅读', description: '关于重味强子半轻子单举衰变的研究阅读索引、文献关系图与主题路径。', countSummary: (papers, relations, threads) => `${papers} 篇文献 · ${relations} 条关系 · ${threads} 条线索`, viewNavigation: '阅读视图', tabs: { library: '文献库', map: '关系图', threads: '主题线索' }, dataNoticeLabel: '阅读数据说明', dataNotice: '优先级、说明与阅读顺序均保留数据中标明的提议来源；阅读状态为“未知”不代表已读。本浏览器不会保存编辑、笔记或筛选状态。', loading: '正在读取阅读数据…', mapLoading: '正在加载关系图组件…', malformedTitle: '数据不符合 Reading v1 契约', malformedMessage: '阅读数据未能通过校验，请稍后重试。', unavailableTitle: '阅读数据暂不可用', unavailableMessage: '暂时无法连接阅读数据服务，请稍后重试。', retry: '重试',
+    eyebrow: '公开 · 只读', title: '阅读', description: '关于重味强子半轻子单举衰变的研究阅读索引、文献关系图与主题路径。', countSummary: (papers, relations, threads) => `${papers} 篇文献 · ${relations} 条关系 · ${threads} 条线索`, viewNavigation: '阅读视图', tabs: { library: '文献库', map: '关系图', threads: '主题线索' }, weekly: '每周话题', weeklyAria: '打开受保护的每周话题', dataNoticeLabel: '阅读数据说明', dataNotice: '优先级、说明与阅读顺序均保留数据中标明的提议来源；阅读状态为“未知”不代表已读。本浏览器不会保存编辑、笔记或筛选状态。', loading: '正在读取阅读数据…', mapLoading: '正在加载关系图组件…', malformedTitle: '数据不符合 Reading v1 契约', malformedMessage: '阅读数据未能通过校验，请稍后重试。', unavailableTitle: '阅读数据暂不可用', unavailableMessage: '暂时无法连接阅读数据服务，请稍后重试。', retry: '重试',
   },
   labels: {
     roles: { foundation: '基础', method: '方法', phenomenology: '唯象', experiment: '实验', review: '综述', frontier: '前沿' },
@@ -303,7 +307,7 @@ const zh: ReadingMessages = {
 
 const zhHk: ReadingMessages = {
   app: {
-    eyebrow: '公開 · 唯讀', title: '閱讀', description: '重味強子半輕子單舉衰變研究的文獻索引、關係圖與閱讀脈絡。', countSummary: (papers, relations, threads) => `${papers} 篇文獻 · ${relations} 項關係 · ${threads} 條閱讀脈絡`, viewNavigation: '閱讀檢視', tabs: { library: '文獻庫', map: '關係圖', threads: '閱讀脈絡' }, dataNoticeLabel: '閱讀數據說明', dataNotice: '優先級、說明與閱讀次序均保留數據所標示的建議來源；閱讀狀態為「未知」並不表示已讀。瀏覽器不會儲存編輯內容、筆記或篩選狀態。', loading: '正在讀取閱讀數據…', mapLoading: '正在載入關係圖元件…', malformedTitle: '數據格式不符合 Reading v1 規格', malformedMessage: '閱讀數據未能通過驗證，請稍後再試。', unavailableTitle: '閱讀數據暫時無法使用', unavailableMessage: '暫時無法連接閱讀數據服務，請稍後再試。', retry: '重試',
+    eyebrow: '公開 · 唯讀', title: '閱讀', description: '重味強子半輕子單舉衰變研究的文獻索引、關係圖與閱讀脈絡。', countSummary: (papers, relations, threads) => `${papers} 篇文獻 · ${relations} 項關係 · ${threads} 條閱讀脈絡`, viewNavigation: '閱讀檢視', tabs: { library: '文獻庫', map: '關係圖', threads: '閱讀脈絡' }, weekly: '每週話題', weeklyAria: '開啟受保護的每週話題', dataNoticeLabel: '閱讀數據說明', dataNotice: '優先級、說明與閱讀次序均保留數據所標示的建議來源；閱讀狀態為「未知」並不表示已讀。瀏覽器不會儲存編輯內容、筆記或篩選狀態。', loading: '正在讀取閱讀數據…', mapLoading: '正在載入關係圖元件…', malformedTitle: '數據格式不符合 Reading v1 規格', malformedMessage: '閱讀數據未能通過驗證，請稍後再試。', unavailableTitle: '閱讀數據暫時無法使用', unavailableMessage: '暫時無法連接閱讀數據服務，請稍後再試。', retry: '重試',
   },
   labels: {
     roles: { foundation: '基礎', method: '方法', phenomenology: '唯象', experiment: '實驗', review: '綜述', frontier: '前沿' },
