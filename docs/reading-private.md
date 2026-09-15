@@ -4,12 +4,12 @@
 
 Reading v1 已实现为通用静态页面壳与受保护的运行时数据接口。当前仓库的生产方式是 GitHub 公开仓库连接 Cloudflare Pages，`main` 分支执行 `npm run build` 并发布 `out/`。
 
-截至 2026-09-14：
+截至 2026-09-15：
 
-- 代码已在本地实现，真实数据没有复制进本仓库或 `out/`。
-- 生产环境尚未部署本次改动。
-- `kkshao.org.cn`、`academic-web.pages.dev` 及 Preview 的认证尚未进行部署后验证。
-- 在完成下述认证矩阵前，不得上传真实 Reading 数据。
+- 通用 Reading 代码已部署；真实数据仍未复制进本仓库或 `out/`。
+- 最终 Production 凭据下的合成数据认证矩阵已在 `kkshao.org.cn`、`academic-web.pages.dev` 和不可变 deployment URL 通过。
+- 四份真实 canonical JSON 已在离线校验后上传到私有 Production R2 前缀 `releases/production-20260915-decb7a8-v1`，且逐文件回读比对一致。
+- `thesis_reference_lookup.json` 未上传；本配置选择上述真实 release。每次新 deployment 仍须完成下述部署后认证与泄漏复验。
 
 ## 架构
 

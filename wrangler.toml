@@ -21,4 +21,4 @@ bucket_name = "academic-web-reading-production"
 
 [env.production.vars]
 TRAFFIC_ENABLED = "true"
-READING_DATA_PREFIX = "releases/production-synthetic-20260915-v1"
+READING_DATA_PREFIX = "releases/production-20260915-decb7a8-v1"
