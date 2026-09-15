@@ -48,14 +48,33 @@ export function matchLocale(candidate: string | null | undefined, locales: strin
 
   const subtags = normalized.split('-');
   const language = subtags[0];
+  const script = subtags.slice(1).find((subtag) => /^[a-z]{4}$/.test(subtag));
   const region = subtags.slice(1).find((subtag) => /^[a-z]{2}$/.test(subtag) || /^\d{3}$/.test(subtag));
-  if (language === 'zh' && (region === 'hk' || subtags.includes('hant')) && locales.includes('zh-hk')) {
-    return 'zh-hk';
+
+  if (language === 'zh') {
+    const usesTraditionalChinese = script === 'hant'
+      || (!script && (region === 'hk' || region === 'mo' || region === 'tw'));
+
+    if (usesTraditionalChinese && locales.includes('zh-hk')) {
+      return 'zh-hk';
+    }
   }
 
   const languageOnly = language;
   if (locales.includes(languageOnly)) {
     return languageOnly;
+  }
+
+  return null;
+}
+
+export function matchPreferredLocale(
+  candidates: readonly (string | null | undefined)[],
+  locales: string[]
+): string | null {
+  for (const candidate of candidates) {
+    const matched = matchLocale(candidate, locales);
+    if (matched) return matched;
   }
 
   return null;

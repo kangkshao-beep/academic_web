@@ -1,8 +1,9 @@
 'use client';
+/* eslint-disable @next/next/no-html-link-for-pages -- Weekly authentication requires a full document navigation. */
 
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useState, type KeyboardEvent } from 'react';
-import { AlertTriangle, BookOpen, LoaderCircle, Network, RefreshCw, Route } from 'lucide-react';
+import { AlertTriangle, BookOpen, LoaderCircle, LockKeyhole, Network, RefreshCw, Route } from 'lucide-react';
 import { getReadingMessages } from '@/lib/reading/messages';
 import { loadReadingBundle, ReadingLoadError, type ReadingLoadFailure } from '@/lib/reading/load';
 import type { ReadingBundle, ReadingTab } from '@/lib/reading/types';
@@ -45,7 +46,23 @@ export default function ReadingApp() {
       .then((data) => {
         if (controller.signal.aborted) return;
         setBundle(data);
-        setActiveTab(data.viewConfig.default_view);
+        let linkedPaperId: string | null = null;
+        try {
+          const match = /^#paper-(.+)$/.exec(window.location.hash);
+          const candidate = match ? decodeURIComponent(match[1]) : '';
+          if (candidate && data.library.papers.some((paper) => paper.id === candidate)) {
+            linkedPaperId = candidate;
+          }
+        } catch {
+          linkedPaperId = null;
+        }
+        if (linkedPaperId) {
+          setFocusPaperId(linkedPaperId);
+          setFocusRevision((revision) => revision + 1);
+          setActiveTab('library');
+        } else {
+          setActiveTab(data.viewConfig.default_view);
+        }
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
@@ -109,29 +126,39 @@ export default function ReadingApp() {
       </header>
 
       <nav className="mt-6 border-b border-neutral-200 dark:border-[rgba(148,163,184,0.30)]" aria-label={messages.app.viewNavigation}>
-        <div className="flex min-w-0 gap-1 overflow-x-auto" role="tablist" aria-orientation="horizontal">
-          {TABS.map(({ id, icon: Icon }, index) => (
-            <button
-              key={id}
-              id={`reading-tab-${id}`}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === id}
-              aria-controls={`reading-panel-${id}`}
-              tabIndex={activeTab === id ? 0 : -1}
-              disabled={!bundle}
-              onClick={() => setActiveTab(id)}
-              onKeyDown={(event) => handleTabKeyDown(event, index)}
-              className={`inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-45 ${
-                activeTab === id
-                  ? 'border-accent text-primary'
-                  : 'border-transparent text-neutral-500 hover:border-neutral-300 hover:text-primary'
-              }`}
-            >
-              <Icon className="h-4 w-4" aria-hidden="true" />
-              {messages.app.tabs[id]}
-            </button>
-          ))}
+        <div className="flex min-w-0 flex-col sm:flex-row sm:items-end sm:gap-1">
+          <div className="flex min-w-0 gap-1 overflow-x-auto" role="tablist" aria-orientation="horizontal">
+            {TABS.map(({ id, icon: Icon }, index) => (
+              <button
+                key={id}
+                id={`reading-tab-${id}`}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === id}
+                aria-controls={`reading-panel-${id}`}
+                tabIndex={activeTab === id ? 0 : -1}
+                disabled={!bundle}
+                onClick={() => setActiveTab(id)}
+                onKeyDown={(event) => handleTabKeyDown(event, index)}
+                className={`inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset disabled:cursor-not-allowed disabled:opacity-45 ${
+                  activeTab === id
+                    ? 'border-accent text-primary'
+                    : 'border-transparent text-neutral-500 hover:border-neutral-300 hover:text-primary'
+                }`}
+              >
+                <Icon className="h-4 w-4" aria-hidden="true" />
+                {messages.app.tabs[id]}
+              </button>
+            ))}
+          </div>
+          <a
+            href="/reading/weekly/"
+            aria-label={messages.app.weeklyAria}
+            className="inline-flex min-h-11 w-full shrink-0 items-center gap-2 border-t border-neutral-200 px-4 py-3 text-sm font-medium text-neutral-500 outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset dark:border-[rgba(148,163,184,0.30)] sm:w-auto sm:border-t-0 sm:border-b-2 sm:border-transparent sm:hover:border-neutral-300"
+          >
+            <LockKeyhole className="h-4 w-4" aria-hidden="true" />
+            {messages.app.weekly}
+          </a>
         </div>
       </nav>
 

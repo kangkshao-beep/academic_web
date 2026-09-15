@@ -1,7 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
-import { matchLocale } from '@/lib/i18n/config';
+import { matchLocale, matchPreferredLocale } from '@/lib/i18n/config';
 import type { I18nRuntimeConfig } from '@/types/i18n';
 
 const LOCALE_STORAGE_KEY = 'locale-storage';
@@ -64,7 +64,10 @@ function resolveInitialLocale(config: I18nRuntimeConfig): string {
     return config.fixedLocale;
   }
 
-  const browserLocale = matchLocale(navigator.language, config.locales);
+  const browserLocales = navigator.languages?.length
+    ? navigator.languages
+    : [navigator.language];
+  const browserLocale = matchPreferredLocale(browserLocales, config.locales);
   return browserLocale || config.defaultLocale;
 }
 

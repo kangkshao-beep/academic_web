@@ -19,6 +19,12 @@
     "test:reading:browser-security": "node scripts/test-reading-browser-security.mjs",
     "test:reading:security": "node scripts/test-reading-security.mjs",
     "test:reading:functions": "node scripts/test-reading-functions.mjs",
+    "test:reading:weekly:functions": "node scripts/test-reading-weekly-functions.mjs",
+    "test:reading:weekly:validator": "node scripts/test-reading-weekly-validator.mjs",
+    "test:reading:weekly:deployment": "node scripts/test-reading-weekly-deployment.mjs",
+    "test:reading:weekly:browser": "node scripts/test-reading-weekly-browser.mjs",
+    "test:reading:weekly:leaks": "node scripts/test-reading-weekly-leak-scanner.mjs",
+    "test:i18n:locale": "node --experimental-strip-types scripts/test-i18n-locale.mjs",
     "test:reading:public-release": "node scripts/test-reading-public-release.mjs",
     "check:reading:leaks": "node scripts/scan-reading-leaks.mjs"
   },

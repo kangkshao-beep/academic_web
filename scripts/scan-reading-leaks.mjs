@@ -18,6 +18,11 @@ const publicGeneratedBaselinePaths = new Set([
 const privateDataDir = process.env.READING_PRIVATE_DATA_DIR
   ? path.resolve(process.env.READING_PRIVATE_DATA_DIR)
   : null;
+const privateWeeklyDataFile = process.env.READING_WEEKLY_PRIVATE_DATA_FILE
+  ? path.resolve(process.env.READING_WEEKLY_PRIVATE_DATA_FILE)
+  : process.env.READING_WEEKLY_PRIVATE_DATA_DIR
+    ? path.join(path.resolve(process.env.READING_WEEKLY_PRIVATE_DATA_DIR), 'topics.json')
+    : null;
 const textExtensions = new Set([
   '.bib',
   '.conf',
@@ -68,6 +73,8 @@ function usesShortFingerprint(field) {
     || field.endsWith('.source')
     || field.endsWith('.target')
     || field.endsWith('.document_id')
+    || /^weekly\.topics\[\d+\]\.id$/.test(field)
+    || field === 'weekly.current_topic_id'
     || /\.(arxiv|doi|inspire)$/.test(field)
   );
 }
@@ -197,6 +204,40 @@ function collectPrivateStrings(filename, value, output) {
   }
 }
 
+function collectWeeklyPrivateStrings(value, output) {
+  addPrivateString(output, value?.current_topic_id, 'weekly.current_topic_id');
+  for (const [topicIndex, topic] of (value?.topics || []).entries()) {
+    const topicPath = `weekly.topics[${topicIndex}]`;
+    addPrivateString(output, topic.id, `${topicPath}.id`);
+    for (const [localeIndex, content] of Object.values(topic.locales || {}).entries()) {
+      const localePath = `${topicPath}.locales[${localeIndex}]`;
+      const title = content?.title || {};
+      const titleParts = [title.before, title.focus, title.after]
+        .filter((part) => typeof part === 'string' && part.trim())
+        .map((part) => part.trim());
+      addPrivateString(
+        output,
+        titleParts.join(''),
+        `${localePath}.title`
+      );
+      addPrivateString(output, titleParts.join(' '), `${localePath}.title_spaced`);
+      titleParts.forEach((part, partIndex) => {
+        addPrivateString(output, part, `${localePath}.title.parts[${partIndex}]`);
+      });
+      addPrivateString(output, content?.eyebrow, `${localePath}.eyebrow`);
+      addPrivateString(output, content?.question, `${localePath}.question`);
+      addPrivateString(output, content?.why_now, `${localePath}.why_now`);
+      addPrivateString(output, content?.scope, `${localePath}.scope`);
+      (content?.plan || []).forEach((step, stepIndex) => {
+        addPrivateString(output, step?.label, `${localePath}.plan[${stepIndex}].label`);
+        addPrivateString(output, step?.body, `${localePath}.plan[${stepIndex}].body`);
+      });
+      addPrivateString(output, content?.deliverable, `${localePath}.deliverable`);
+      addPrivateString(output, content?.guardrail, `${localePath}.guardrail`);
+    }
+  }
+}
+
 function isPrivatePathCandidate(filename) {
   const normalized = filename.toLowerCase();
   return (
@@ -247,6 +288,48 @@ const trackedTextBodies = await Promise.all(
 );
 for (const entry of trackedTextBodies) {
   entry.decodedBody = decodeGeneratedText(entry.body);
+}
+
+function readReachableHistoricalTextBodies() {
+  if (!privateWeeklyDataFile) return [];
+  let objects;
+  try {
+    objects = execFileSync('git', ['rev-list', '--objects', '--all'], {
+      cwd: projectRoot,
+      encoding: 'utf8',
+      maxBuffer: 32 * 1024 * 1024,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+  } catch {
+    failures.push('Could not enumerate reachable Git history for weekly leak scanning.');
+    return [];
+  }
+
+  const blobs = new Map();
+  for (const line of objects.split(/\r?\n/)) {
+    const separator = line.indexOf(' ');
+    if (separator < 1) continue;
+    const oid = line.slice(0, separator);
+    const filename = line.slice(separator + 1);
+    if (!textExtensions.has(path.extname(filename).toLowerCase()) || blobs.has(oid)) continue;
+    blobs.set(oid, filename);
+  }
+
+  const bodies = [];
+  for (const [oid] of blobs) {
+    try {
+      const body = execFileSync('git', ['cat-file', '-p', oid], {
+        cwd: projectRoot,
+        encoding: 'utf8',
+        maxBuffer: 32 * 1024 * 1024,
+        stdio: ['ignore', 'pipe', 'ignore'],
+      });
+      bodies.push({ body, decodedBody: decodeGeneratedText(body) });
+    } catch {
+      failures.push('Could not inspect a reachable Git text blob for weekly leak scanning.');
+    }
+  }
+  return bodies;
 }
 
 let headPaths = [];
@@ -433,22 +516,29 @@ function wasPublicAtHead(candidate, shortIdentifier) {
   );
 }
 
-if (privateDataDir) {
+if (privateDataDir || privateWeeklyDataFile) {
   const candidates = new Map();
   const privateSourceHashes = new Set();
-  for (const filename of ['library.json', 'relations.json', 'threads.json', 'view_config.json']) {
-    const parsed = JSON.parse(await readFile(path.join(privateDataDir, filename), 'utf8'));
-    collectPrivateStrings(filename, parsed, candidates);
-    if (filename === 'library.json' && /^[a-f0-9]{64}$/.test(parsed.source_document?.sha256 || '')) {
-      privateSourceHashes.add(parsed.source_document.sha256);
+  if (privateDataDir) {
+    for (const filename of ['library.json', 'relations.json', 'threads.json', 'view_config.json']) {
+      const parsed = JSON.parse(await readFile(path.join(privateDataDir, filename), 'utf8'));
+      collectPrivateStrings(filename, parsed, candidates);
+      if (filename === 'library.json' && /^[a-f0-9]{64}$/.test(parsed.source_document?.sha256 || '')) {
+        privateSourceHashes.add(parsed.source_document.sha256);
+      }
     }
+    const lookupPath = path.join(privateDataDir, 'thesis_reference_lookup.json');
+    if (existsSync(lookupPath)) {
+      const lookup = JSON.parse(await readFile(lookupPath, 'utf8'));
+      collectNestedPrivateStrings(candidates, lookup, 'thesis_reference_lookup');
+    }
+    publicAssetHeadBodies = await readPublicPdfBodiesAtHead();
   }
-  const lookupPath = path.join(privateDataDir, 'thesis_reference_lookup.json');
-  if (existsSync(lookupPath)) {
-    const lookup = JSON.parse(await readFile(lookupPath, 'utf8'));
-    collectNestedPrivateStrings(candidates, lookup, 'thesis_reference_lookup');
+  if (privateWeeklyDataFile) {
+    const weekly = JSON.parse(await readFile(privateWeeklyDataFile, 'utf8'));
+    collectWeeklyPrivateStrings(weekly, candidates);
   }
-  publicAssetHeadBodies = await readPublicPdfBodiesAtHead();
+  const historicalTextBodies = readReachableHistoricalTextBodies();
 
   const pdfCandidates = [...new Set([
     ...tracked
@@ -508,6 +598,15 @@ if (privateDataDir) {
         continue;
       }
       failures.push(`Private fingerprint #${candidateIndex} (${fields.join(', ')}) found in ${relativeOutput}.`);
+    }
+
+    if (
+      privateWeeklyDataFile
+      && historicalTextBodies.some(({ body, decodedBody }) =>
+        containsFingerprint(body, decodedBody, candidate, shortIdentifier)
+      )
+    ) {
+      failures.push(`Private weekly fingerprint #${candidateIndex} (${fields.join(', ')}) found in reachable Git history.`);
     }
   }
   if (baselineBibliographicOverlaps > 0) {

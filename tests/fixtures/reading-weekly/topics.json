@@ -1,0 +1,216 @@
+{
+  "schema_version": "1.0.0",
+  "visibility": "private",
+  "generated_on": "2026-09-15",
+  "current_topic_id": "weekly-synthetic-calibration-orbit",
+  "topics": [
+    {
+      "id": "weekly-synthetic-calibration-orbit",
+      "phase": "current",
+      "reference_ids": ["syntheticPrimer", "syntheticMethod", "syntheticMeasurement"],
+      "locales": {
+        "en": {
+          "title": { "before": "Synthetic", "focus": "Calibration Orbit", "after": "" },
+          "eyebrow": "Synthetic current topic",
+          "question": "Can a deliberately fictional calibration chain expose every state in the weekly interface?",
+          "why_now": "This fixture exercises the current-topic path without making a scientific claim.",
+          "scope": "Interface behavior, contract validation, and reference linking only.",
+          "plan": [
+            { "label": "Frame", "body": "Write a synthetic question and its explicit boundary." },
+            { "label": "Trace", "body": "Follow three fictional records through the interface." },
+            { "label": "Stress", "body": "Switch locale, viewport, and motion preferences." },
+            { "label": "Record", "body": "Capture only generic pass or fail evidence." }
+          ],
+          "deliverable": "A generic interaction checklist with no research content.",
+          "guardrail": "This is test data and cannot support a physics conclusion."
+        },
+        "zh": {
+          "title": { "before": "虚构", "focus": "校准轨道", "after": "" },
+          "eyebrow": "虚构的本周课题",
+          "question": "一条完全虚构的校准链能否覆盖每周话题界面的全部状态？",
+          "why_now": "此测试数据只检验当前课题路径，不提出科学论断。",
+          "scope": "仅限界面行为、契约校验与文献链接。",
+          "plan": [
+            { "label": "界定", "body": "写出虚构问题及其明确边界。" },
+            { "label": "追踪", "body": "让三条虚构记录经过完整界面路径。" },
+            { "label": "施压", "body": "切换语言、视口与动效偏好。" },
+            { "label": "记录", "body": "只保留通用的通过或失败证据。" }
+          ],
+          "deliverable": "一份不含研究内容的通用交互检查表。",
+          "guardrail": "这是测试数据，不能支持任何物理结论。"
+        },
+        "zh-hk": {
+          "title": { "before": "虛構", "focus": "校準軌道", "after": "" },
+          "eyebrow": "虛構的本週課題",
+          "question": "一條完全虛構的校準鏈能否覆蓋每週話題介面的所有狀態？",
+          "why_now": "此測試數據只驗證目前課題路徑，不提出科學論斷。",
+          "scope": "只限介面行為、規格驗證及文獻連結。",
+          "plan": [
+            { "label": "界定", "body": "寫出虛構問題及其明確邊界。" },
+            { "label": "追蹤", "body": "讓三項虛構記錄經過完整介面路徑。" },
+            { "label": "測試", "body": "切換語言、視窗及動效偏好。" },
+            { "label": "記錄", "body": "只保留通用的通過或失敗證據。" }
+          ],
+          "deliverable": "一份不含研究內容的通用互動檢查表。",
+          "guardrail": "這是測試數據，不能支持任何物理結論。"
+        }
+      }
+    },
+    {
+      "id": "weekly-interface-stress-test",
+      "phase": "candidate",
+      "reference_ids": ["syntheticMethod", "syntheticMeasurement", "syntheticReview"],
+      "locales": {
+        "en": {
+          "title": { "before": "Interface", "focus": "Stress Test", "after": "" },
+          "eyebrow": "Synthetic candidate",
+          "question": "Which layout state fails first under long fictional copy?",
+          "why_now": "Long labels provide a controlled responsive-layout probe.",
+          "scope": "Typography, overflow, focus order, and selection state.",
+          "plan": [
+            { "label": "Expand", "body": "Load deliberately long synthetic labels." },
+            { "label": "Resize", "body": "Check desktop and narrow layouts." },
+            { "label": "Navigate", "body": "Use only keyboard controls." },
+            { "label": "Review", "body": "Confirm no content is clipped." }
+          ],
+          "deliverable": "A responsive-layout result for the fictional fixture.",
+          "guardrail": "The result describes UI behavior only."
+        },
+        "zh": {
+          "title": { "before": "界面", "focus": "压力测试", "after": "" },
+          "eyebrow": "虚构候选课题",
+          "question": "面对很长的虚构文案时，哪一种布局状态最先失效？",
+          "why_now": "长标签可以提供受控的响应式布局探针。",
+          "scope": "字体、溢出、焦点顺序与选中状态。",
+          "plan": [
+            { "label": "扩展", "body": "加载刻意加长的虚构标签。" },
+            { "label": "缩放", "body": "检查桌面端与窄屏布局。" },
+            { "label": "导航", "body": "仅使用键盘控制。" },
+            { "label": "复核", "body": "确认没有内容被裁切。" }
+          ],
+          "deliverable": "一份针对虚构数据的响应式布局结果。",
+          "guardrail": "结果只描述界面行为。"
+        },
+        "zh-hk": {
+          "title": { "before": "介面", "focus": "壓力測試", "after": "" },
+          "eyebrow": "虛構候選課題",
+          "question": "面對很長的虛構文字時，哪一種版面狀態最先失效？",
+          "why_now": "長標籤可提供受控的響應式版面測試。",
+          "scope": "字體、溢出、焦點次序與選取狀態。",
+          "plan": [
+            { "label": "擴展", "body": "載入刻意加長的虛構標籤。" },
+            { "label": "縮放", "body": "檢查桌面及窄屏版面。" },
+            { "label": "導覽", "body": "只使用鍵盤控制。" },
+            { "label": "覆核", "body": "確認沒有內容被裁切。" }
+          ],
+          "deliverable": "一份針對虛構數據的響應式版面結果。",
+          "guardrail": "結果只描述介面行為。"
+        }
+      }
+    },
+    {
+      "id": "weekly-metadata-boundary-probe",
+      "phase": "candidate",
+      "reference_ids": ["syntheticPrimer", "syntheticMeasurement", "syntheticReview"],
+      "locales": {
+        "en": {
+          "title": { "before": "Metadata", "focus": "Boundary", "after": "Probe" },
+          "eyebrow": "Synthetic candidate",
+          "question": "Does the private contract reject an unexpected nested field?",
+          "why_now": "A strict fixture keeps the deployment boundary observable.",
+          "scope": "Schema shape, unknown fields, and fail-closed responses.",
+          "plan": [
+            { "label": "Clone", "body": "Copy the synthetic object in memory." },
+            { "label": "Mutate", "body": "Add one unexpected nested field." },
+            { "label": "Request", "body": "Exercise both GET and HEAD." },
+            { "label": "Verify", "body": "Confirm the canary stays hidden." }
+          ],
+          "deliverable": "A generic contract-rejection test result.",
+          "guardrail": "No real private value is used as a canary."
+        },
+        "zh": {
+          "title": { "before": "元数据", "focus": "边界探针", "after": "" },
+          "eyebrow": "虚构候选课题",
+          "question": "私有数据契约能否拒绝意外出现的嵌套字段？",
+          "why_now": "严格的虚构数据让部署边界保持可观测。",
+          "scope": "结构形状、未知字段与失败关闭响应。",
+          "plan": [
+            { "label": "复制", "body": "只在内存中复制虚构对象。" },
+            { "label": "变更", "body": "增加一个意外的嵌套字段。" },
+            { "label": "请求", "body": "分别执行 GET 与 HEAD。" },
+            { "label": "验证", "body": "确认测试标记始终不外泄。" }
+          ],
+          "deliverable": "一份通用的数据契约拒绝测试结果。",
+          "guardrail": "不使用任何真实私有值作为测试标记。"
+        },
+        "zh-hk": {
+          "title": { "before": "元數據", "focus": "邊界探針", "after": "" },
+          "eyebrow": "虛構候選課題",
+          "question": "私人數據規格能否拒絕意外出現的巢狀欄位？",
+          "why_now": "嚴格的虛構數據令部署邊界保持可觀察。",
+          "scope": "結構形狀、未知欄位與失敗關閉回應。",
+          "plan": [
+            { "label": "複製", "body": "只在記憶體複製虛構物件。" },
+            { "label": "變更", "body": "加入一個意外的巢狀欄位。" },
+            { "label": "請求", "body": "分別執行 GET 及 HEAD。" },
+            { "label": "驗證", "body": "確認測試標記一直不會外洩。" }
+          ],
+          "deliverable": "一份通用的數據規格拒絕測試結果。",
+          "guardrail": "不使用任何真實私人值作測試標記。"
+        }
+      }
+    },
+    {
+      "id": "weekly-reduced-motion-review",
+      "phase": "archive",
+      "reference_ids": ["syntheticPrimer", "syntheticMethod", "syntheticReview"],
+      "locales": {
+        "en": {
+          "title": { "before": "", "focus": "Reduced Motion", "after": "Review" },
+          "eyebrow": "Synthetic archive",
+          "question": "Does the universe remain complete when continuous motion is disabled?",
+          "why_now": "The visual language must not depend on animation.",
+          "scope": "Motion preferences, keyboard access, and content parity.",
+          "plan": [
+            { "label": "Disable", "body": "Enable the reduced-motion preference." },
+            { "label": "Compare", "body": "Check that every topic remains visible." },
+            { "label": "Select", "body": "Open each topic with the keyboard." },
+            { "label": "Close", "body": "Record the generic accessibility result." }
+          ],
+          "deliverable": "A reduced-motion parity check.",
+          "guardrail": "Animation is presentation, never the only navigation path."
+        },
+        "zh": {
+          "title": { "before": "", "focus": "减弱动效", "after": "复核" },
+          "eyebrow": "虚构历史课题",
+          "question": "关闭持续动画后，课题宇宙是否仍然完整？",
+          "why_now": "视觉语言不能依赖动画才能成立。",
+          "scope": "动效偏好、键盘访问与内容一致性。",
+          "plan": [
+            { "label": "关闭", "body": "启用减弱动态效果偏好。" },
+            { "label": "比较", "body": "确认所有课题仍然可见。" },
+            { "label": "选择", "body": "仅用键盘打开每个课题。" },
+            { "label": "收尾", "body": "记录通用无障碍结果。" }
+          ],
+          "deliverable": "一份减弱动效下的内容一致性检查。",
+          "guardrail": "动画只用于呈现，绝不是唯一导航方式。"
+        },
+        "zh-hk": {
+          "title": { "before": "", "focus": "減弱動效", "after": "覆核" },
+          "eyebrow": "虛構歷史課題",
+          "question": "關閉持續動畫後，課題宇宙是否仍然完整？",
+          "why_now": "視覺語言不能依賴動畫才可成立。",
+          "scope": "動效偏好、鍵盤操作與內容一致性。",
+          "plan": [
+            { "label": "關閉", "body": "啟用減弱動態效果偏好。" },
+            { "label": "比較", "body": "確認所有課題仍然可見。" },
+            { "label": "選擇", "body": "只用鍵盤開啟每個課題。" },
+            { "label": "收尾", "body": "記錄通用無障礙結果。" }
+          ],
+          "deliverable": "一份減弱動效下的內容一致性檢查。",
+          "guardrail": "動畫只用於呈現，絕不是唯一導覽方式。"
+        }
+      }
+    }
+  ]
+}

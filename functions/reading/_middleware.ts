@@ -6,24 +6,70 @@ import {
   readingSecurityHeaders,
   secureReadingResponse,
 } from './_security';
+import {
+  authorizeWeeklyRequest,
+  secureWeeklyResponse,
+  weeklyAuthErrorResponse,
+  weeklyResponse,
+  type WeeklyAuthEnv,
+} from './weekly/_auth';
 
 interface ReadingContext {
   request: Request;
+  env?: WeeklyAuthEnv;
   next: () => Promise<Response>;
 }
 
 export async function onRequest(context: ReadingContext): Promise<Response> {
   let pathname: string;
   try {
-    pathname = decodeURIComponent(new URL(context.request.url).pathname);
+    pathname = new URL(context.request.url).pathname;
   } catch {
     return readingErrorResponse(404, 'Not found.');
   }
-  if (
-    pathname === '/reading/weekly'
-    || pathname.startsWith('/reading/weekly/')
-    || pathname === '/reading/data/weekly.json'
-  ) {
+
+  if (pathname.includes('%') || pathname.includes('\\') || /\/{2,}/.test(pathname)) {
+    return readingErrorResponse(404, 'Not found.');
+  }
+
+  if (pathname === '/reading/weekly') {
+    if (context.request.method !== 'GET' && context.request.method !== 'HEAD') {
+      return weeklyResponse(405, 'Method not allowed.', {
+        Allow: 'GET, HEAD',
+        'Content-Type': 'text/plain; charset=UTF-8',
+      });
+    }
+    return weeklyResponse(308, null, { Location: '/reading/weekly/' });
+  }
+
+  if (pathname === '/reading/weekly.html' || pathname === '/reading/weekly.txt') {
+    return weeklyResponse(404, 'Not found.', { 'Content-Type': 'text/plain; charset=UTF-8' });
+  }
+
+  if (pathname.startsWith('/reading/weekly/')) {
+    const authorization = await authorizeWeeklyRequest(context.request, context.env);
+    if (authorization === 'unavailable') {
+      return weeklyAuthErrorResponse(503, 'Weekly topic authentication is unavailable.');
+    }
+    if (authorization === 'unauthorized') {
+      return weeklyAuthErrorResponse(401, 'Authentication required.');
+    }
+    if (context.request.method !== 'GET' && context.request.method !== 'HEAD') {
+      return weeklyResponse(405, 'Method not allowed.', {
+        Allow: 'GET, HEAD',
+        'Content-Type': 'text/plain; charset=UTF-8',
+      });
+    }
+    try {
+      return secureWeeklyResponse(await context.next());
+    } catch {
+      return weeklyResponse(503, 'Weekly topics are temporarily unavailable.', {
+        'Content-Type': 'text/plain; charset=UTF-8',
+      });
+    }
+  }
+
+  if (pathname === '/reading/data/weekly.json') {
     return readingErrorResponse(404, 'Not found.');
   }
 

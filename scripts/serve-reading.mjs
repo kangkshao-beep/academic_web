@@ -1,12 +1,16 @@
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { access, readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import path from 'node:path';
 import { projectReadingPublicBundle } from '../functions/reading/_public-data.mjs';
+import { validateWeeklyTopics } from '../functions/reading/weekly/_contract.mjs';
 
 const projectRoot = process.cwd();
 const outputRoot = path.resolve(projectRoot, process.env.READING_SITE_OUTPUT_DIR || 'out');
 const configuredDataDir = process.env.READING_DATA_DIR;
+const configuredWeeklyDataDir = process.env.READING_WEEKLY_DATA_DIR;
+const weeklyCredentialHash = (process.env.READING_WEEKLY_BASIC_AUTH_SHA256 || '').trim().toLowerCase();
 const host = process.env.READING_HOST || '127.0.0.1';
 const port = Number.parseInt(process.env.READING_PORT || '4173', 10);
 const dataFiles = new Set(['library.json', 'relations.json', 'threads.json', 'view_config.json']);
@@ -14,9 +18,13 @@ const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '::1']);
 const PAGE_CACHE_CONTROL = 'public, max-age=0, must-revalidate';
 const DATA_CACHE_CONTROL = 'public, max-age=60, s-maxage=300, stale-while-revalidate=60';
 const ERROR_CACHE_CONTROL = 'no-store';
+const weeklyEnabled = Boolean(configuredWeeklyDataDir || weeklyCredentialHash);
 
 if (!configuredDataDir) {
   throw new Error('READING_DATA_DIR is required.');
+}
+if (weeklyEnabled && (!configuredWeeklyDataDir || !/^[a-f0-9]{64}$/.test(weeklyCredentialHash))) {
+  throw new Error('Weekly test data and a lowercase SHA-256 credential hash are both required.');
 }
 if (!LOOPBACK_HOSTS.has(host)) {
   throw new Error('READING_HOST must be a loopback host (127.0.0.1, localhost, or ::1).');
@@ -43,12 +51,26 @@ const publicData = new Map(Object.entries(publicBundle).map(([filename, value]) 
   filename,
   Buffer.from(JSON.stringify(value)),
 ]));
+const weeklyData = weeklyEnabled
+  ? Buffer.from(JSON.stringify(validateWeeklyTopics(JSON.parse(
+      await readFile(path.join(path.resolve(configuredWeeklyDataDir), 'topics.json'), 'utf8')
+    ))))
+  : null;
 
 const securityHeaders = {
   'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; child-src 'self' blob:; media-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
   'Referrer-Policy': 'no-referrer',
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
+};
+
+const weeklyHeaders = {
+  ...securityHeaders,
+  'Cache-Control': 'private, no-store',
+  'CDN-Cache-Control': 'no-store',
+  'Cross-Origin-Resource-Policy': 'same-origin',
+  'Vary': 'Authorization',
+  'X-Robots-Tag': 'noindex, nofollow, noarchive',
 };
 
 const mimeTypes = new Map([
@@ -75,6 +97,24 @@ function readingHeaders(cacheControl, headers = {}) {
   return { ...securityHeaders, 'Cache-Control': cacheControl, ...headers };
 }
 
+function isWeeklyAuthorized(request) {
+  const authorization = request.headers.authorization || '';
+  const match = /^Basic[ \t]+([^ \t]+)$/i.exec(authorization);
+  if (!match || match[1].length === 0 || match[1].length % 4 !== 0) return false;
+  if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(match[1])) {
+    return false;
+  }
+  try {
+    const suppliedBytes = Buffer.from(match[1], 'base64');
+    new TextDecoder('utf-8', { fatal: true }).decode(suppliedBytes);
+    const supplied = createHash('sha256').update(suppliedBytes).digest();
+    const expected = Buffer.from(weeklyCredentialHash, 'hex');
+    return supplied.length === expected.length && timingSafeEqual(supplied, expected);
+  } catch {
+    return false;
+  }
+}
+
 function send(request, response, status, headers = {}, body = '') {
   response.writeHead(status, headers);
   if (request.method === 'HEAD' || body === null) response.end();
@@ -99,13 +139,39 @@ const server = createServer(async (request, response) => {
   let pathname;
   try {
     const urlHost = host.includes(':') ? `[${host}]` : host;
-    pathname = decodeURIComponent(new URL(request.url || '/', `http://${urlHost}`).pathname);
+    pathname = new URL(request.url || '/', `http://${urlHost}`).pathname;
   } catch {
     send(request, response, 400, { 'Cache-Control': ERROR_CACHE_CONTROL }, 'Bad request.');
     return;
   }
 
   const readingRequest = isReadingPath(pathname);
+  if (pathname.includes('%')) {
+    const encodedNextStaticPath = pathname.startsWith('/_next/static/')
+      && !/%(?!5b|5d)/i.test(pathname);
+    if (!encodedNextStaticPath || readingRequest) {
+      send(
+        request,
+        response,
+        404,
+        readingHeaders(ERROR_CACHE_CONTROL, { 'Content-Type': 'text/plain; charset=utf-8' }),
+        'Not found.'
+      );
+      return;
+    }
+    pathname = pathname.replace(/%5b/gi, '[').replace(/%5d/gi, ']');
+  }
+  if (pathname.includes('\\') || /\/{2,}/.test(pathname)) {
+    send(
+      request,
+      response,
+      404,
+      readingHeaders(ERROR_CACHE_CONTROL, { 'Content-Type': 'text/plain; charset=utf-8' }),
+      'Not found.'
+    );
+    return;
+  }
+
   if (pathname === '/api/traffic' && request.method === 'POST') {
     request.resume();
     send(
@@ -115,6 +181,112 @@ const server = createServer(async (request, response) => {
       { 'Cache-Control': ERROR_CACHE_CONTROL, 'Content-Type': 'application/json; charset=utf-8' },
       JSON.stringify({ weekly: 0, total: 0 })
     );
+    return;
+  }
+
+  if (pathname === '/reading/weekly') {
+    if (request.method !== 'GET' && request.method !== 'HEAD') {
+      request.resume();
+      send(
+        request,
+        response,
+        405,
+        { ...weeklyHeaders, Allow: 'GET, HEAD', 'Content-Type': 'text/plain; charset=utf-8' },
+        'Method not allowed.'
+      );
+      return;
+    }
+    send(request, response, 308, { ...weeklyHeaders, Location: '/reading/weekly/' }, null);
+    return;
+  }
+
+  if (pathname === '/reading/weekly.html' || pathname === '/reading/weekly.txt') {
+    send(
+      request,
+      response,
+      404,
+      { ...weeklyHeaders, 'Content-Type': 'text/plain; charset=utf-8' },
+      'Not found.'
+    );
+    return;
+  }
+
+  if (pathname.startsWith('/reading/weekly/')) {
+    if (!weeklyEnabled) {
+      send(
+        request,
+        response,
+        503,
+        { ...weeklyHeaders, 'Content-Type': 'text/plain; charset=utf-8' },
+        'Weekly topic authentication is unavailable.'
+      );
+      return;
+    }
+    if (!isWeeklyAuthorized(request)) {
+      send(
+        request,
+        response,
+        401,
+        {
+          ...weeklyHeaders,
+          'Content-Type': 'text/plain; charset=utf-8',
+          'WWW-Authenticate': 'Basic realm="Weekly Topics", charset="UTF-8"',
+        },
+        'Authentication required.'
+      );
+      return;
+    }
+    if (request.method !== 'GET' && request.method !== 'HEAD') {
+      request.resume();
+      send(
+        request,
+        response,
+        405,
+        { ...weeklyHeaders, Allow: 'GET, HEAD', 'Content-Type': 'text/plain; charset=utf-8' },
+        'Method not allowed.'
+      );
+      return;
+    }
+
+    const weeklyDataMatch = /^\/reading\/weekly\/data\/([^/]+)$/.exec(pathname);
+    if (weeklyDataMatch) {
+      if (weeklyDataMatch[1] !== 'topics.json' || !weeklyData) {
+        send(
+          request,
+          response,
+          404,
+          { ...weeklyHeaders, 'Content-Type': 'application/json; charset=utf-8' },
+          JSON.stringify({ error: 'Weekly topic data was not found.' })
+        );
+        return;
+      }
+      send(
+        request,
+        response,
+        200,
+        { ...weeklyHeaders, 'Content-Type': 'application/json; charset=utf-8' },
+        weeklyData
+      );
+      return;
+    }
+
+    const weeklyFile = resolvePublicFile(pathname);
+    if (!weeklyFile) {
+      send(
+        request,
+        response,
+        404,
+        { ...weeklyHeaders, 'Content-Type': 'text/plain; charset=utf-8' },
+        'Not found.'
+      );
+      return;
+    }
+    response.writeHead(200, {
+      ...weeklyHeaders,
+      'Content-Type': mimeTypes.get(path.extname(weeklyFile).toLowerCase()) || 'application/octet-stream',
+    });
+    if (request.method === 'HEAD') response.end();
+    else createReadStream(weeklyFile).pipe(response);
     return;
   }
 
@@ -129,17 +301,6 @@ const server = createServer(async (request, response) => {
 
   if (pathname === '/reading') {
     send(request, response, 308, readingHeaders(PAGE_CACHE_CONTROL, { Location: '/reading/' }));
-    return;
-  }
-
-  if (pathname === '/reading/weekly' || pathname.startsWith('/reading/weekly/')) {
-    send(
-      request,
-      response,
-      404,
-      readingHeaders(ERROR_CACHE_CONTROL, { 'Content-Type': 'text/plain; charset=utf-8' }),
-      'Not found.'
-    );
     return;
   }
 
@@ -163,7 +324,10 @@ const server = createServer(async (request, response) => {
         request,
         response,
         200,
-        readingHeaders(DATA_CACHE_CONTROL, { 'Content-Type': 'application/json; charset=utf-8' }),
+        readingHeaders(DATA_CACHE_CONTROL, {
+          'Content-Type': 'application/json; charset=utf-8',
+          'X-Reading-Test-Authorization': request.headers.authorization ? 'present' : 'absent',
+        }),
         body
       );
     } catch {
