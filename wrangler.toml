@@ -7,7 +7,7 @@ binding = "READING_DATA"
 bucket_name = "academic-web-reading-preview"
 
 [env.preview.vars]
-READING_DATA_PREFIX = "releases/preview-synthetic-20260915-v1"
+READING_DATA_PREFIX = "releases/preview-synthetic-20260916-v2"
 READING_WEEKLY_DATA_PREFIX = "weekly/releases/preview-synthetic-20260915-v1"
 
 # Keep the production counter separate from Preview deployments.
