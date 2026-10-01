@@ -221,10 +221,7 @@ export default function DetectorScene(props: Props) {
       interaction.style.cursor = 'grab';
       dirty = true;
     }
-    function stopPropagation(event: Event) {
-      event.stopPropagation();
-    }
-    function focus(event: PointerEvent) {
+    function focus(event: Event) {
       event.stopPropagation();
       if (!live.current.modalOpen) interaction.focus({ preventScroll: true });
     }
@@ -293,7 +290,7 @@ export default function DetectorScene(props: Props) {
     interaction.addEventListener('pointerdown', focus);
     // OrbitControls listens for move/up on ownerDocument after capture begins.
     // Keep those events bubbling; the other canvas never receives pointerdown.
-    interaction.addEventListener('wheel', stopPropagation);
+    interaction.addEventListener('wheel', focus);
     interaction.addEventListener('keydown', keyboard);
 
     let raf = 0;
@@ -485,7 +482,7 @@ export default function DetectorScene(props: Props) {
       document.removeEventListener('visibilitychange', visibility);
       canvas.removeEventListener('webglcontextlost', contextLost);
       interaction.removeEventListener('pointerdown', focus);
-      interaction.removeEventListener('wheel', stopPropagation);
+      interaction.removeEventListener('wheel', focus);
       interaction.removeEventListener('keydown', keyboard);
       controls.dispose();
       disposeObject(scene);
