@@ -1,0 +1,274 @@
+[
+  {
+    "id": "path-integral",
+    "title": "From QCD to slow fields",
+    "section": "2.1",
+    "pages": "3–5",
+    "pdfPages": "8–10",
+    "equations": "(2.1)–(2.10)",
+    "latex": "Z_{\\rm QCD}\\ \\longrightarrow\\ Q=e^{-im_Qv\\cdot x}(h_v+H_v)",
+    "goal": "Remove the rapid oscillation associated with the large mass and identify the degrees of freedom that must actually be integrated out.",
+    "result": "The heavy quark remains in the effective theory. What is integrated out is the small component $H_v$, with an energy gap of $2m_Q$.",
+    "steps": [
+      {
+        "title": "Start from the generating functional",
+        "body": "Collect the light quarks, gluons, and gauge-fixing terms in $\\mathcal L_{\\rm light}$. The heavy-quark sources $\\eta,\\bar\\eta$ generate correlation functions; set them to zero after performing the transformation.\n\n$$\n\\mathcal L_{\\rm QCD}=\\bar Q(i\\!\\not\\!D-m_Q)Q+\\mathcal L_{\\rm light}.\n$$\n\n$$\n\\begin{aligned}\nZ[\\eta,\\bar\\eta]&=\\int\\!\\mathcal D\\Phi\\,\\mathcal DQ\\,\\mathcal D\\bar Q\\ e^{iS[Q,\\bar Q,\\Phi]+iS_{\\rm src}},\\\\\nS_{\\rm src}&=\\int d^4x\\,(\\bar\\eta Q+\\bar Q\\eta).\n\\end{aligned}\n$$\n\nWe want to preserve correlation functions with soft external states while removing modes that cannot be excited at low energies. Light-field sources are omitted below."
+      },
+      {
+        "title": "Separate the two momentum scales",
+        "body": "Choose the hadron four-velocity $v=p_H/M_H$, with $v^2=1$. The heavy quark moves with the hadron and also carries residual momentum from its bound-state motion:\n\n$$\np_Q^\\mu=m_Qv^\\mu+k^\\mu,\\qquad k^\\mu\\sim\\Lambda_{\\rm QCD}\\ll m_Q.\n$$\n\nWriting $Q=e^{-im_Qv\\cdot x}Q_v$ gives $i\\partial^\\mu Q=e^{-im_Qv\\cdot x}(m_Qv^\\mu+i\\partial^\\mu)Q_v$. Derivatives acting on $Q_v$ therefore count only residual momentum, and the natural expansion parameter becomes $iD/m_Q$."
+      },
+      {
+        "title": "Project onto large and small components",
+        "body": "Define two complementary projectors and split the derivative into components parallel and perpendicular to the velocity:\n\n$$\nP_\\pm=\\frac{1\\pm\\not v}{2},\\quad h_v=P_+Q_v,\\quad H_v=P_-Q_v,\\qquad D_\\perp^\\mu=D^\\mu-v^\\mu(v\\cdot D).\n$$\n\nThe identity $\\not v^2=1$ implies $P_\\pm^2=P_\\pm$ and $P_+P_-=0$. Since $v\\cdot D_\\perp=0$, we also have $\\{\\not v,\\not D_\\perp\\}=0$. Thus $\\not D_\\perp$ converts large components into small ones and vice versa, whereas $v\\cdot D$ preserves the projection."
+      },
+      {
+        "title": "Read the energy gap from the action",
+        "body": "After removing the phase, the mass terms cancel for $h_v$ and add for $H_v$. Using the projector identities from the previous step gives\n\n$$\n\\begin{aligned}\\mathcal L_Q={}&\\bar h_v\\,iv\\cdot D\\,h_v-\\bar H_v(2m_Q+iv\\cdot D)H_v\\\\&+\\bar h_v\\,i\\!\\not\\!D_\\perp H_v+\\bar H_v\\,i\\!\\not\\!D_\\perp h_v.\\end{aligned}\n$$\n\nIn the hadron rest frame, $h_v$ carries only soft residual energy, while the quadratic form for $H_v$ contains $2m_Q$. The next board eliminates $H_v$ exactly with a Gaussian Grassmann integral instead of simply setting it to zero."
+      }
+    ],
+    "check": "Why does setting Hᵥ = 0 directly lose the first power correction?",
+    "answer": "The large and small components remain coupled through the transverse covariant derivative. Although Hᵥ cannot be excited as a low-energy external state, it can propagate virtually. Eliminating it turns this effect into 1/mQ operators.",
+    "note": "Remove the rapid oscillation associated with the large mass and identify the degrees of freedom that must actually be integrated out."
+  },
+  {
+    "id": "integrate-out",
+    "title": "Integrate out, then expand",
+    "section": "2.1; 2.2.4",
+    "pages": "5–6, 15–16",
+    "pdfPages": "10–11, 20–21",
+    "equations": "(2.10)–(2.18), (2.55)–(2.57)",
+    "latex": "\\mathcal L_{\\rm eff}=\\bar h_viv\\!\\cdot\\!Dh_v+\\bar h_v i\\!\\not\\!D_\\perp\\frac{1}{2m_Q+iv\\!\\cdot\\!D}i\\!\\not\\!D_\\perp h_v",
+    "goal": "Show how Gaussian integration turns virtual heavy modes into local operators, through the first 1/mQ correction.",
+    "result": "$\\mathcal L_0=\\bar h_viv\\cdot Dh_v$. The first correction separates into kinetic and spin couplings. Reparameterization invariance fixes the kinetic coefficient to 1.",
+    "steps": [
+      {
+        "title": "Complete the square, keeping mixing",
+        "body": "Write $A=2m_Q+iv\\cdot D$ and $B=i\\!\\not\\!D_\\perp$, with the boundary conditions of the inverse operator inherited from the QCD prescription. Shift the small component to $H'_v=H_v-A^{-1}Bh_v$, shifting the conjugate field at the same time. This gives\n\n$$\n-\\bar H_vAH_v+\\bar h_vBH_v+\\bar H_vBh_v=-\\bar H'_vAH'_v+\\bar h_vBA^{-1}Bh_v.\n$$\n\nThis is the operator version of completing the square. Operator order matters: $A^{-1}$ must remain between the two factors of $B$."
+      },
+      {
+        "title": "Perform the Grassmann integral",
+        "body": "Low-energy processes do not require external sources for $H_v$. Integrating over $H'_v,\\bar H'_v$ leaves only a determinant factor and the slow-field action:\n\n$$\nZ\\propto\\int\\!\\mathcal Dh_v\\,\\mathcal D\\bar h_v\\,\\mathcal D\\Phi\\ \\Delta\\,e^{iS_{\\rm eff}},\\qquad\n\\mathcal L_{\\rm eff}=\\bar h_viv\\cdot Dh_v+\\bar h_vBA^{-1}Bh_v.\n$$\n\nWith the forward-propagation prescription discussed here in the lectures, $\\Delta$ can be absorbed into the normalization. This does not mean that all closed heavy-quark loops vanish in full QCD. High-energy quantum effects still require matching. Because $A^{-1}$ is a propagator, the effective action is still nonlocal at this stage."
+      },
+      {
+        "title": "Expand propagation into local operators",
+        "body": "Residual momentum is much smaller than $2m_Q$, so the inverse operator admits a geometric expansion:\n\n$$\nA^{-1}=\\frac{1}{2m_Q}\\left[1-\\frac{iv\\cdot D}{2m_Q}+\\cdots\\right],\n$$\n\n$$\n\\mathcal L_{\\rm eff}=\\bar h_viv\\cdot Dh_v+\\frac{1}{2m_Q}\\bar h_v(i\\!\\not\\!D_\\perp)^2h_v-\\frac{1}{(2m_Q)^2}\\bar h_v i\\!\\not\\!D_\\perp(iv\\cdot D)i\\!\\not\\!D_\\perp h_v+\\cdots.\n$$\n\nEach additional soft derivative brings another factor of $\\Lambda_{\\rm QCD}/m_Q$. In lecture equations (2.13) and (2.17), the two explicit factors of $i$ are multiplied to give a minus sign in the expression written with $\\not D_\\perp$. The two forms are equivalent."
+      },
+      {
+        "title": "Separate kinetic and chromomagnetic terms",
+        "body": "Here we spell out the Dirac algebra that is compressed in the lectures. Use $g_{\\mu\\nu}=(+,-,-,-)$, $D_\\mu=\\partial_\\mu+ig_sA_\\mu$, $[D_\\mu,D_\\nu]=ig_sG_{\\mu\\nu}$, and $\\sigma^{\\mu\\nu}=\\tfrac i2[\\gamma^\\mu,\\gamma^\\nu]$.\n\n$$\n\\gamma^\\mu\\gamma^\\nu=g^{\\mu\\nu}-i\\sigma^{\\mu\\nu},\\quad\n(i\\!\\not\\!D_\\perp)^2=(iD_\\perp)^2-\\frac i2\\sigma^{\\mu\\nu}[iD_{\\perp\\mu},iD_{\\perp\\nu}].\n$$\n\nDefine $O_{\\rm kin}=\\bar h_v(iD_\\perp)^2h_v$ and $O_{\\rm spin}=-\\tfrac{g_s}{2}\\bar h_v\\sigma^{\\mu\\nu}G_{\\mu\\nu}h_v$, with the latter understood between projected fields. Then\n\n$$\n\\mathcal L=\\mathcal L_0+\\frac{O_{\\rm kin}+C_{\\rm spin}(\\mu)O_{\\rm spin}}{2m_Q}+O(m_Q^{-2}).\n$$\n\nAt tree level, $C_{\\rm spin}=1$; quantum corrections require matching and scale evolution. We follow Mannel's convention $D=\\partial+ig_sA$. With the opposite covariant-derivative convention, the explicit sign of the chromomagnetic term must be converted as well."
+      },
+      {
+        "title": "Why is the kinetic coefficient fixed?",
+        "body": "The same physical momentum can be described by slightly different velocity labels:\n\n$$\np_Q=m_Qv+k=m_Q(v+\\delta v)+(k-m_Q\\delta v),\\qquad v\\cdot\\delta v=0.\n$$\n\nObservables cannot depend on this bookkeeping choice. Reparameterization invariance (RPI) makes the transformations of the leading and kinetic terms cancel. Thus $C_{\\rm kin}=1$ in the standard HQET operator and mass conventions, and different orders cannot be changed independently. RPI does not fix the chromomagnetic coefficient or automatically determine every higher-order coefficient."
+      }
+    ],
+    "check": "Does integrating out Hᵥ at tree level include all short-distance QCD corrections?",
+    "answer": "No. It gives the tree-level effective action and its power structure. Differences from hard loop diagrams must be matched into Wilson coefficients.",
+    "note": "Show how Gaussian integration turns virtual heavy modes into local operators, through the first 1/mQ correction."
+  },
+  {
+    "id": "symmetry",
+    "title": "Symmetry becomes a prediction",
+    "section": "2.2.1–2.2.3",
+    "pages": "8–14",
+    "pdfPages": "13–19",
+    "equations": "(2.23), (2.38)–(2.44)",
+    "latex": "\\mathcal L_0=\\sum_Q\\bar h_v^{(Q)}iv\\!\\cdot\\!Dh_v^{(Q)}\\quad\\Longrightarrow\\quad\\xi(1)=1",
+    "goal": "Explain how the absence of mass and spin dependence constrains form factors in heavy-to-heavy transitions.",
+    "result": "In the infinite-mass limit, the six $B\\to D^{(*)}$ form factors of ground-state heavy mesons reduce to one function $\\xi(w)$, with $\\xi(1)=1$.",
+    "steps": [
+      {
+        "title": "Notice what the Lagrangian has lost",
+        "body": "At fixed velocity, the leading Lagrangian contains neither the heavy-quark mass nor Dirac matrices that resolve its spin:\n\n$$\n\\mathcal L_0=\\bar h_v^{(b)}iv\\cdot Dh_v^{(b)}+\\bar h_v^{(c)}iv\\cdot Dh_v^{(c)}.\n$$\n\nA constant flavor rotation of $(h_v^{(b)},h_v^{(c)})$ leaves the action invariant, as does a rotation of the heavy-quark spin within the $P_+$ subspace. In this limit, soft gluons see only a color source moving along $v$. Flavor symmetry relates fields at the same velocity; the chromomagnetic term breaks spin symmetry."
+      },
+      {
+        "title": "Separate the heavy spin from the light cloud",
+        "body": "Ground-state pseudoscalar and vector mesons share the light-degree-of-freedom angular momentum $j_\\ell=1/2$. They differ only in how the heavy-quark spin couples to it. For the current $\\bar h_{v'}\\Gamma h_v$, the projectors and $\\Gamma$ determine the heavy-quark spin indices.\n\nThe light cloud's Dirac structure can be expanded in $1,\\not v,\\not v',\\not v\\not v'$. Sandwiching it between the appropriate velocity projectors and ground-state meson representation matrices, relations such as $\\not v h_v=h_v$ reduce these structures to a single scalar function $\\xi(w)$, where $w=v\\cdot v'$. This is the trace-formalism derivation in lecture equations (2.40)–(2.43)."
+      },
+      {
+        "title": "Turn symmetry into form-factor relations",
+        "body": "Use velocities to define the vector-current form factors for a pseudoscalar-to-pseudoscalar transition:\n\n$$\n\\frac{\\langle D(v')|\\bar c\\gamma^\\mu b|\\bar B(v)\\rangle}{\\sqrt{M_BM_D}}\n=h_+(w)(v+v')^\\mu+h_-(w)(v-v')^\\mu.\n$$\n\nInserting the spin projectors from the previous step leaves only the $(v+v')^\\mu$ structure. The tree-level heavy-quark limit therefore gives $h_+=\\xi$ and $h_-=0$. Including $B\\to D^*$, the relations are\n\n$$\nh_+=h_V=h_{A_1}=h_{A_3}=\\xi(w),\\qquad h_-=h_{A_2}=0.\n$$\n\nThe nonperturbative problem has not disappeared, but six independent functions have become one."
+      },
+      {
+        "title": "Fix the normalization at zero recoil",
+        "body": "When $v'=v$, we have $w=1$. The light cloud is not pushed into a new velocity state; a flavor rotation only relabels the static heavy color source. The conserved charge of the flavor-diagonal vector current fixes the normalization, and flavor symmetry transfers it to the heavy-to-heavy transition:\n\n$$\n\\langle H(v)|\\bar Q\\gamma^\\mu Q|H(v)\\rangle=2M_Hv^\\mu\\quad\\Longrightarrow\\quad\\xi(1)=1.\n$$\n\nThis is **zero hadronic recoil**, which also corresponds to the maximum lepton-pair $q^2$; keep these kinematic descriptions distinct. Finite masses and short-distance matching correct physical form factors. Luke's theorem protects only specific zero-recoil form factors from first-order power corrections, not every form factor."
+      },
+      {
+        "title": "How does this relate to the D decay?",
+        "body": "The relations involving $\\xi$ apply to transitions between two heavy quarks. The animated decay $D^0\\to X e^+\\nu_e$ is heavy-to-light. The light degrees of freedom in X cannot simply be treated as infinitely heavy, so $\\xi(1)=1$ cannot be carried over.\n\nSufficiently inclusive observables in $D\\to X e^+\\nu_e$ call for the HQE on the next board: turn the sum over final states into forward matrix elements, then expand in local operators."
+      }
+    ],
+    "check": "Must the D → K form factor also equal 1 at zero recoil?",
+    "answer": "No. Isgur–Wise normalization relies on heavy-flavor symmetry between the initial and final states. It does not directly apply to the heavy-to-light transition D → K.",
+    "note": "Explain how the absence of mass and spin dependence constrains form factors in heavy-to-heavy transitions."
+  },
+  {
+    "id": "inclusive-ope",
+    "title": "From a sum of states to HQE",
+    "section": "3.1–3.4; 3.6",
+    "pages": "27–38, 46",
+    "pdfPages": "32–43, 51",
+    "equations": "(3.1)–(3.7), (3.28)–(3.42)",
+    "latex": "\\Gamma(H_Q)=\\Gamma_{\\rm parton}\\left[1+O\\!\\left(\\frac{\\Lambda_{\\rm QCD}^2}{m_Q^2}\\right)+\\cdots\\right]",
+    "goal": "Use completeness and the optical theorem to organize the many final states, and explain why the total width has no independent nonperturbative 1/mQ term.",
+    "result": "The leading term is free heavy-quark decay. The first nonperturbative power correction is $1/m_Q^2$; higher orders also contain four-quark effects.",
+    "steps": [
+      {
+        "title": "Start with the physical sum over states",
+        "body": "Let $\\mathcal H_w$ denote the weak Hamiltonian density responsible for the decay, and use relativistic state normalization. The total width is the phase-space sum of squared amplitudes:\n\n$$\n\\Gamma(H_Q)=\\frac{1}{2M_H}\\sum_X\\int d\\Phi_X\\,(2\\pi)^4\\delta^{(4)}(p_H-p_X)\\,|\\langle X|\\mathcal H_w(0)|H_Q\\rangle|^2.\n$$\n\nFor semileptonic decay, one can hold the leptonic variables fixed and sum only over hadronic final states. This is the meaning of $X$: the animated X direction represents the total hadronic momentum without specifying individual hadrons; one kinematic configuration does not represent the entire inclusive width."
+      },
+      {
+        "title": "Apply completeness and the optical theorem",
+        "body": "Write the four-dimensional delta function as a Fourier integral, transfer the momentum phases to the operators, and use $\\sum_X\\int d\\Phi_X|X\\rangle\\langle X|=1$. The final-state sum becomes a forward matrix element of two weak operators.\n\nDefine the time-ordered transition operator, with the factor $i$ shown explicitly to fix the optical-theorem convention:\n\n$$\n\\widehat{\\mathcal T}=i\\int d^4x\\,T\\{\\mathcal H_w^\\dagger(x)\\mathcal H_w(0)\\},\\qquad\n\\Gamma=\\frac{2\\,\\operatorname{Im}\\langle H_Q|\\widehat{\\mathcal T}|H_Q\\rangle}{2M_H}.\n$$\n\nInstead of calculating every final state separately, we calculate the physical cut of the forward amplitude."
+      },
+      {
+        "title": "Expose the hard scale and apply the OPE",
+        "body": "Again write $Q=e^{-im_Qv\\cdot x}Q_v$, but note that $Q_v$ in this chapter is the **full QCD field with its rapid phase removed**. It has not yet been identified with $h_v$. The rapid phase supplies the scale $m_Q$, and the short-distance time-ordered product can be arranged by local-operator dimension:\n\n$$\n\\Gamma=\\Gamma_0\\left[c_3\\frac{\\langle\\bar QQ\\rangle_H}{2M_H}+\\frac{c_5}{m_Q^2}\\frac{\\langle O_5\\rangle_H}{2M_H}+\\sum_i\\frac{c_{6,i}}{m_Q^3}\\frac{\\langle O_{6,i}\\rangle_H}{2M_H}+\\cdots\\right].\n$$\n\nHere $\\Gamma_0\\propto G_F^2m_Q^5$. The coefficients $c_i$ contain channel dependence, mass ratios, and short-distance corrections; $O_5$ denotes dimension-five operators, and $O_{6,i}$ includes four-quark operators. Wilson coefficients can be calculated perturbatively, while hadronic forward matrix elements retain long-distance information."
+      },
+      {
+        "title": "Check the possible 1/mQ contribution",
+        "body": "Write $\\langle\\cdots\\rangle_H=\\langle H_Q|\\cdots|H_Q\\rangle$. Using the full QCD equations of motion after removing the phase, together with the vanishing of total derivatives in forward matrix elements, the lectures obtain\n\n$$\n\\langle\\bar Q_v i\\!\\not\\!D Q_v\\rangle_H=-\\langle\\bar Q_v iv\\cdot D Q_v\\rangle_H\n=\\frac{1}{2m_Q}\\langle\\bar Q_v(i\\!\\not\\!D)^2Q_v\\rangle_H.\n$$\n\nThe dimension-four matrix element is therefore itself suppressed by another factor of $1/m_Q$. In the HQET basis, the same statement appears as $iv\\cdot D\\,h_v=0$, which removes an independent dimension-four operator. We must also check the leading scalar density:\n\n$$\n\\langle\\bar Q_vQ_v\\rangle_H=2M_H+\\frac{1}{2m_Q^2}\\langle\\bar Q_v(i\\!\\not\\!D)^2Q_v\\rangle_H.\n$$\n\nIts first correction also starts at $1/m_Q^2$. Together, these two checks show that the total width has no independent nonperturbative correction of order $\\Lambda_{\\rm QCD}/m_Q$."
+      },
+      {
+        "title": "State the result and its domain of validity",
+        "body": "The result can therefore be organized as\n\n$$\n\\Gamma(H_Q)=\\Gamma_{\\rm parton}+\\Gamma_0\\left[a_\\pi\\frac{\\mu_\\pi^2}{m_Q^2}+a_G\\frac{\\mu_G^2}{m_Q^2}+O(\\Lambda_{\\rm QCD}^3/m_Q^3)\\right].\n$$\n\nThe kinetic and chromomagnetic matrix elements describe the first binding effects; $a_\\pi,a_G$ depend on the channel and conventions. The absence of $1/m_Q$ refers to a nonperturbative power term, not to the absence of $\\alpha_s$ corrections.\n\nThis local expansion applies to total widths or sufficiently smooth, inclusive observables. The endpoint region may require a nonlocal shape function. For charm decays, convergence, four-quark contributions, and quark–hadron duality must be assessed explicitly; writing down an HQE alone does not establish adequate precision."
+      }
+    ],
+    "check": "Does the absence of an independent dimension-four operator complete the proof of no 1/mQ term?",
+    "answer": "Not by itself. One must also expand the hadronic matrix element of the leading dimension-three operator and verify that it hides no 1/mQ term. Lecture equations (3.30)–(3.36) supply this additional step.",
+    "note": "Use completeness and the optical theorem to organize the many final states, and explain why the total width has no independent nonperturbative 1/mQ term."
+  },
+  {
+    "id": "matching-running",
+    "title": "Matching & running",
+    "section": "2.3",
+    "pages": "21–24",
+    "pdfPages": "26–29",
+    "equations": "(2.74)–(2.89)",
+    "latex": "C(\\mu)\\langle J(\\mu)\\rangle=\\mathrm{const.},\\quad C_{\\rm LL}(\\mu)=\\left[\\frac{\\alpha_s(\\mu)}{\\alpha_s(m_b)}\\right]^{6/25}",
+    "goal": "Extend the tree-level effective action on Board 02 to the quantum theory: hard modes become Wilson coefficients, and scale evolution resums large logarithms.",
+    "result": "Matching fixes boundary conditions; the renormalization group supplies evolution. The coefficient $C(\\mu)$ and matrix element $\\langle J(\\mu)\\rangle$ separately depend on the scale, while their product is independent of $\\mu$ to the order calculated.",
+    "steps": [
+      {
+        "title": "Describe one amplitude in two theories",
+        "body": "Start from the QCD vector current for $b\\to c$. In the matching example with $m_c<\\mu<m_b$, replace $b$ by the static field $h_v$ and neglect the mass of $c$ in the hard matching:\n\n$$\n\\bar c\\gamma^\\mu b=C_1(\\mu)\\,\\bar c\\gamma^\\mu h_v+C_2(\\mu)\\,v^\\mu\\bar c h_v+\\frac{1}{2m_b}\\sum_k B_k(\\mu)O_k^\\mu+\\cdots.\n$$\n\nThe coefficients $C_i$ encode the hard momentum regions that have been integrated out; matrix elements of $J_i$ retain soft physics. Matching means that both descriptions give the same low-energy amplitude for the same external states and the same infrared regulator. At tree level, $C_1=1,C_2=0$; loop corrections modify the coefficients."
+      },
+      {
+        "title": "Cancel the common infrared regulator",
+        "body": "To display the scales, temporarily keep one independent Dirac structure and let $\\lambda$ denote the common infrared regulator scale. Write the finite constants as $a_Q,a_E$ to avoid mixing constants from different schemes:\n\n$$\n\\begin{aligned}\nA_{\\rm QCD}&=1+\\frac{\\alpha_s}{2\\pi}\\left[\\ln\\frac{m_b^2}{\\lambda^2}+a_Q\\right],\\\\\nA_{\\rm EFT}^{\\rm ren}&=1+\\frac{\\alpha_s}{2\\pi}\\left[\\ln\\frac{\\mu^2}{\\lambda^2}+a_E\\right].\n\\end{aligned}\n$$\n\nUsing $A_{\\rm QCD}=C_1A_{\\rm EFT}^{\\rm ren}$ and expanding the ratio in $\\alpha_s$ gives\n\n$$\nC_1(\\mu)=1+\\frac{\\alpha_s}{2\\pi}\\left[\\ln\\frac{m_b^2}{\\mu^2}+a_Q-a_E\\right]+O(\\alpha_s^2).\n$$\n\nThe disappearance of $\\lambda$ shows that the Wilson coefficient records only short-distance differences. Matching at $\\mu\\simeq m_b$ avoids large logarithms; running to a lower scale then requires RG evolution."
+      },
+      {
+        "title": "Derive the RGE from scale independence",
+        "body": "Use the lectures' anomalous-dimension sign convention: $\\mu\\,dJ/d\\mu=-\\gamma_J J$. The physical current matrix element cannot change with an arbitrary renormalization scale, so\n\n$$\n0=\\mu\\frac{d}{d\\mu}\\bigl[C(\\mu)\\langle J(\\mu)\\rangle\\bigr]\n\\quad\\Longrightarrow\\quad\n\\mu\\frac{dC}{d\\mu}=\\gamma_J C.\n$$\n\nThen use $\\mu\\,d\\alpha_s/d\\mu=\\beta(\\alpha_s)$ to eliminate $\\ln\\mu$:\n\n$$\nC(\\mu)=C(m_b)\\exp\\left[\\int_{\\alpha_s(m_b)}^{\\alpha_s(\\mu)}\\!da\\,\\frac{\\gamma_J(a)}{\\beta(a)}\\right].\n$$\n\nFor multiple operators, $C$ is a vector and the anomalous dimension becomes a mixing matrix. Here we first work through the single coefficient in the lectures."
+      },
+      {
+        "title": "Obtain 6/25 and check zero recoil",
+        "body": "For this heavy-light current, the lectures give $\\gamma_J=-\\alpha_s/\\pi$. In the range $m_c<\\mu<m_b$, four flavors are active, with $\\beta_0=11-2n_f/3=25/3$:\n\n$$\n\\beta(\\alpha_s)=-\\frac{\\beta_0\\alpha_s^2}{2\\pi},\\qquad\n\\frac{\\gamma_J(a)}{\\beta(a)}=\\frac{2}{\\beta_0a}.\n$$\n\nWith the tree-level matching condition $C(m_b)=1$, integration gives $C_{\\rm LL}(\\mu)=[\\alpha_s(\\mu)/\\alpha_s(m_b)]^{6/25}$, resumming the leading logarithms. Below $m_c$, another matching step is needed, now for a heavy-heavy current:\n\n$$\n\\gamma_{hh}(w)=\\frac{4\\alpha_s}{3\\pi}[wr(w)-1],\\qquad\nr(w)=\\frac{\\ln(w+\\sqrt{w^2-1})}{\\sqrt{w^2-1}}.\n$$\n\nSet $w=\\cosh\\theta$. Then $r=\\theta/\\sinh\\theta\\to1$, and hence $\\gamma_{hh}(1)=0$. This checks heavy-quark symmetry at zero recoil; it does not imply that the hard matching coefficient from full QCD also equals 1."
+      }
+    ],
+    "check": "Why can a coefficient calculated at a high scale not simply multiply a matrix element at any lower scale?",
+    "answer": "They must use compatible renormalization schemes and the same scale. The scale dependences of the matching coefficient and matrix element cancel. Evolving only one of them leaves artificial scale dependence and unresummed large logarithms.",
+    "note": "Extend the tree-level effective action on Board 02 to the quantum theory: hard modes become Wilson coefficients, and scale evolution resums large logarithms."
+  },
+  {
+    "id": "hqe-parameters",
+    "title": "The first HQE parameters",
+    "section": "3.4",
+    "pages": "38–40",
+    "pdfPages": "43–45",
+    "equations": "(3.49)–(3.58)",
+    "latex": "\\Gamma=\\Gamma_0\\!\\left[c_3+c_\\pi\\frac{\\mu_\\pi^2}{m_Q^2}+c_G\\frac{\\mu_G^2}{m_Q^2}+O(m_Q^{-3})\\right]",
+    "goal": "Continue the OPE on Board 04: explain why the first unknown hadronic matrix elements reduce to kinetic and chromomagnetic parameters, and how they enter the width.",
+    "result": "For an unpolarized heavy meson, the first power correction comes from dimension-five two-quark operators and scales as $\\Lambda_{\\rm QCD}^2/m_Q^2$. The quantities $\\mu_\\pi^2$ and $\\mu_G^2$ are matrix elements, not freely chosen trajectory parameters.",
+    "steps": [
+      {
+        "title": "Fix the normalization and field definitions",
+        "body": "Use relativistic state normalization and write forward matrix elements as $\\langle O\\rangle_H=\\langle H(p)|O|H(p)\\rangle/(2M_H)$. The lectures define $Q_v=e^{im_Qv\\cdot x}Q$, retaining finite-mass dependence; it is replaced by $h_v$ only in the static limit.\n\n$$\n\\mu_\\pi^2=-\\langle\\bar Q_v(iD_\\perp)^2Q_v\\rangle_H,\\qquad\n\\mu_G^2=-\\langle\\bar Q_v(iD_{\\perp\\mu})(iD_{\\perp\\nu})\\,i\\sigma^{\\mu\\nu}Q_v\\rangle_H.\n$$\n\nHere we use the transverse definitions in lecture equations (3.52) and (3.53). They differ from hatted parameters defined with the full $D$ only at higher orders. Those differences must also be expanded when calculating to higher order."
+      },
+      {
+        "title": "Read the kinetic parameter in the rest frame",
+        "body": "In the rest frame $v=(1,\\mathbf0)$, the derivative $D_\\perp$ has only spatial components. With metric $(+,-,-,-)$, the minus sign in the definition turns the spatial contraction into a positive momentum squared:\n\n$$\n\\mu_\\pi^2=\\langle\\bar h_v\\,\\boldsymbol\\pi^{\\,2}h_v\\rangle_H+O(\\Lambda_{\\rm QCD}^3/m_Q),\\qquad\n\\boldsymbol\\pi=i\\mathbf D.\n$$\n\nFor an unpolarized static state, rotational invariance requires the symmetric rank-two tensor to be proportional to $\\delta_{ij}$. Taking the trace fixes the coefficient:\n\n$$\n\\frac12\\langle\\bar h_v\\{\\pi_i,\\pi_j\\}h_v\\rangle_H\n=\\frac{\\delta_{ij}}{3}\\mu_\\pi^2\\quad\\text{(static limit)}.\n$$\n\nThis turns the heavy quark's motion inside the hadron into a matrix element that can enter the OPE. Renormalized parameters depend on the scale and subtraction scheme; the intuitive momentum-squared interpretation does not replace these definitions."
+      },
+      {
+        "title": "Why does the antisymmetric part probe spin?",
+        "body": "Because $\\sigma^{\\mu\\nu}$ is antisymmetric, the symmetric derivative part does not contribute. With the convention $D_\\mu=\\partial_\\mu+ig_sA_\\mu$ used in these notes, we have $[iD_\\mu,iD_\\nu]=-ig_sG_{\\mu\\nu}$:\n\n$$\n(iD_\\mu)(iD_\\nu)i\\sigma^{\\mu\\nu}\n=\\frac12[iD_\\mu,iD_\\nu]i\\sigma^{\\mu\\nu}\n=\\frac{g_s}{2}\\sigma^{\\mu\\nu}G_{\\mu\\nu}.\n$$\n\nBetween static projected fields, the transverse projection removes components parallel to the velocity, leaving the coupling between the heavy-quark spin and the chromomagnetic field. This agrees with the sign of $O_{\\rm spin}$ on Board 02. Its matrix element is related to the mass splitting of spin partners, whereas that splitting alone cannot determine the kinetic parameter."
+      },
+      {
+        "title": "Return to the width and count the next order",
+        "body": "Board 04 established that there is no independent dimension-four correction. Matrix elements of dimension-five operators have mass dimension two after state normalization, so the width must take the form\n\n$$\n\\frac{\\Gamma(H_Q\\to X)}{\\Gamma_0}\n=c_3+c_\\pi\\frac{\\mu_\\pi^2}{m_Q^2}+c_G\\frac{\\mu_G^2}{m_Q^2}+O\\!\\left(\\frac{\\Lambda_{\\rm QCD}^3}{m_Q^3}\\right).\n$$\n\nHere $c_i$ absorb all numerical factors and channel-specific short-distance information. Coefficients from one decay cannot simply be transferred to another. At dimension six, the two-quark sector introduces the Darwin and spin-orbit parameters $\\rho_D^3,\\rho_{LS}^3$, and four-quark operators must also be included.\n\nThese quantities require input from experimental moments, lattice calculations, or an explicitly specified model. When applying the HQE to charm, the smaller $m_c$ requires a fresh assessment of the relative importance of power corrections. The $D^0\\to X e^+\\nu_e$ kinematic schematic in the scene is not the summed inclusive rate."
+      }
+    ],
+    "check": "Can the HQE for D decay be obtained by replacing the b-quark mass with the c-quark mass?",
+    "answer": "No. The weak transition, phase space, and short-distance coefficients must also change, and the matrix elements must correspond to the relevant hadron. Finite-mass corrections and four-quark effects must be reassessed. Static heavy-flavor symmetry provides relations but does not remove these differences.",
+    "note": "Continue the OPE on Board 04: explain why the first unknown hadronic matrix elements reduce to kinetic and chromomagnetic parameters, and how they enter the width."
+  },
+  {
+    "id": "mass-schemes",
+    "title": "Why the mass scheme matters",
+    "section": "3.5",
+    "pages": "40–46",
+    "pdfPages": "45–51",
+    "equations": "(3.59), (3.66)–(3.80)",
+    "latex": "m_{\\rm pole}=m_{\\rm SD}(1+a_1a+\\cdots)\\ \\Rightarrow\\ \\Gamma\\propto m_{\\rm SD}^5[1+(r_1+5a_1)a+\\cdots]",
+    "goal": "Start from the fifth power of the mass in the width and derive how perturbative coefficients must transform when the mass definition changes.",
+    "result": "The physical width is independent of the mass scheme. Mass parameters and coefficients in a truncated expansion must be converted consistently. The pole mass has an ambiguity of order $O(\\Lambda_{\\rm QCD})$, motivating short-distance masses.",
+    "steps": [
+      {
+        "title": "See how the fifth power amplifies uncertainty",
+        "body": "In a four-fermion weak decay, $[G_F]=-2$ and $[\\Gamma]=1$. Neglecting final-state masses and keeping a single hard scale, dimensional analysis gives\n\n$$\n\\Gamma_0=K\\,G_F^2|V_{\\rm CKM}|^2m_Q^5,\\qquad\n\\frac{\\delta\\Gamma_0}{\\Gamma_0}=5\\frac{\\delta m_Q}{m_Q}.\n$$\n\nThe factor $K$ is a channel-dependent dimensionless coefficient. This differential relation shows only the sensitivity of the leading term to the input mass; the full prediction also contains phase space, perturbative terms, and power corrections. Since a quark is not an individually observable free final state, the chosen definition of its mass must be specified first."
+      },
+      {
+        "title": "Work through a scheme conversion",
+        "body": "Set $a=\\alpha_s/\\pi$, and let $m_{\\rm SD}$ denote a specified short-distance mass. Suppose the mass relation and the original rate expansion are\n\n$$\nm_{\\rm pole}=m_{\\rm SD}[1+a_1a+O(a^2)],\\qquad\n\\Gamma=K' m_{\\rm pole}^5[1+r_1a+O(a^2)].\n$$\n\nSince $(1+a_1a)^5=1+5a_1a+O(a^2)$, substitution gives\n\n$$\n\\Gamma=K'm_{\\rm SD}^5\\bigl[1+(r_1+5a_1)a+O(a^2)\\bigr].\n$$\n\nChanging the mass while leaving $r_1$ unchanged would omit the same-order term $5a_1$. If the rate also depends on mass ratios such as $m_c/m_b$, the phase-space function must be expanded too. This single-scale example isolates the essential algebra."
+      },
+      {
+        "title": "Why is the pole mass intrinsically ambiguous?",
+        "body": "The lectures use the infrared renormalon to explain the asymptotic series relating the pole mass and a short-distance mass. The dimensionless example $z(\\alpha)=\\sum_{n\\ge0}a_n\\alpha^{n+1}$ illustrates the Borel transform:\n\n$$\nB[z](t)=\\sum_{n\\ge0}\\frac{a_n}{n!}t^n,\\qquad\nz(\\alpha)=\\int_0^\\infty\\!dt\\,e^{-t/\\alpha}B[z](t).\n$$\n\nFactorial growth of the coefficients can correspond to singularities on the positive real axis of the Borel plane, requiring a prescription for the integration contour. For the pole mass, this produces an ambiguity $\\Delta m_{\\rm pole}\\sim\\Lambda_{\\rm QCD}$.\n\nThis is not an intrinsic linear power correction to the physical decay rate. In compatible schemes, the associated long-distance ambiguities cancel in observables. Short-distance masses subtract low-momentum sensitivity by an explicit prescription, improving control of finite-order calculations."
+      },
+      {
+        "title": "Derive the leading 1S mass relation",
+        "body": "The lectures also discuss schemes such as the kinetic and 1S masses. Here we supply the lowest-order quantum-mechanical steps for the 1S definition. Equal-mass quarkonium has reduced mass $m/2$ and Coulomb potential $V(r)=-C_F\\alpha_s/r$. Hence\n\n$$\nE_1=-\\frac{mC_F^2\\alpha_s^2}{4},\\qquad\nm_{1S}\\equiv\\frac{M_{1S}^{\\rm pert}}2\n=m_{\\rm pole}\\left[1-\\frac{C_F^2\\alpha_s^2}{8}+\\cdots\\right],\\quad C_F=\\frac43.\n$$\n\nThe definition uses the perturbatively calculated quarkonium ground-state mass, not simply half the measured hadron mass. Applying it to decay rates also requires the consistent order counting discussed in the lectures.\n\nMoreover, the decomposition $p_Q=m_Qv+k$ requires $k\\to k-\\Delta m\\,v$ when $m_Q\\to m_Q+\\Delta m$. The residual-mass term and definitions of nonperturbative parameters must be converted together; inputs from different mass schemes cannot be combined arbitrarily."
+      }
+    ],
+    "check": "If two results differ after a mass-scheme change, does that mean the physical prediction depends on the scheme?",
+    "answer": "First check that the mass, phase space, coefficients, and matrix elements have all been converted to the same order. Consistent finite-order results may still differ by higher-order terms, reflecting truncation uncertainty. A same-order difference caused by replacing only the numerical mass is an inconsistent calculation.",
+    "note": "Start from the fifth power of the mass in the width and derive how perturbative coefficients must transform when the mass definition changes."
+  },
+  {
+    "id": "endpoint-shape",
+    "title": "When the local expansion fails",
+    "section": "3.6",
+    "pages": "46–49",
+    "pdfPages": "51–54",
+    "equations": "(3.81)–(3.94)",
+    "latex": "\\frac{\\Lambda_{\\rm QCD}}{m_b-2E}\\sim1\\ \\Rightarrow\\ S(\\omega)=\\frac{\\langle B|\\bar h_v\\delta(\\omega-i n\\!\\cdot\\!D)h_v|B\\rangle}{2M_B}",
+    "goal": "Identify why the local OPE fails at a spectrum endpoint and organize the required infinite sequence of derivatives into a shape function.",
+    "result": "When $Q^2\\sim m_b\\Lambda_{\\rm QCD}$, the terms $Q\\cdot iD$ and $Q^2$ are of the same order and cannot be expanded term by term. Leading nonperturbative information becomes a function rather than a finite set of matrix elements.",
+    "steps": [
+      {
+        "title": "The endpoint introduces a smaller scale",
+        "body": "The lectures first discuss $B\\to X_u\\ell\\nu$, then use $B\\to X_s\\gamma$ to illustrate resummation. For the latter, take a massless photon $q$ and define $Q=m_bv-q$ and $y=2E_\\gamma/m_b$. Then\n\n$$\nQ^2=m_b^2-2m_bE_\\gamma=m_b^2(1-y).\n$$\n\nAway from the endpoint, an expansion in $\\Lambda_{\\rm QCD}/m_b$ is possible. Near the endpoint, however, the parameter controlling the local expansion is\n\n$$\n\\frac{\\Lambda_{\\rm QCD}}{m_b(1-y)}=\\frac{\\Lambda_{\\rm QCD}}{m_b-2E_\\gamma}.\n$$\n\nThe appearance of $\\delta(1-y)$ and its derivatives in the spectrum reminds us that this is an expansion in distributions. It can be used for sufficiently broad integrals or smooth moments, but each term cannot be interpreted as an ordinary function value at the endpoint."
+      },
+      {
+        "title": "Compare terms in the propagator denominator",
+        "body": "For a massless final-state quark, the background-field propagator used in the OPE on Board 04 contains\n\n$$\n\\frac1{\\not Q+i\\!\\not D}\n=(\\not Q+i\\!\\not D)\\frac1{Q^2+2Q\\cdot iD+(i\\!\\not D)^2}.\n$$\n\nIn the shape-function region, $Q^2\\sim m_b\\Lambda_{\\rm QCD}$ and $v\\cdot Q\\sim m_b$. Thus $2Q\\cdot iD\\sim m_b\\Lambda_{\\rm QCD}$ is as large as $Q^2$, while only $(i\\!\\not D)^2\\sim\\Lambda_{\\rm QCD}^2$ is relatively suppressed:\n\n$$\n\\frac1{\\not Q+i\\!\\not D}\\simeq\\not Q\\frac1{Q^2+2Q\\cdot iD}.\n$$\n\nThis retains the leading light-cone derivatives to all orders; it does not discard nonperturbative effects."
+      },
+      {
+        "title": "Define the shape function spectrally",
+        "body": "Choose $n^2=\\bar n^2=0$, $n\\cdot\\bar n=2$, and $v=(n+\\bar n)/2$, with $n$ along the jet. At leading order, $Q\\cdot iD\\simeq(v\\cdot Q)i n\\cdot D$. Define\n\n$$\nS(\\omega)=\\frac1{2M_B}\\langle B|\\bar h_v\\,\\delta(\\omega-i n\\cdot D)h_v|B\\rangle.\n$$\n\nThis board uses $\\omega=+n\\cdot k$, opposite in sign to the argument of the lectures' $f(\\omega)$; the sign in the convolution changes accordingly. Inserting the operator identity $F(A)=\\int d\\omega\\,\\delta(\\omega-A)F(\\omega)$ gives\n\n$$\n\\frac1{2M_B}\\left\\langle B\\left|\\bar h_v\\frac1{Q^2+2(v\\cdot Q)i n\\cdot D+i0}h_v\\right|B\\right\\rangle\n=\\int d\\omega\\,\\frac{S(\\omega)}{Q^2+2(v\\cdot Q)\\omega+i0}.\n$$\n\nThe derivative inside $\\delta$ is covariant; the equivalent bilocal representation contains a Wilson line. This organizes infinitely many local matrix elements into a gauge-invariant nonlocal object."
+      },
+      {
+        "title": "Expand back into local moments",
+        "body": "In the tree-level static approximation, with consistent moment definitions, heavy-quark number normalization fixes the zeroth moment. The zero-residual-mass convention and equations of motion fix the first, and rest-frame isotropy fixes the second:\n\n$$\n\\int d\\omega\\,S(\\omega)=1,\\qquad\n\\int d\\omega\\,\\omega S(\\omega)=0,\\qquad\n\\int d\\omega\\,\\omega^2S(\\omega)=\\frac{\\mu_\\pi^2}{3}.\n$$\n\nFrom $\\delta(\\omega-A)=\\delta(\\omega)-A\\delta'(\\omega)+A^2\\delta''(\\omega)/2+\\cdots$, we immediately recover\n\n$$\nS(\\omega)=\\delta(\\omega)+\\frac{\\mu_\\pi^2}{6}\\delta''(\\omega)+\\cdots.\n$$\n\nThe shape function is therefore connected to the local HQE through its moments, which are related to HQE parameters. Radiative corrections introduce an ultraviolet tail, and moments require an explicit cutoff and renormalization prescription. The unrestricted tree-level integrals above cannot be carried over without qualification."
+      },
+      {
+        "title": "Map the regimes back to the research question",
+        "body": "For sufficiently inclusive observables away from the endpoint, a finite set of local matrix elements can suffice. In the region with jet invariant mass $Q^2\\sim m_b\\Lambda_{\\rm QCD}$, a shape function and the appropriate short-distance convolutions are required. Closer still to a region dominated by a few resonances, a more specific hadronic description becomes necessary.\n\nThe leading-power shape function relates $B\\to X_s\\gamma$ and $B\\to X_u\\ell\\nu$, but subleading functions and process-dependent terms must still be treated. This is the classic example of inclusive $B$ decay. It cannot directly serve as a spectrum model for the charm process $D^0\\to X e^+\\nu_e$ shown in the scene. A charm-endpoint study must first assess the available residual energy, resolution, and separation of scales."
+      }
+    ],
+    "check": "Why can an OPE for the total width work while a point-by-point endpoint prediction fails?",
+    "answer": "Integration can smooth singular distribution terms, but a point-by-point endpoint measurement introduces a small energy-resolution scale. Infinitely many derivative terms then become equally important, invalidating a finite local expansion. They must be resummed into a shape function, or replaced by a more specific hadronic description in the resonance region.",
+    "note": "Identify why the local OPE fails at a spectrum endpoint and organize the required infinite sequence of derivatives into a shape function."
+  }
+]

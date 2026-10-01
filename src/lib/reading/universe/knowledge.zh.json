@@ -1,0 +1,290 @@
+[
+  {
+    "id": "path-integral",
+    "title": "From QCD to slow fields",
+    "zh": "从路径积分到慢场",
+    "hk": "從路徑積分到慢場",
+    "section": "2.1",
+    "pages": "3–5",
+    "pdfPages": "8–10",
+    "equations": "(2.1)–(2.10)",
+    "latex": "Z_{\\rm QCD}\\ \\longrightarrow\\ Q=e^{-im_Qv\\cdot x}(h_v+H_v)",
+    "goal": "把大质量对应的快速振荡剥离，找出真正需要积掉的自由度。",
+    "result": "重夸克仍留在有效理论中；积掉的是能隙为 $2m_Q$ 的小分量 $H_v$。",
+    "steps": [
+      {
+        "title": "以生成泛函为起点",
+        "body": "先把轻夸克、胶子和规范固定项统记在 $\\mathcal L_{\\rm light}$ 中。重夸克源 $\\eta,\\bar\\eta$ 用来生成相关函数，完成变换后再令源为零。\n\n$$\n\\mathcal L_{\\rm QCD}=\\bar Q(i\\!\\not\\!D-m_Q)Q+\\mathcal L_{\\rm light}.\n$$\n\n$$\n\\begin{aligned}\nZ[\\eta,\\bar\\eta]&=\\int\\!\\mathcal D\\Phi\\,\\mathcal DQ\\,\\mathcal D\\bar Q\\ e^{iS[Q,\\bar Q,\\Phi]+iS_{\\rm src}},\\\\\nS_{\\rm src}&=\\int d^4x\\,(\\bar\\eta Q+\\bar Q\\eta).\n\\end{aligned}\n$$\n\n我们要保留软外线的相关函数，同时把不能在低能被激发的模式从积分中消去。以下省略轻场源。"
+      },
+      {
+        "title": "把总动量拆成两种尺度",
+        "body": "选择强子四速度 $v=p_H/M_H$，满足 $v^2=1$。重夸克随强子运动，同时有束缚运动造成的剩余动量：\n\n$$\np_Q^\\mu=m_Qv^\\mu+k^\\mu,\\qquad k^\\mu\\sim\\Lambda_{\\rm QCD}\\ll m_Q.\n$$\n\n令 $Q=e^{-im_Qv\\cdot x}Q_v$，则 $i\\partial^\\mu Q=e^{-im_Qv\\cdot x}(m_Qv^\\mu+i\\partial^\\mu)Q_v$。因此作用在 $Q_v$ 上的导数只数剩余动量，展开参数自然变成 $iD/m_Q$。"
+      },
+      {
+        "title": "用速度投影分出大小分量",
+        "body": "定义两个互补投影算符，并将导数分解成平行与垂直于速度的两部分：\n\n$$\nP_\\pm=\\frac{1\\pm\\not v}{2},\\quad h_v=P_+Q_v,\\quad H_v=P_-Q_v,\\qquad D_\\perp^\\mu=D^\\mu-v^\\mu(v\\cdot D).\n$$\n\n由 $\\not v^2=1$ 得 $P_\\pm^2=P_\\pm$、$P_+P_-=0$；又因 $v\\cdot D_\\perp=0$，有 $\\{\\not v,\\not D_\\perp\\}=0$。这说明 $\\not D_\\perp$ 把大小分量互相转换，而 $v\\cdot D$ 保持投影。"
+      },
+      {
+        "title": "代回作用量，读出能隙",
+        "body": "相位变换后，质量项对 $h_v$ 抵消，对 $H_v$ 则相加。用上一步的投影恒等式整理：\n\n$$\n\\begin{aligned}\\mathcal L_Q={}&\\bar h_v\\,iv\\cdot D\\,h_v-\\bar H_v(2m_Q+iv\\cdot D)H_v\\\\&+\\bar h_v\\,i\\!\\not\\!D_\\perp H_v+\\bar H_v\\,i\\!\\not\\!D_\\perp h_v.\\end{aligned}\n$$\n\n在强子静止系里，$h_v$ 只携带软剩余能量，$H_v$ 的二次型却含 $2m_Q$。下一块板用 Grassmann 高斯积分精确消去 $H_v$，而不是直接把它设成零。"
+      }
+    ],
+    "check": "为什么直接令 Hᵥ = 0 会丢失首阶幂次修正？",
+    "answer": "大小分量之间仍通过横向协变导数耦合。Hᵥ 虽不能作为低能外线被激发，却能虚传播；消去它后，这部分效应成为 1/mQ 算符。",
+    "note": "把大质量对应的快速振荡剥离，找出真正需要积掉的自由度。"
+  },
+  {
+    "id": "integrate-out",
+    "title": "Integrate out, then expand",
+    "zh": "积掉小分量，得到 HQET",
+    "hk": "積掉小分量，得到 HQET",
+    "section": "2.1; 2.2.4",
+    "pages": "5–6、15–16",
+    "pdfPages": "10–11、20–21",
+    "equations": "(2.10)–(2.18), (2.55)–(2.57)",
+    "latex": "\\mathcal L_{\\rm eff}=\\bar h_viv\\!\\cdot\\!Dh_v+\\bar h_v i\\!\\not\\!D_\\perp\\frac{1}{2m_Q+iv\\!\\cdot\\!D}i\\!\\not\\!D_\\perp h_v",
+    "goal": "展示高斯积分如何把虚重模式变成局域算符，推到首个 1/mQ 修正。",
+    "result": "$\\mathcal L_0=\\bar h_viv\\cdot Dh_v$；首阶修正分成动能与自旋耦合。RPI 固定动能系数为 1。",
+    "steps": [
+      {
+        "title": "先配方，不丢掉混合项",
+        "body": "简记 $A=2m_Q+iv\\cdot D$、$B=i\\!\\not\\!D_\\perp$，并把逆算符的边界条件理解为继承 QCD 的处方。将小分量平移为 $H'_v=H_v-A^{-1}Bh_v$（共轭场同时平移），得到\n\n$$\n-\\bar H_vAH_v+\\bar h_vBH_v+\\bar H_vBh_v=-\\bar H'_vAH'_v+\\bar h_vBA^{-1}Bh_v.\n$$\n\n这是算符版的配方。算符次序不能任意交换，$A^{-1}$ 夹在两个 $B$ 之间。"
+      },
+      {
+        "title": "完成 Grassmann 高斯积分",
+        "body": "低能过程不需要 $H_v$ 的外线源。对 $H'_v,\\bar H'_v$ 积分只留下行列式因子和慢场作用量：\n\n$$\nZ\\propto\\int\\!\\mathcal Dh_v\\,\\mathcal D\\bar h_v\\,\\mathcal D\\Phi\\ \\Delta\\,e^{iS_{\\rm eff}},\\qquad\n\\mathcal L_{\\rm eff}=\\bar h_viv\\cdot Dh_v+\\bar h_vBA^{-1}Bh_v.\n$$\n\n讲义在这里讨论的单向传播处方下，$\\Delta$ 可吸收到归一化；这不是说完整 QCD 中所有重夸克闭环都消失。高能量子效应仍需匹配。由于 $A^{-1}$ 是传播子，有效作用量此时仍非局域。"
+      },
+      {
+        "title": "把非局域传播展开成局域算符",
+        "body": "剩余动量远小于 $2m_Q$，所以可以按算符几何级数展开：\n\n$$\nA^{-1}=\\frac{1}{2m_Q}\\left[1-\\frac{iv\\cdot D}{2m_Q}+\\cdots\\right],\n$$\n\n$$\n\\mathcal L_{\\rm eff}=\\bar h_viv\\cdot Dh_v+\\frac{1}{2m_Q}\\bar h_v(i\\!\\not\\!D_\\perp)^2h_v-\\frac{1}{(2m_Q)^2}\\bar h_v i\\!\\not\\!D_\\perp(iv\\cdot D)i\\!\\not\\!D_\\perp h_v+\\cdots.\n$$\n\n每多一个软导数，就多一个 $\\Lambda_{\\rm QCD}/m_Q$。讲义式 (2.13)、(2.17) 把两个显式 $i$ 相乘，写成带负号的 $\\not D_\\perp$ 形式，与这里相同。"
+      },
+      {
+        "title": "拆出动能和色磁耦合",
+        "body": "下面补写讲义压缩的 Dirac 代数步骤。取 $g_{\\mu\\nu}=(+,-,-,-)$、$D_\\mu=\\partial_\\mu+ig_sA_\\mu$、$[D_\\mu,D_\\nu]=ig_sG_{\\mu\\nu}$、$\\sigma^{\\mu\\nu}=\\tfrac i2[\\gamma^\\mu,\\gamma^\\nu]$。\n\n$$\n\\gamma^\\mu\\gamma^\\nu=g^{\\mu\\nu}-i\\sigma^{\\mu\\nu},\\quad\n(i\\!\\not\\!D_\\perp)^2=(iD_\\perp)^2-\\frac i2\\sigma^{\\mu\\nu}[iD_{\\perp\\mu},iD_{\\perp\\nu}].\n$$\n\n定义 $O_{\\rm kin}=\\bar h_v(iD_\\perp)^2h_v$ 和 $O_{\\rm spin}=-\\tfrac{g_s}{2}\\bar h_v\\sigma^{\\mu\\nu}G_{\\mu\\nu}h_v$（在投影场之间），便得\n\n$$\n\\mathcal L=\\mathcal L_0+\\frac{O_{\\rm kin}+C_{\\rm spin}(\\mu)O_{\\rm spin}}{2m_Q}+O(m_Q^{-2}).\n$$\n\n树级 $C_{\\rm spin}=1$，量子修正后需匹配并随尺度演化。这里沿用 Mannel 的 $D=\\partial+ig_sA$；若换用相反的协变导数约定，色磁项的显式符号也必须一起转换。"
+      },
+      {
+        "title": "为什么动能系数不独立？",
+        "body": "同一个物理动量可以用稍微不同的速度标记：\n\n$$\np_Q=m_Qv+k=m_Q(v+\\delta v)+(k-m_Q\\delta v),\\qquad v\\cdot\\delta v=0.\n$$\n\n物理量不能依赖这种记账方式。重参数化不变性（RPI）把领头项与动能项的变换相抵消，因此在标准 HQET 算符与质量约定下 $C_{\\rm kin}=1$，各阶不能任意独立改动。它不固定色磁系数，也不自动给出所有高阶算符系数。"
+      }
+    ],
+    "check": "“树级积掉 Hᵥ”是否已经包含全部 QCD 短程修正？",
+    "answer": "没有。它给出树级有效作用量及其幂次结构；硬圈图的差异要匹配进 Wilson 系数。",
+    "note": "展示高斯积分如何把虚重模式变成局域算符，推到首个 1/mQ 修正。"
+  },
+  {
+    "id": "symmetry",
+    "title": "Symmetry becomes a prediction",
+    "zh": "从对称性到可检验预言",
+    "hk": "從對稱性到可檢驗預言",
+    "section": "2.2.1–2.2.3",
+    "pages": "8–14",
+    "pdfPages": "13–19",
+    "equations": "(2.23), (2.38)–(2.44)",
+    "latex": "\\mathcal L_0=\\sum_Q\\bar h_v^{(Q)}iv\\!\\cdot\\!Dh_v^{(Q)}\\quad\\Longrightarrow\\quad\\xi(1)=1",
+    "goal": "解释“质量和自旋消失”为什么能约束重到重跃迁的形状因子。",
+    "result": "无限重极限下，基态重介子的六个 $B\\to D^{(*)}$ 形状因子归结为一个 $\\xi(w)$，且 $\\xi(1)=1$。",
+    "steps": [
+      {
+        "title": "先观察拉格朗日量失去了什么",
+        "body": "在固定速度扇区，领头拉格朗日量不含重夸克质量，也不含能分辨其自旋的 Dirac 矩阵：\n\n$$\n\\mathcal L_0=\\bar h_v^{(b)}iv\\cdot Dh_v^{(b)}+\\bar h_v^{(c)}iv\\cdot Dh_v^{(c)}.\n$$\n\n把 $(h_v^{(b)},h_v^{(c)})$ 作常数味旋转，作用量不变；在 $P_+$ 子空间旋转重夸克自旋，作用量也不变。软胶子在这个极限只看见沿 $v$ 运动的色源。味对称性要求相同速度，自旋对称性会被色磁项破坏。"
+      },
+      {
+        "title": "把重夸克自旋与轻云分开",
+        "body": "基态赝标量和矢量介子共享轻自由度角动量 $j_\\ell=1/2$，只是重夸克自旋与它的耦合不同。对流 $\\bar h_{v'}\\Gamma h_v$，重夸克自旋指标由投影算符和 $\\Gamma$ 决定。\n\n轻云的 Dirac 结构可由 $1,\\not v,\\not v',\\not v\\not v'$ 展开。将它夹在相应速度投影与基态介子表示矩阵之间后，$\\not v h_v=h_v$ 等关系把这些结构归并成同一个标量函数 $\\xi(w)$，其中 $w=v\\cdot v'$。这就是讲义 (2.40)–(2.43) 的迹形式推导。"
+      },
+      {
+        "title": "把约束写成可用的形状因子关系",
+        "body": "用速度来定义赝标量到赝标量的矢量流形状因子：\n\n$$\n\\frac{\\langle D(v')|\\bar c\\gamma^\\mu b|\\bar B(v)\\rangle}{\\sqrt{M_BM_D}}\n=h_+(w)(v+v')^\\mu+h_-(w)(v-v')^\\mu.\n$$\n\n将前一步的自旋投影代入，只有 $(v+v')^\\mu$ 结构，故树级重夸克极限给出 $h_+=\\xi$、$h_-=0$。连同 $B\\to D^*$，有\n\n$$\nh_+=h_V=h_{A_1}=h_{A_3}=\\xi(w),\\qquad h_-=h_{A_2}=0.\n$$\n\n非微扰的困难没有完全消失，但原本六个独立函数被统一成一个。"
+      },
+      {
+        "title": "在零反冲点得到绝对归一化",
+        "body": "当 $v'=v$ 时，$w=1$，轻云没有被推动到新的速度态；味旋转只把静态重色源换了名字。等味矢量流的守恒电荷给出归一化，再由味对称性移到重到重跃迁：\n\n$$\n\\langle H(v)|\\bar Q\\gamma^\\mu Q|H(v)\\rangle=2M_Hv^\\mu\\quad\\Longrightarrow\\quad\\xi(1)=1.\n$$\n\n这里是强子**零反冲**，同时是轻子对的最大 $q^2$，不要把两种“反冲”混淆。有限质量与短程匹配会修正物理形状因子；Luke 定理只保护特定的零反冲形状因子免受一阶幂次修正，并非保护所有形状因子。"
+      },
+      {
+        "title": "和页面中的 D 衰变如何联系？",
+        "body": "上面的 $\\xi$ 关系用于两个重夸克之间的跃迁。动画的 $D^0\\to K^-e^+\\nu_e$ 是重到轻过程，末态奇异夸克不能直接当作无限重夸克，因此不能照搬 $\\xi(1)=1$。\n\n若研究 $D\\to X e^+\\nu_e$ 的充分单举量，需要下一块板的 HQE：把末态求和化为前向矩阵元，再按局域算符展开。"
+      }
+    ],
+    "check": "D → K 的零反冲形状因子也必须归一为 1 吗？",
+    "answer": "不必。Isgur–Wise 的归一化依赖初末态重味对称性，不能直接用于重到轻的 D → K。",
+    "note": "解释“质量和自旋消失”为什么能约束重到重跃迁的形状因子。"
+  },
+  {
+    "id": "inclusive-ope",
+    "title": "From a sum of states to HQE",
+    "zh": "从末态求和到 HQE",
+    "hk": "從末態求和到 HQE",
+    "section": "3.1–3.4; 3.6",
+    "pages": "27–38、46",
+    "pdfPages": "32–43、51",
+    "equations": "(3.1)–(3.7), (3.28)–(3.42)",
+    "latex": "\\Gamma(H_Q)=\\Gamma_{\\rm parton}\\left[1+O\\!\\left(\\frac{\\Lambda_{\\rm QCD}^2}{m_Q^2}\\right)+\\cdots\\right]",
+    "goal": "用完备性和光学定理把大量末态组织起来，并说明为什么总宽度没有独立的 1/mQ 非微扰项。",
+    "result": "领头项为自由重夸克衰变；首个非微扰幂次修正是 $1/m_Q^2$，更高阶还含四夸克效应。",
+    "steps": [
+      {
+        "title": "从实验意义明确的末态求和出发",
+        "body": "令 $\\mathcal H_w$ 表示诱导衰变的弱哈密顿量密度，采用相对论态归一化。总宽度是振幅平方乘相空间的求和：\n\n$$\n\\Gamma(H_Q)=\\frac{1}{2M_H}\\sum_X\\int d\\Phi_X\\,(2\\pi)^4\\delta^{(4)}(p_H-p_X)\\,|\\langle X|\\mathcal H_w(0)|H_Q\\rangle|^2.\n$$\n\n对半轻衰变可以固定轻子变量，仅对强子末态求和。这是 $X$ 的意义：动画中的 $K^-$ 只是其中一个独占通道，不能代表整个单举宽度。"
+      },
+      {
+        "title": "用完备性，再用光学定理",
+        "body": "把四维 delta 函数写成 Fourier 积分，将动量相位移到算符上，再使用 $\\sum_X\\int d\\Phi_X|X\\rangle\\langle X|=1$。末态和便成为两个弱算符的前向矩阵元。\n\n定义时间序转移算符（这里显式写出 $i$，固定光学定理约定）：\n\n$$\n\\widehat{\\mathcal T}=i\\int d^4x\\,T\\{\\mathcal H_w^\\dagger(x)\\mathcal H_w(0)\\},\\qquad\n\\Gamma=\\frac{2\\,\\operatorname{Im}\\langle H_Q|\\widehat{\\mathcal T}|H_Q\\rangle}{2M_H}.\n$$\n\n这样不必逐个计算所有末态，而是计算前向振幅的物理割。"
+      },
+      {
+        "title": "显式提出硬尺度，作 OPE",
+        "body": "仍作 $Q=e^{-im_Qv\\cdot x}Q_v$，但注意这一章的 $Q_v$ 是去掉相位的**完整 QCD 场**，尚未等同于 $h_v$。快速相位提供尺度 $m_Q$，短距离时间序乘积可按局域算符的维数排列：\n\n$$\n\\Gamma=\\Gamma_0\\left[c_3\\frac{\\langle\\bar QQ\\rangle_H}{2M_H}+\\frac{c_5}{m_Q^2}\\frac{\\langle O_5\\rangle_H}{2M_H}+\\sum_i\\frac{c_{6,i}}{m_Q^3}\\frac{\\langle O_{6,i}\\rangle_H}{2M_H}+\\cdots\\right].\n$$\n\n这里 $\\Gamma_0\\propto G_F^2m_Q^5$，$c_i$ 包含通道、质量比及短程修正；$O_5$ 代表维五算符，$O_{6,i}$ 包括四夸克算符。Wilson 系数可扰动计算，强子前向矩阵元保存长距离信息。"
+      },
+      {
+        "title": "检查看似可能出现的 1/mQ 项",
+        "body": "令 $\\langle\\cdots\\rangle_H=\\langle H_Q|\\cdots|H_Q\\rangle$。由去相位的完整 QCD 运动方程及前向矩阵元中全导数为零，讲义得到：\n\n$$\n\\langle\\bar Q_v i\\!\\not\\!D Q_v\\rangle_H=-\\langle\\bar Q_v iv\\cdot D Q_v\\rangle_H\n=\\frac{1}{2m_Q}\\langle\\bar Q_v(i\\!\\not\\!D)^2Q_v\\rangle_H.\n$$\n\n因此维四矩阵元本身又多受一个 $1/m_Q$ 压低；在 HQET 基底中同样表现为 $iv\\cdot D\\,h_v=0$ 消除独立维四算符。还必须检查领头标量密度：\n\n$$\n\\langle\\bar Q_vQ_v\\rangle_H=2M_H+\\frac{1}{2m_Q^2}\\langle\\bar Q_v(i\\!\\not\\!D)^2Q_v\\rangle_H.\n$$\n\n它的第一项修正也从 $1/m_Q^2$ 开始。两个检查一起说明，总宽度不存在独立的 $\\Lambda_{\\rm QCD}/m_Q$ 非微扰修正。"
+      },
+      {
+        "title": "读出结论与适用边界",
+        "body": "于是可把结果组织为\n\n$$\n\\Gamma(H_Q)=\\Gamma_{\\rm parton}+\\Gamma_0\\left[a_\\pi\\frac{\\mu_\\pi^2}{m_Q^2}+a_G\\frac{\\mu_G^2}{m_Q^2}+O(\\Lambda_{\\rm QCD}^3/m_Q^3)\\right].\n$$\n\n动能和色磁矩阵元描述首个束缚效应；$a_\\pi,a_G$ 随通道与约定而定。这里的“无 $1/m_Q$”指非微扰幂次项，不是说没有 $\\alpha_s$ 修正。\n\n这条局域展开适用于总宽度或足够平滑、充分单举的量；端点区域可能需要非局域 shape function。对粲衰变还应实际检查级数收敛、四夸克项与夸克—强子对偶的影响，不能只因写出 HQE 就假定精度足够。"
+      }
+    ],
+    "check": "只说“不存在独立维四算符”，是否就完成了无 1/mQ 的证明？",
+    "answer": "还不够。必须同时检查领头维三算符的强子矩阵元展开；它也不能藏有 1/mQ 项。讲义 (3.30)–(3.36) 正是补上这一步。",
+    "note": "用完备性和光学定理把大量末态组织起来，并说明为什么总宽度没有独立的 1/mQ 非微扰项。"
+  },
+  {
+    "id": "matching-running",
+    "title": "Matching & running",
+    "zh": "匹配与重整化群",
+    "hk": "匹配與重整化群",
+    "section": "2.3",
+    "pages": "21–24",
+    "pdfPages": "26–29",
+    "equations": "(2.74)–(2.89)",
+    "latex": "C(\\mu)\\langle J(\\mu)\\rangle=\\mathrm{const.},\\quad C_{\\rm LL}(\\mu)=\\left[\\frac{\\alpha_s(\\mu)}{\\alpha_s(m_b)}\\right]^{6/25}",
+    "goal": "把第二板的树级有效作用量推进到量子层面：硬模式变成 Wilson 系数，大对数通过尺度演化求和。",
+    "result": "匹配确定边界条件，重整化群负责演化。系数 $C(\\mu)$ 与矩阵元 $\\langle J(\\mu)\\rangle$ 分别依赖尺度，其乘积在所算阶数内不依赖 $\\mu$。",
+    "steps": [
+      {
+        "title": "同一低能振幅，用两套理论表示",
+        "body": "从 QCD 的 $b\\to c$ 矢量流出发。在 $m_c<\\mu<m_b$ 的匹配示例中，把 $b$ 改写成静态场 $h_v$，在硬匹配中忽略 $c$ 的质量：\n\n$$\n\\bar c\\gamma^\\mu b=C_1(\\mu)\\,\\bar c\\gamma^\\mu h_v+C_2(\\mu)\\,v^\\mu\\bar c h_v+\\frac{1}{2m_b}\\sum_k B_k(\\mu)O_k^\\mu+\\cdots.\n$$\n\n$C_i$ 编码已积掉的硬动量区，$J_i$ 的矩阵元保留软物理。匹配的含义是：对相同外态、相同红外调节，两边给出相同的低能振幅。树级 $C_1=1,C_2=0$，环修正会改变系数。"
+      },
+      {
+        "title": "相减之后，红外调节量消失",
+        "body": "为看清尺度，暂时只保留一个独立 Dirac 结构，用 $\\lambda$ 表示共同的红外调节尺度。有限常数以 $a_Q,a_E$ 记，避免把不同方案下的常数混用：\n\n$$\n\\begin{aligned}\nA_{\\rm QCD}&=1+\\frac{\\alpha_s}{2\\pi}\\left[\\ln\\frac{m_b^2}{\\lambda^2}+a_Q\\right],\\\\\nA_{\\rm EFT}^{\\rm ren}&=1+\\frac{\\alpha_s}{2\\pi}\\left[\\ln\\frac{\\mu^2}{\\lambda^2}+a_E\\right].\n\\end{aligned}\n$$\n\n由 $A_{\\rm QCD}=C_1A_{\\rm EFT}^{\\rm ren}$，按 $\\alpha_s$ 展开比值得到\n\n$$\nC_1(\\mu)=1+\\frac{\\alpha_s}{2\\pi}\\left[\\ln\\frac{m_b^2}{\\mu^2}+a_Q-a_E\\right]+O(\\alpha_s^2).\n$$\n\n$\\lambda$ 消失，说明 Wilson 系数只记录短程差异。在 $\\mu\\simeq m_b$ 匹配可以避免大的对数；降到低尺度时则需 RG 演化。"
+      },
+      {
+        "title": "从尺度不变性推导 RGE",
+        "body": "沿用讲义的反常维数符号：$\\mu\\,dJ/d\\mu=-\\gamma_J J$。物理流的矩阵元不随人为的重整化尺度改变，因此\n\n$$\n0=\\mu\\frac{d}{d\\mu}\\bigl[C(\\mu)\\langle J(\\mu)\\rangle\\bigr]\n\\quad\\Longrightarrow\\quad\n\\mu\\frac{dC}{d\\mu}=\\gamma_J C.\n$$\n\n再用 $\\mu\\,d\\alpha_s/d\\mu=\\beta(\\alpha_s)$ 消去 $\\ln\\mu$：\n\n$$\nC(\\mu)=C(m_b)\\exp\\left[\\int_{\\alpha_s(m_b)}^{\\alpha_s(\\mu)}\\!da\\,\\frac{\\gamma_J(a)}{\\beta(a)}\\right].\n$$\n\n多算符情形中，$C$ 是向量，反常维数变成混合矩阵；这里先把讲义中的单个系数算清楚。"
+      },
+      {
+        "title": "算出 6/25，并检查零反冲极限",
+        "body": "对上述重轻流，讲义给出 $\\gamma_J=-\\alpha_s/\\pi$。在 $m_c<\\mu<m_b$ 有四个活跃味，$\\beta_0=11-2n_f/3=25/3$：\n\n$$\n\\beta(\\alpha_s)=-\\frac{\\beta_0\\alpha_s^2}{2\\pi},\\qquad\n\\frac{\\gamma_J(a)}{\\beta(a)}=\\frac{2}{\\beta_0a}.\n$$\n\n取树级匹配边界 $C(m_b)=1$，积分即得 $C_{\\rm LL}(\\mu)=[\\alpha_s(\\mu)/\\alpha_s(m_b)]^{6/25}$，求和了领先对数。低于 $m_c$ 后需要再次匹配，此时是重重流：\n\n$$\n\\gamma_{hh}(w)=\\frac{4\\alpha_s}{3\\pi}[wr(w)-1],\\qquad\nr(w)=\\frac{\\ln(w+\\sqrt{w^2-1})}{\\sqrt{w^2-1}}.\n$$\n\n令 $w=\\cosh\\theta$，则 $r=\\theta/\\sinh\\theta\\to1$，所以 $\\gamma_{hh}(1)=0$。这是零反冲重夸克对称性的检验；不意味着全 QCD 的硬匹配系数也等于 1。"
+      }
+    ],
+    "check": "为什么不能把高尺度算出的系数直接乘上任意低尺度的矩阵元？",
+    "answer": "两者必须使用相容的重整化方案和相同尺度。匹配系数与矩阵元的尺度依赖相消；若只演化其中一项，会留下人为尺度依赖和未求和的大对数。",
+    "note": "把第二板的树级有效作用量推进到量子层面：硬模式变成 Wilson 系数，大对数通过尺度演化求和。"
+  },
+  {
+    "id": "hqe-parameters",
+    "title": "The first HQE parameters",
+    "zh": "HQE 的首批非微扰参数",
+    "hk": "HQE 的首批非微擾參數",
+    "section": "3.4",
+    "pages": "38–40",
+    "pdfPages": "43–45",
+    "equations": "(3.49)–(3.58)",
+    "latex": "\\Gamma=\\Gamma_0\\!\\left[c_3+c_\\pi\\frac{\\mu_\\pi^2}{m_Q^2}+c_G\\frac{\\mu_G^2}{m_Q^2}+O(m_Q^{-3})\\right]",
+    "goal": "接着第四板的 OPE：说明未知强子矩阵元为什么先收束为动能和色磁两个参数，再怎样进入宽度。",
+    "result": "对无极化的重介子，首个幂次修正由维五双夸克算符给出，尺度为 $\\Lambda_{\\rm QCD}^2/m_Q^2$。$\\mu_\\pi^2$ 和 $\\mu_G^2$ 是矩阵元，不是任意画出的轨迹参数。",
+    "steps": [
+      {
+        "title": "先统一归一化与场的含义",
+        "body": "采用相对论态归一化，并把前向矩阵元写成 $\\langle O\\rangle_H=\\langle H(p)|O|H(p)\\rangle/(2M_H)$。讲义定义 $Q_v=e^{im_Qv\\cdot x}Q$，保留有限质量依赖；静态极限才替换成 $h_v$。\n\n$$\n\\mu_\\pi^2=-\\langle\\bar Q_v(iD_\\perp)^2Q_v\\rangle_H,\\qquad\n\\mu_G^2=-\\langle\\bar Q_v(iD_{\\perp\\mu})(iD_{\\perp\\nu})\\,i\\sigma^{\\mu\\nu}Q_v\\rangle_H.\n$$\n\n这里采用讲义式 (3.52)、(3.53) 的横向定义。它们与使用完整 $D$ 的带帽参数，在更高阶才出现差别。计算到更高阶时必须连同这些差别一起展开。"
+      },
+      {
+        "title": "在静止系读出动能参数",
+        "body": "静止系 $v=(1,\\mathbf0)$ 中，$D_\\perp$ 只有空间分量。度规为 $(+,-,-,-)$，所以定义中的负号正好把空间平方变成正的动量平方：\n\n$$\n\\mu_\\pi^2=\\langle\\bar h_v\\,\\boldsymbol\\pi^{\\,2}h_v\\rangle_H+O(\\Lambda_{\\rm QCD}^3/m_Q),\\qquad\n\\boldsymbol\\pi=i\\mathbf D.\n$$\n\n对无极化静态态，转动不变性要求对称的二阶张量只正比于 $\\delta_{ij}$。取迹便固定系数：\n\n$$\n\\frac12\\langle\\bar h_v\\{\\pi_i,\\pi_j\\}h_v\\rangle_H\n=\\frac{\\delta_{ij}}{3}\\mu_\\pi^2\\quad\\text{（静态阶）}.\n$$\n\n这把“重夸克在强子内部的运动”变成了一个可进入 OPE 的矩阵元。重整化后的参数依赖尺度和减除方案；直观的动量平方解释不能替代这些定义。"
+      },
+      {
+        "title": "反对称部分为什么探测色磁场",
+        "body": "$\\sigma^{\\mu\\nu}$ 是反对称的，因此对称导数部分不贡献。用本笔记的 $D_\\mu=\\partial_\\mu+ig_sA_\\mu$，有 $[iD_\\mu,iD_\\nu]=-ig_sG_{\\mu\\nu}$：\n\n$$\n(iD_\\mu)(iD_\\nu)i\\sigma^{\\mu\\nu}\n=\\frac12[iD_\\mu,iD_\\nu]i\\sigma^{\\mu\\nu}\n=\\frac{g_s}{2}\\sigma^{\\mu\\nu}G_{\\mu\\nu}.\n$$\n\n夹在静态投影场之间，横向投影去掉与速度平行的部分，剩下重夸克自旋与色磁场的耦合。这与第二板 $O_{\\rm spin}$ 的符号一致。其矩阵元与自旋伙伴的质量劈裂有关，而动能参数不能仅凭这一劈裂确定。"
+      },
+      {
+        "title": "把参数送回宽度，并数清下一阶",
+        "body": "第四板说明没有独立的维四修正。维五算符的矩阵元有质量平方量纲，因此宽度必须组织为\n\n$$\n\\frac{\\Gamma(H_Q\\to X)}{\\Gamma_0}\n=c_3+c_\\pi\\frac{\\mu_\\pi^2}{m_Q^2}+c_G\\frac{\\mu_G^2}{m_Q^2}+O\\!\\left(\\frac{\\Lambda_{\\rm QCD}^3}{m_Q^3}\\right).\n$$\n\n这里的 $c_i$ 吸收所有数值因子和具体通道的短程信息；不能把某一衰变的系数挪到另一衰变。到维六，双夸克部分引入 Darwin 与自旋轨道参数 $\\rho_D^3,\\rho_{LS}^3$，并且还必须考虑四夸克算符。\n\n这些量需要从实验矩、格点计算或明确的模型输入获得。把 HQE 用在 charm 时，$m_c$ 较小，幂次修正的相对重要性必须重新评估；画面中的一个 $D^0\\to K^-e^+\\nu_e$ 排他事例并不等于求和后的包容率。"
+      }
+    ],
+    "check": "把 D 衰变代入 HQE 时，能否只把 b 的质量换成 c 的质量？",
+    "answer": "不能。还要更换弱跃迁、相空间与短程系数，并使用相应强子的矩阵元；有限质量修正和四夸克效应也需重新评估。静态重味对称性提供联系，但不抹去这些差别。",
+    "note": "接着第四板的 OPE：说明未知强子矩阵元为什么先收束为动能和色磁两个参数，再怎样进入宽度。"
+  },
+  {
+    "id": "mass-schemes",
+    "title": "Why the mass scheme matters",
+    "zh": "质量方案为何重要",
+    "hk": "質量方案為何重要",
+    "section": "3.5",
+    "pages": "40–46",
+    "pdfPages": "45–51",
+    "equations": "(3.59), (3.66)–(3.80)",
+    "latex": "m_{\\rm pole}=m_{\\rm SD}(1+a_1a+\\cdots)\\ \\Rightarrow\\ \\Gamma\\propto m_{\\rm SD}^5[1+(r_1+5a_1)a+\\cdots]",
+    "goal": "从宽度中的五次方质量出发，推导更换质量定义时微扰系数必须怎样一起变换。",
+    "result": "物理宽度不依赖质量方案；截断级数的质量参数和系数必须一致转换。极点质量的 $O(\\Lambda_{\\rm QCD})$ 模糊性推动我们采用短程质量。",
+    "steps": [
+      {
+        "title": "先看五次方如何放大输入误差",
+        "body": "四费米弱衰变中 $[G_F]=-2$、$[\\Gamma]=1$。忽略末态质量且只保留一个硬尺度时，量纲分析给出\n\n$$\n\\Gamma_0=K\\,G_F^2|V_{\\rm CKM}|^2m_Q^5,\\qquad\n\\frac{\\delta\\Gamma_0}{\\Gamma_0}=5\\frac{\\delta m_Q}{m_Q}.\n$$\n\n$K$ 是通道有关的无量纲系数。这个微分只说明领先项对输入质量敏感；完整预测还含相空间、微扰项与幂次修正。夸克并非可单独观测的自由末态，因此必须先说明“质量”采用哪种定义。"
+      },
+      {
+        "title": "亲自展开一次方案变换",
+        "body": "把 $a=\\alpha_s/\\pi$，$m_{\\rm SD}$ 表示一种指定的短程质量。设质量关系和原有率展开为\n\n$$\nm_{\\rm pole}=m_{\\rm SD}[1+a_1a+O(a^2)],\\qquad\n\\Gamma=K' m_{\\rm pole}^5[1+r_1a+O(a^2)].\n$$\n\n因为 $(1+a_1a)^5=1+5a_1a+O(a^2)$，代回就得到\n\n$$\n\\Gamma=K'm_{\\rm SD}^5\\bigl[1+(r_1+5a_1)a+O(a^2)\\bigr].\n$$\n\n换质量却保持 $r_1$ 不变，会漏掉同阶项 $5a_1$。若同时依赖 $m_c/m_b$ 等质量比，相空间函数也要一起展开；这个单尺度例子专门展示最基本的代数。"
+      },
+      {
+        "title": "为什么不能把极点质量精确到任意程度",
+        "body": "讲义用红外 renormalon 解释极点质量与短程质量之差的渐近级数。用无量纲示例 $z(\\alpha)=\\sum_{n\\ge0}a_n\\alpha^{n+1}$ 展示 Borel 变换：\n\n$$\nB[z](t)=\\sum_{n\\ge0}\\frac{a_n}{n!}t^n,\\qquad\nz(\\alpha)=\\int_0^\\infty\\!dt\\,e^{-t/\\alpha}B[z](t).\n$$\n\n系数的阶乘增长可对应 Borel 平面正实轴上的奇点，积分路径必须指定处方。对极点质量，这带来 $\\Delta m_{\\rm pole}\\sim\\Lambda_{\\rm QCD}$ 的模糊性。\n\n这不是物理衰变率固有的线性幂次修正。相容方案下，相关的长程模糊性在可观测量中相消；短程质量将低动量敏感性按明确规则减除，使有限阶计算更可控。"
+      },
+      {
+        "title": "以 1S 质量为例，推导一次短程重组",
+        "body": "讲义还讨论 kinetic 与 1S 等方案。下面补写 1S 定义的最低阶量子力学步骤：等质量夸克偶素的约化质量为 $m/2$，库仑势为 $V(r)=-C_F\\alpha_s/r$。于是\n\n$$\nE_1=-\\frac{mC_F^2\\alpha_s^2}{4},\\qquad\nm_{1S}\\equiv\\frac{M_{1S}^{\\rm pert}}2\n=m_{\\rm pole}\\left[1-\\frac{C_F^2\\alpha_s^2}{8}+\\cdots\\right],\\quad C_F=\\frac43.\n$$\n\n定义中是微扰计算的夸克偶素基态质量，并非直接把测得的强子质量除以二。将其用于衰变率时，还需采用讲义讨论的一致阶数计数。\n\n同时，$p_Q=m_Qv+k$ 在 $m_Q\\to m_Q+\\Delta m$ 时要求 $k\\to k-\\Delta m\\,v$。剩余质量项和非微扰参数的定义也要配套转换，不能将不同质量方案下的输入随意拼接。"
+      }
+    ],
+    "check": "更换质量定义之后，两个结果不完全相等，是否说明物理预测依赖方案？",
+    "answer": "先检查是否完整转换了同阶的质量、相空间、系数和矩阵元。相容计算的有限阶结果仍可有更高阶差别，这反映截断误差；只替换质量数值造成的同阶差异则是计算不一致。",
+    "note": "从宽度中的五次方质量出发，推导更换质量定义时微扰系数必须怎样一起变换。"
+  },
+  {
+    "id": "endpoint-shape",
+    "title": "When the local expansion fails",
+    "zh": "端点与形状函数",
+    "hk": "端點與形狀函數",
+    "section": "3.6",
+    "pages": "46–49",
+    "pdfPages": "51–54",
+    "equations": "(3.81)–(3.94)",
+    "latex": "\\frac{\\Lambda_{\\rm QCD}}{m_b-2E}\\sim1\\ \\Rightarrow\\ S(\\omega)=\\frac{\\langle B|\\bar h_v\\delta(\\omega-i n\\!\\cdot\\!D)h_v|B\\rangle}{2M_B}",
+    "goal": "找出局域 OPE 在能谱端点失效的原因，把必须保留的无限串导数组织成形状函数。",
+    "result": "当 $Q^2\\sim m_b\\Lambda_{\\rm QCD}$ 时，$Q\\cdot iD$ 与 $Q^2$ 同阶，不能逐项展开。领先的非微扰信息变成函数，而不再只由有限个矩阵元描述。",
+    "steps": [
+      {
+        "title": "端点引入了比重夸克质量更小的尺度",
+        "body": "讲义先讨论 $B\\to X_u\\ell\\nu$，再用 $B\\to X_s\\gamma$ 展示重求和。对后者取无质量光子 $q$，定义 $Q=m_bv-q$、$y=2E_\\gamma/m_b$，则\n\n$$\nQ^2=m_b^2-2m_bE_\\gamma=m_b^2(1-y).\n$$\n\n远离端点时可按 $\\Lambda_{\\rm QCD}/m_b$ 展开；接近端点后真正控制局域展开的是\n\n$$\n\\frac{\\Lambda_{\\rm QCD}}{m_b(1-y)}=\\frac{\\Lambda_{\\rm QCD}}{m_b-2E_\\gamma}.\n$$\n\n谱中出现 $\\delta(1-y)$ 及其导数，提醒我们这是分布展开。它可以用于足够宽的积分或光滑矩，不能把每一项当作端点处的普通函数值。"
+      },
+      {
+        "title": "检查传播子分母里哪些项同阶",
+        "body": "第四板的背景场传播子在无质量末态夸克的情形含有\n\n$$\n\\frac1{\\not Q+i\\!\\not D}\n=(\\not Q+i\\!\\not D)\\frac1{Q^2+2Q\\cdot iD+(i\\!\\not D)^2}.\n$$\n\n形状函数区满足 $Q^2\\sim m_b\\Lambda_{\\rm QCD}$、$v\\cdot Q\\sim m_b$。因此 $2Q\\cdot iD\\sim m_b\\Lambda_{\\rm QCD}$ 与 $Q^2$ 一样大，只有 $(i\\!\\not D)^2\\sim\\Lambda_{\\rm QCD}^2$ 相对受抑制：\n\n$$\n\\frac1{\\not Q+i\\!\\not D}\\simeq\\not Q\\frac1{Q^2+2Q\\cdot iD}.\n$$\n\n这一步不是把非微扰效应丢掉，而是保留所有阶的领先光锥导数。"
+      },
+      {
+        "title": "用谱分解定义形状函数",
+        "body": "取 $n^2=\\bar n^2=0$、$n\\cdot\\bar n=2$、$v=(n+\\bar n)/2$，沿喷注选取 $n$，则领先阶 $Q\\cdot iD\\simeq(v\\cdot Q)i n\\cdot D$。定义\n\n$$\nS(\\omega)=\\frac1{2M_B}\\langle B|\\bar h_v\\,\\delta(\\omega-i n\\cdot D)h_v|B\\rangle.\n$$\n\n本板采用 $\\omega=+n\\cdot k$，与讲义 $f(\\omega)$ 的自变量符号相反，因而卷积的符号也配套改变。插入算符恒等式 $F(A)=\\int d\\omega\\,\\delta(\\omega-A)F(\\omega)$，得到\n\n$$\n\\frac1{2M_B}\\left\\langle B\\left|\\bar h_v\\frac1{Q^2+2(v\\cdot Q)i n\\cdot D+i0}h_v\\right|B\\right\\rangle\n=\\int d\\omega\\,\\frac{S(\\omega)}{Q^2+2(v\\cdot Q)\\omega+i0}.\n$$\n\n$\\delta$ 中的导数是协变导数；等价的双局域表示含 Wilson 线。这一步把无限个局域矩阵元组织成一个规范不变的非局域对象。"
+      },
+      {
+        "title": "把形状函数展开回局域矩",
+        "body": "在树级静态近似及一致的矩定义下，重夸克数归一化给出零阶矩；零剩余质量约定和运动方程给出一阶矩；静止系各向同性给出二阶矩：\n\n$$\n\\int d\\omega\\,S(\\omega)=1,\\qquad\n\\int d\\omega\\,\\omega S(\\omega)=0,\\qquad\n\\int d\\omega\\,\\omega^2S(\\omega)=\\frac{\\mu_\\pi^2}{3}.\n$$\n\n从 $\\delta(\\omega-A)=\\delta(\\omega)-A\\delta'(\\omega)+A^2\\delta''(\\omega)/2+\\cdots$，立刻恢复\n\n$$\nS(\\omega)=\\delta(\\omega)+\\frac{\\mu_\\pi^2}{6}\\delta''(\\omega)+\\cdots.\n$$\n\n因此形状函数不是与局域 HQE 无关的新模型；其矩与 HQE 参数相连。加入辐射修正后会出现紫外尾，矩需要明确的截止与重整化处方，不能无条件沿用上述无截止树级积分。"
+      },
+      {
+        "title": "画清适用区域，回到研究问题",
+        "body": "对足够包容、远离端点的量，有限个局域矩阵元可以工作。在喷注不变质量 $Q^2\\sim m_b\\Lambda_{\\rm QCD}$ 的区域，需用形状函数及相应短程卷积；若再逼近到少数共振主导的区域，就需要更具体的强子描述。\n\n领先幂次形状函数可联系 $B\\to X_s\\gamma$ 与 $B\\to X_u\\ell\\nu$，但亚领先函数和过程相关项仍须处理。这里推导的是包容 $B$ 衰变的经典例子，不能直接作为画面中排他 $D^0\\to K^-e^+\\nu_e$ 的谱模型。对于 charm 端点研究，首先要检查剩余能量、分辨率和尺度分离是否足够。"
+      }
+    ],
+    "check": "总宽度的 OPE 可用，为什么端点每个能量点的预测仍可能不可用？",
+    "answer": "积分能平滑掉分布的奇异项，但端点逐点测量引入很小的能量分辨尺度。此时无限多阶导数同样重要，有限阶局域展开失效；需重求和成形状函数，或在共振区域使用更具体的强子描述。",
+    "note": "找出局域 OPE 在能谱端点失效的原因，把必须保留的无限串导数组织成形状函数。"
+  }
+]

@@ -17,13 +17,15 @@ const weeklyAuthorization = `Basic ${Buffer.from(weeklyCredentials, 'utf8').toSt
 const invalidWeeklyAuthorization = `Basic ${Buffer.from('invalid:credentials', 'utf8').toString('base64')}`;
 const expectedPublicData = new Map();
 
-await Promise.all(filenames.map(async (filename) => {
-  const value = JSON.parse(await readFile(path.join(fixtureDir, filename), 'utf8'));
-  if (filename === 'library.json') value.papers[0].personal_notes = canary;
-  const projected = projectReadingPublicFile(filename, value, 'private');
-  expectedPublicData.set(filename, projected);
-  await writeFile(path.join(dataDir, filename), JSON.stringify(value), { mode: 0o600 });
-}));
+await Promise.all(
+  filenames.map(async (filename) => {
+    const value = JSON.parse(await readFile(path.join(fixtureDir, filename), 'utf8'));
+    if (filename === 'library.json') value.papers[0].personal_notes = canary;
+    const projected = projectReadingPublicFile(filename, value, 'private');
+    expectedPublicData.set(filename, projected);
+    await writeFile(path.join(dataDir, filename), JSON.stringify(value), { mode: 0o600 });
+  })
+);
 
 const child = spawn(process.execPath, ['scripts/serve-reading.mjs'], {
   cwd: process.cwd(),
@@ -73,31 +75,76 @@ function assert(condition, message) {
 }
 
 function assertSecurityHeaders(response, pathname, cacheControl) {
-  assert(response.headers.get('cache-control') === cacheControl, `${pathname} has the wrong cache policy.`);
+  assert(
+    response.headers.get('cache-control') === cacheControl,
+    `${pathname} has the wrong cache policy.`
+  );
   assert(!response.headers.has('x-robots-tag'), `${pathname} unexpectedly opts out of indexing.`);
-  assert(!response.headers.has('www-authenticate'), `${pathname} unexpectedly challenges for credentials.`);
-  assert(response.headers.get('referrer-policy') === 'no-referrer', `${pathname} lacks no-referrer.`);
-  assert(response.headers.get('x-content-type-options') === 'nosniff', `${pathname} lacks nosniff.`);
+  assert(
+    !response.headers.has('www-authenticate'),
+    `${pathname} unexpectedly challenges for credentials.`
+  );
+  assert(
+    response.headers.get('referrer-policy') === 'no-referrer',
+    `${pathname} lacks no-referrer.`
+  );
+  assert(
+    response.headers.get('x-content-type-options') === 'nosniff',
+    `${pathname} lacks nosniff.`
+  );
   assert(response.headers.get('x-frame-options') === 'DENY', `${pathname} lacks frame denial.`);
   assert(
     response.headers.get('content-security-policy')?.includes("default-src 'self'"),
     `${pathname} lacks the same-origin CSP.`
   );
-  assert(!response.headers.has('access-control-allow-origin'), `${pathname} unexpectedly enables CORS.`);
+  assert(
+    !response.headers.has('access-control-allow-origin'),
+    `${pathname} unexpectedly enables CORS.`
+  );
 }
 
 function assertPrivateHeaders(response, pathname, challenge = false) {
-  assert(response.headers.get('cache-control') === 'private, no-store', `${pathname} lacks private no-store.`);
-  assert(response.headers.get('cdn-cache-control') === 'no-store', `${pathname} lacks CDN no-store.`);
-  assert(response.headers.get('vary') === 'Authorization', `${pathname} does not vary on Authorization.`);
-  assert(response.headers.get('cross-origin-resource-policy') === 'same-origin', `${pathname} lacks same-origin resource policy.`);
-  assert(response.headers.get('x-robots-tag') === 'noindex, nofollow, noarchive', `${pathname} lacks robot exclusion.`);
-  assert(response.headers.get('referrer-policy') === 'no-referrer', `${pathname} lacks no-referrer.`);
-  assert(response.headers.get('x-content-type-options') === 'nosniff', `${pathname} lacks nosniff.`);
+  assert(
+    response.headers.get('cache-control') === 'private, no-store',
+    `${pathname} lacks private no-store.`
+  );
+  assert(
+    response.headers.get('cdn-cache-control') === 'no-store',
+    `${pathname} lacks CDN no-store.`
+  );
+  assert(
+    response.headers.get('vary') === 'Authorization',
+    `${pathname} does not vary on Authorization.`
+  );
+  assert(
+    response.headers.get('cross-origin-resource-policy') === 'same-origin',
+    `${pathname} lacks same-origin resource policy.`
+  );
+  assert(
+    response.headers.get('x-robots-tag') === 'noindex, nofollow, noarchive',
+    `${pathname} lacks robot exclusion.`
+  );
+  assert(
+    response.headers.get('referrer-policy') === 'no-referrer',
+    `${pathname} lacks no-referrer.`
+  );
+  assert(
+    response.headers.get('x-content-type-options') === 'nosniff',
+    `${pathname} lacks nosniff.`
+  );
   assert(response.headers.get('x-frame-options') === 'DENY', `${pathname} lacks frame denial.`);
-  assert(response.headers.get('content-security-policy')?.includes("default-src 'self'"), `${pathname} lacks CSP.`);
-  assert(!response.headers.has('access-control-allow-origin'), `${pathname} unexpectedly enables CORS.`);
-  assert(response.headers.has('www-authenticate') === challenge, `${pathname} has the wrong challenge state.`);
+  assert(
+    response.headers.get('content-security-policy')?.includes("default-src 'self'"),
+    `${pathname} lacks CSP.`
+  );
+  assert(
+    !response.headers.has('access-control-allow-origin'),
+    `${pathname} unexpectedly enables CORS.`
+  );
+  assert(
+    response.headers.has('www-authenticate') === challenge,
+    `${pathname} has the wrong challenge state.`
+  );
 }
 
 async function request(pathname, { method = 'GET', headers = {} } = {}) {
@@ -110,7 +157,10 @@ try {
   for (const method of ['GET', 'HEAD']) {
     const redirect = await request('/reading', { method });
     assert(redirect.status === 308, `${method} /reading returned ${redirect.status}.`);
-    assert(redirect.headers.get('location') === '/reading/', `${method} /reading has the wrong target.`);
+    assert(
+      redirect.headers.get('location') === '/reading/',
+      `${method} /reading has the wrong target.`
+    );
     assert((await redirect.text()) === '', `${method} /reading returned a body.`);
     assertSecurityHeaders(redirect, `${method} /reading`, pageCache);
   }
@@ -119,7 +169,10 @@ try {
     for (const method of ['GET', 'HEAD']) {
       const response = await request(pathname, { method });
       const body = await response.text();
-      assert(response.status === 200, `Anonymous ${method} ${pathname} returned ${response.status}.`);
+      assert(
+        response.status === 200,
+        `Anonymous ${method} ${pathname} returned ${response.status}.`
+      );
       if (method === 'HEAD') assert(body === '', `HEAD ${pathname} returned a body.`);
       assertSecurityHeaders(response, `${method} ${pathname}`, pageCache);
     }
@@ -130,14 +183,16 @@ try {
     for (const method of ['GET', 'HEAD']) {
       const response = await request(pathname, { method });
       const body = await response.text();
-      assert(response.status === 200, `Anonymous ${method} ${pathname} returned ${response.status}.`);
+      assert(
+        response.status === 200,
+        `Anonymous ${method} ${pathname} returned ${response.status}.`
+      );
       if (method === 'GET') {
         assert(
           JSON.stringify(JSON.parse(body)) === JSON.stringify(expectedPublicData.get(filename)),
           `${pathname} did not return its strict public DTO.`
         );
-      }
-      else assert(body === '', `HEAD ${pathname} returned a body.`);
+      } else assert(body === '', `HEAD ${pathname} returned a body.`);
       assertSecurityHeaders(response, `${method} ${pathname}`, dataCache);
     }
   }
@@ -145,8 +200,14 @@ try {
   const legacyHeaderResponse = await request('/reading/data/library.json', {
     headers: { Authorization: 'Basic obsolete-credential' },
   });
-  assert(legacyHeaderResponse.status === 200, 'An obsolete Authorization header changed public access.');
-  assert((await legacyHeaderResponse.text()).includes(canary), 'Public data was hidden by an obsolete auth header.');
+  assert(
+    legacyHeaderResponse.status === 200,
+    'An obsolete Authorization header changed public access.'
+  );
+  assert(
+    (await legacyHeaderResponse.text()).includes(canary),
+    'Public data was hidden by an obsolete auth header.'
+  );
   assertSecurityHeaders(legacyHeaderResponse, 'legacy Authorization request', dataCache);
 
   for (const pathname of [
@@ -165,40 +226,75 @@ try {
   for (const method of ['GET', 'HEAD']) {
     const response = await request('/reading/weekly', { method });
     assert(response.status === 308, `${method} /reading/weekly returned ${response.status}.`);
-    assert(response.headers.get('location') === '/reading/weekly/', 'Weekly redirect has the wrong target.');
+    assert(
+      response.headers.get('location') === '/reading/weekly/',
+      'Weekly redirect has the wrong target.'
+    );
     assert((await response.text()) === '', 'Weekly redirect returned a body.');
-    assertPrivateHeaders(response, `${method} /reading/weekly`);
+    assertSecurityHeaders(response, `${method} /reading/weekly`, pageCache);
   }
 
   for (const pathname of [
     '/reading/weekly/',
     '/reading/weekly/index.html',
     '/reading/weekly/index.txt',
+    '/reading/weekly/?demo=1',
+  ]) {
+    for (const method of ['GET', 'HEAD']) {
+      for (const authorization of [null, invalidWeeklyAuthorization, weeklyAuthorization]) {
+        const response = await request(pathname, {
+          method,
+          headers: authorization ? { Authorization: authorization } : {},
+        });
+        const body = await response.text();
+        assert(
+          response.status === 200,
+          `Public ${method} ${pathname} returned ${response.status}.`
+        );
+        assert(
+          !body.includes('Synthetic current topic'),
+          `${pathname} embedded private weekly data.`
+        );
+        if (method === 'HEAD') assert(body === '', `HEAD ${pathname} returned a body.`);
+        assertSecurityHeaders(response, `${method} ${pathname}`, pageCache);
+      }
+    }
+  }
+
+  for (const pathname of [
+    '/reading/weekly/data',
     '/reading/weekly/data/topics.json',
+    '/reading/weekly/data/unknown.json',
+    '/reading/weekly/data/topics.json?demo=1',
   ]) {
     for (const method of ['GET', 'HEAD']) {
       const response = await request(pathname, { method });
-      assert(response.status === 401, `Anonymous ${method} ${pathname} returned ${response.status}.`);
-      assert((await response.text()).includes('Synthetic current topic') === false, `${pathname} leaked weekly data.`);
+      assert(
+        response.status === 401,
+        `Anonymous ${method} ${pathname} returned ${response.status}.`
+      );
+      assert(
+        (await response.text()).includes('Synthetic current topic') === false,
+        `${pathname} leaked weekly data.`
+      );
       assertPrivateHeaders(response, `${method} ${pathname}`, true);
     }
-    const invalid = await request(pathname, { headers: { Authorization: invalidWeeklyAuthorization } });
+    const invalid = await request(pathname, {
+      headers: { Authorization: invalidWeeklyAuthorization },
+    });
     assert(invalid.status === 401, `Invalid credentials reached ${pathname}.`);
     assertPrivateHeaders(invalid, `invalid ${pathname}`, true);
   }
-
-  const authorizedWeeklyPage = await request('/reading/weekly/', {
-    headers: { Authorization: weeklyAuthorization },
-  });
-  assert(authorizedWeeklyPage.status === 200, 'Authorized weekly page did not load.');
-  assertPrivateHeaders(authorizedWeeklyPage, 'authorized weekly page');
 
   const authorizedWeeklyData = await request('/reading/weekly/data/topics.json', {
     headers: { Authorization: weeklyAuthorization },
   });
   const authorizedWeeklyBody = await authorizedWeeklyData.text();
   assert(authorizedWeeklyData.status === 200, 'Authorized weekly data did not load.');
-  assert(authorizedWeeklyBody.includes('Synthetic current topic'), 'Authorized weekly data is missing its fixture.');
+  assert(
+    authorizedWeeklyBody.includes('Synthetic current topic'),
+    'Authorized weekly data is missing its fixture.'
+  );
   assertPrivateHeaders(authorizedWeeklyData, 'authorized weekly data');
 
   for (const pathname of [
@@ -206,19 +302,54 @@ try {
     '/reading/weekly/data/thesis_reference_lookup.json',
   ]) {
     const response = await request(pathname, { headers: { Authorization: weeklyAuthorization } });
-    assert(response.status === 404, `Authorized disallowed weekly path ${pathname} returned ${response.status}.`);
+    assert(
+      response.status === 404,
+      `Authorized disallowed weekly path ${pathname} returned ${response.status}.`
+    );
     assertPrivateHeaders(response, pathname);
   }
 
   const afterWeeklyPrime = await request('/reading/weekly/data/topics.json');
-  assert(afterWeeklyPrime.status === 401, 'Weekly cache-prime regression returned private data anonymously.');
-  assert((await afterWeeklyPrime.text()).includes('Synthetic current topic') === false, 'Weekly cache prime leaked data.');
+  assert(
+    afterWeeklyPrime.status === 401,
+    'Weekly cache-prime regression returned private data anonymously.'
+  );
+  assert(
+    (await afterWeeklyPrime.text()).includes('Synthetic current topic') === false,
+    'Weekly cache prime leaked data.'
+  );
   assertPrivateHeaders(afterWeeklyPrime, 'weekly cache prime', true);
 
-  for (const pathname of ['/reading', '/reading/', '/reading/data/library.json']) {
+  for (const pathname of [
+    '/reading/weekly.html',
+    '/reading/weekly.txt',
+    '/reading/%77eekly',
+    '/reading/weekly%2Fdata%2Ftopics.json',
+    '/reading//weekly/',
+  ]) {
+    const response = await request(pathname);
+    assert(
+      response.status === 404,
+      `Invalid weekly alias ${pathname} returned ${response.status}.`
+    );
+    assertSecurityHeaders(response, pathname, 'no-store');
+  }
+
+  for (const pathname of [
+    '/reading',
+    '/reading/',
+    '/reading/data/library.json',
+    '/reading/weekly',
+    '/reading/weekly/',
+    '/reading/weekly/index.html',
+    '/reading/weekly/index.txt',
+  ]) {
     const response = await request(pathname, { method: 'POST' });
     assert(response.status === 405, `POST ${pathname} returned ${response.status}.`);
-    assert(response.headers.get('allow') === 'GET, HEAD', `POST ${pathname} has the wrong Allow header.`);
+    assert(
+      response.headers.get('allow') === 'GET, HEAD',
+      `POST ${pathname} has the wrong Allow header.`
+    );
     assertSecurityHeaders(response, `POST ${pathname}`, 'no-store');
   }
 
@@ -226,7 +357,9 @@ try {
   assert(repeat.status === 200, `Repeated anonymous public read returned ${repeat.status}.`);
   assert((await repeat.text()).includes(canary), 'Repeated anonymous read lost the public data.');
 
-  process.stdout.write('Reading local security checks passed (public GET/HEAD, headers, allowlist, methods, repeat reads).\n');
+  process.stdout.write(
+    'Reading local security checks passed (public pages GET/HEAD, private weekly data, headers, allowlist, methods, repeat reads).\n'
+  );
 } finally {
   if (child.exitCode === null && child.signalCode === null) {
     const exited = new Promise((resolve) => child.once('exit', resolve));

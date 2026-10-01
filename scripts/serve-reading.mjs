@@ -10,7 +10,9 @@ const projectRoot = process.cwd();
 const outputRoot = path.resolve(projectRoot, process.env.READING_SITE_OUTPUT_DIR || 'out');
 const configuredDataDir = process.env.READING_DATA_DIR;
 const configuredWeeklyDataDir = process.env.READING_WEEKLY_DATA_DIR;
-const weeklyCredentialHash = (process.env.READING_WEEKLY_BASIC_AUTH_SHA256 || '').trim().toLowerCase();
+const weeklyCredentialHash = (process.env.READING_WEEKLY_BASIC_AUTH_SHA256 || '')
+  .trim()
+  .toLowerCase();
 const host = process.env.READING_HOST || '127.0.0.1';
 const port = Number.parseInt(process.env.READING_PORT || '4173', 10);
 const dataFiles = new Set(['library.json', 'relations.json', 'threads.json', 'view_config.json']);
@@ -35,30 +37,43 @@ if (!Number.isInteger(port) || port < 0 || port > 65535) {
 
 const dataRoot = path.resolve(configuredDataDir);
 await access(path.join(outputRoot, 'reading', 'index.html'));
-const sourceFiles = Object.fromEntries(await Promise.all(Array.from(dataFiles, async (filename) => [
-  filename,
-  JSON.parse(await readFile(path.join(dataRoot, filename), 'utf8')),
-])));
+const sourceFiles = Object.fromEntries(
+  await Promise.all(
+    Array.from(dataFiles, async (filename) => [
+      filename,
+      JSON.parse(await readFile(path.join(dataRoot, filename), 'utf8')),
+    ])
+  )
+);
 const sourceVisibility = sourceFiles['library.json']?.visibility;
 if (
-  (sourceVisibility !== 'private' && sourceVisibility !== 'public')
-  || Object.values(sourceFiles).some((source) => source?.visibility !== sourceVisibility)
+  (sourceVisibility !== 'private' && sourceVisibility !== 'public') ||
+  Object.values(sourceFiles).some((source) => source?.visibility !== sourceVisibility)
 ) {
   throw new Error('Reading source visibility is invalid or inconsistent.');
 }
 const publicBundle = projectReadingPublicBundle(sourceFiles, sourceVisibility);
-const publicData = new Map(Object.entries(publicBundle).map(([filename, value]) => [
-  filename,
-  Buffer.from(JSON.stringify(value)),
-]));
+const publicData = new Map(
+  Object.entries(publicBundle).map(([filename, value]) => [
+    filename,
+    Buffer.from(JSON.stringify(value)),
+  ])
+);
 const weeklyData = weeklyEnabled
-  ? Buffer.from(JSON.stringify(validateWeeklyTopics(JSON.parse(
-      await readFile(path.join(path.resolve(configuredWeeklyDataDir), 'topics.json'), 'utf8')
-    ))))
+  ? Buffer.from(
+      JSON.stringify(
+        validateWeeklyTopics(
+          JSON.parse(
+            await readFile(path.join(path.resolve(configuredWeeklyDataDir), 'topics.json'), 'utf8')
+          )
+        )
+      )
+    )
   : null;
 
 const securityHeaders = {
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; child-src 'self' blob:; media-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+  'Content-Security-Policy':
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; child-src 'self' blob:; media-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
   'Referrer-Policy': 'no-referrer',
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
@@ -69,7 +84,7 @@ const weeklyHeaders = {
   'Cache-Control': 'private, no-store',
   'CDN-Cache-Control': 'no-store',
   'Cross-Origin-Resource-Policy': 'same-origin',
-  'Vary': 'Authorization',
+  Vary: 'Authorization',
   'X-Robots-Tag': 'noindex, nofollow, noarchive',
 };
 
@@ -147,8 +162,8 @@ const server = createServer(async (request, response) => {
 
   const readingRequest = isReadingPath(pathname);
   if (pathname.includes('%')) {
-    const encodedNextStaticPath = pathname.startsWith('/_next/static/')
-      && !/%(?!5b|5d)/i.test(pathname);
+    const encodedNextStaticPath =
+      pathname.startsWith('/_next/static/') && !/%(?!5b|5d)/i.test(pathname);
     if (!encodedNextStaticPath || readingRequest) {
       send(
         request,
@@ -191,12 +206,21 @@ const server = createServer(async (request, response) => {
         request,
         response,
         405,
-        { ...weeklyHeaders, Allow: 'GET, HEAD', 'Content-Type': 'text/plain; charset=utf-8' },
+        readingHeaders(ERROR_CACHE_CONTROL, {
+          Allow: 'GET, HEAD',
+          'Content-Type': 'text/plain; charset=utf-8',
+        }),
         'Method not allowed.'
       );
       return;
     }
-    send(request, response, 308, { ...weeklyHeaders, Location: '/reading/weekly/' }, null);
+    send(
+      request,
+      response,
+      308,
+      readingHeaders(PAGE_CACHE_CONTROL, { Location: '/reading/weekly/' }),
+      null
+    );
     return;
   }
 
@@ -205,13 +229,13 @@ const server = createServer(async (request, response) => {
       request,
       response,
       404,
-      { ...weeklyHeaders, 'Content-Type': 'text/plain; charset=utf-8' },
+      readingHeaders(ERROR_CACHE_CONTROL, { 'Content-Type': 'text/plain; charset=utf-8' }),
       'Not found.'
     );
     return;
   }
 
-  if (pathname.startsWith('/reading/weekly/')) {
+  if (pathname === '/reading/weekly/data' || pathname.startsWith('/reading/weekly/data/')) {
     if (!weeklyEnabled) {
       send(
         request,
@@ -270,30 +294,23 @@ const server = createServer(async (request, response) => {
       return;
     }
 
-    const weeklyFile = resolvePublicFile(pathname);
-    if (!weeklyFile) {
-      send(
-        request,
-        response,
-        404,
-        { ...weeklyHeaders, 'Content-Type': 'text/plain; charset=utf-8' },
-        'Not found.'
-      );
-      return;
-    }
-    response.writeHead(200, {
-      ...weeklyHeaders,
-      'Content-Type': mimeTypes.get(path.extname(weeklyFile).toLowerCase()) || 'application/octet-stream',
-    });
-    if (request.method === 'HEAD') response.end();
-    else createReadStream(weeklyFile).pipe(response);
+    send(
+      request,
+      response,
+      404,
+      { ...weeklyHeaders, 'Content-Type': 'text/plain; charset=utf-8' },
+      'Not found.'
+    );
     return;
   }
 
   if (request.method !== 'GET' && request.method !== 'HEAD') {
     request.resume();
     const headers = readingRequest
-      ? readingHeaders(ERROR_CACHE_CONTROL, { Allow: 'GET, HEAD', 'Content-Type': 'text/plain; charset=utf-8' })
+      ? readingHeaders(ERROR_CACHE_CONTROL, {
+          Allow: 'GET, HEAD',
+          'Content-Type': 'text/plain; charset=utf-8',
+        })
       : { Allow: 'GET, HEAD', 'Cache-Control': ERROR_CACHE_CONTROL };
     send(request, response, 405, headers, 'Method not allowed.');
     return;

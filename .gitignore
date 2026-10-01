@@ -14,3 +14,6 @@ private_seed/
 reading_v1_handoff/
 public/reading/data/
 *.tsbuildinfo
+
+# Local browser QA artifacts (DEMO only).
+.artifacts/

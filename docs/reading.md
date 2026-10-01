@@ -6,7 +6,7 @@ Reading 的 Library、Map、Threads 以及页面使用的四份 JSON 是公开�
 
 以下内容仍保持私有：原始交接目录、原始 seed、校验报告、来源文献和 `thesis_reference_lookup.json`。公开授权只覆盖 Reading 页面实际展示的结构化数据，不代表可以发布这些上游材料。
 
-`/reading/weekly/` 是独立的私有“课题宇宙”。页面 HTML 和 `topics.json` 位于同一个 Basic Auth 边界内，使用专用 secret `READING_WEEKLY_BASIC_AUTH_SHA256`。Next.js 的共享静态 chunk 仍是公开的，因此其中只允许包含通用 UI、三语标签和数据契约，不能包含真实课题内容。weekly 不复用历史 Reading 凭据，也不改变 Library、Map、Threads 的匿名公开属性。真实 canonical 必须留在仓库外，不得进入 Git、`public/`、`out/` 或搜索索引。
+`/reading/weekly/` 是公开的“课题宇宙”，匿名直接加载 10 个合成 toy model，无需查询参数或账号密码。HTML 与静态索引使用公开页面规则；旧 `/reading/weekly/data/*` 接口仍使用专用 secret `READING_WEEKLY_BASIC_AUTH_SHA256` 保护 R2 私人数据。公开客户端不请求该接口，也不提供私人远程来源。真实 canonical 必须留在仓库外，不得进入 Git、`public/`、`out/` 或搜索索引。本地导入与进度只保存于当前浏览器。
 
 ## 架构
 
@@ -16,7 +16,7 @@ Reading 的 Library、Map、Threads 以及页面使用的四份 JSON 是公开�
 - `functions/reading/_security.ts`：公开缓存策略、CSP、frame、nosniff 和同源响应头。
 - `functions/reading/_middleware.ts`：限制为 `GET/HEAD`，将 `/reading` 规范化为 `/reading/`，并保护下游响应头。
 - `functions/reading/data/[filename].ts`：从 R2 binding `READING_DATA` 读取版本化 JSON；binding 或 prefix 异常时返回 503。
-- `src/app/reading/weekly/`、`src/components/reading/WeeklyUniverse.tsx`：私有课题宇宙页面和三语交互，不内嵌课题内容。
+- `src/app/reading/weekly/`、`src/components/reading/WeeklyUniverse.tsx`：公开 toy model 页面和三语交互，不内嵌真实课题内容。
 - `functions/reading/weekly/_auth.ts`：weekly 专用认证及 `private, no-store` 安全响应头。
 - `functions/reading/weekly/data/[filename].ts`：只允许读取 `READING_WEEKLY_DATA_PREFIX/topics.json`，解析、严格校验后重新序列化。
 - `public/_routes.json`：让 `/reading` 与 `/reading/*` 经过 Pages Functions。
@@ -34,10 +34,9 @@ Reading 的 Library、Map、Threads 以及页面使用的四份 JSON 是公开�
 /reading/data/view_config.json
 ```
 
-公开 handler 使用固定 allowlist，其他文件名一律 404。`thesis_reference_lookup.json` 和 `export.json` 不得上传或开放。weekly 只有以下受认证端点：
+公开 handler 使用固定 allowlist，其他文件名一律 404。`thesis_reference_lookup.json` 和 `export.json` 不得上传或开放。weekly 页面无需认证，旧数据接口继续受认证保护：
 
 ```text
-/reading/weekly/
 /reading/weekly/data/topics.json
 ```
 
@@ -53,7 +52,7 @@ Pages Function 不会原样透传 R2 对象。它会解析 JSON，按同一套�
 - `threads.json` 根级仅有 `schema_version`、`visibility`、`threads`；thread 不包含 `question_status`。
 - `view_config.json` 根级仅有 `schema_version`、`visibility`、`default_view`、`graph`；公开 graph 不包含 `initial_node_limit` 或 `hypothesis_layer_default`，根级也不包含 weekly、export 或网页编辑 feature flags。
 
-公开 Reading 页面响应使用 `public, max-age=0, must-revalidate`，公开数据允许短期公共缓存，错误响应使用 `no-store`。weekly 的成功、失败与认证 challenge 均使用 `private, no-store`、`CDN-Cache-Control: no-store`、`Vary: Authorization`、`X-Robots-Tag: noindex, nofollow, noarchive`、same-origin resource policy、CSP、no-referrer、nosniff 与 frame denial。
+公开 Reading 页面响应使用 `public, max-age=0, must-revalidate`，公开数据允许短期公共缓存，错误响应使用 `no-store`。weekly 私人数据接口的成功、失败与认证 challenge 均使用 `private, no-store`、`CDN-Cache-Control: no-store`、`Vary: Authorization`、`X-Robots-Tag: noindex, nofollow, noarchive`、same-origin resource policy、CSP、no-referrer、nosniff 与 frame denial。
 
 ## 本地运行
 
@@ -113,7 +112,7 @@ npm run serve:reading
 
 1. 在仓库外编辑 `topics.json`，权限保持 `0600`；三种 locale、核心词长度、四步计划、当前课题唯一性和文献引用都必须通过 validator 与 Function contract。
 2. Preview 只上传 synthetic fixture 到新的 `weekly/releases/<preview-release-id>`，设置 Preview 专用 prefix 和测试 secret。
-3. 验证匿名、错误凭据、正确凭据、`GET/HEAD`、别名路径、缓存预热后匿名仍为 401，以及公开 `/reading/` 不被认证影响。
+3. 对旧数据接口验证匿名、错误凭据、正确凭据、`GET/HEAD`、别名路径和缓存预热后匿名仍为 401；同时确认公开 `/reading/`、`/reading/weekly/` 及其静态索引不出现认证 challenge。
 4. 只有 Preview 的服务器认证全部通过，才允许把真实 `topics.json` 上传到 Production 的新不可变 prefix。不得覆盖现有对象，也不得先把真实数据上传到 Preview。
 5. 对真实文件运行 `READING_WEEKLY_PRIVATE_DATA_FILE=... npm run check:reading:leaks`；扫描器检查当前工作树、`out/`、搜索/RSC/JS 文件及全部可达 Git 文本历史，并且不会打印私有值。
 
@@ -154,13 +153,13 @@ node scripts/test-reading-weekly-deployment.mjs https://kkshao.org.cn
 
 - 匿名 `GET/HEAD /reading` 返回无正文 308，并跳到同源 `/reading/`。
 - 匿名 `GET/HEAD /reading/` 和四个 JSON 均成功，不出现认证 challenge。
-- `/reading/data/export.json` 与 lookup 404；weekly 页面、静态别名和 `topics.json` 在匿名或错误凭据下均为 401。
-- 正确 weekly 凭据可以读取页面和严格校验后的 `topics.json`；weekly secret 缺失、binding 或 prefix 无效时 fail closed。
+- `/reading/data/export.json` 与 lookup 404；weekly 页面、index.html 和 index.txt 在匿名或错误凭据下仍可访问且不出现 challenge；旧 `topics.json` 私人接口仍返回 401。
+- 正确 weekly 凭据可以读取严格校验后的私人 `topics.json`；weekly secret 缺失、binding 或 prefix 无效时数据接口 fail closed，公开页面不受影响。
 - Preview 凭据不能访问 Production，Production 凭据也不能访问 Preview。
 - Reading 的非 `GET/HEAD` 请求返回 405，R2 binding/prefix 不可用时数据端点返回 503。
 - 成功响应可公开缓存且没有 `X-Robots-Tag: noindex`；CSP、same-origin、nosniff 和 frame protections 保持有效。
 - 四份 JSON 逐层只包含公开 DTO 白名单字段；`view_config.json` 不包含 weekly、export、网页编辑开关或两个私有 graph 字段。
-- 公共 HTML、RSC、`search-index.json`、`/_next/static/**` 和 source map 不包含上游私有材料或 lookup 内容。
+- 公共 HTML、RSC、`search-index.json`、`/_next/static/**` 和 source map 不包含上游私有材料或 lookup 内容；10 个合成 toy model 是公开内容。
 - 首页、Publications、Theory Notes 与 Reading 导航均可匿名使用。
 
 ## 回滚

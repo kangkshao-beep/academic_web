@@ -1,9 +1,9 @@
 'use client';
-/* eslint-disable @next/next/no-html-link-for-pages -- Weekly authentication requires a full document navigation. */
 
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { useCallback, useEffect, useState, type KeyboardEvent } from 'react';
-import { AlertTriangle, BookOpen, LoaderCircle, LockKeyhole, Network, RefreshCw, Route } from 'lucide-react';
+import { AlertTriangle, BookOpen, LoaderCircle, Network, Orbit, RefreshCw, Route } from 'lucide-react';
 import { getReadingMessages } from '@/lib/reading/messages';
 import { loadReadingBundle, ReadingLoadError, type ReadingLoadFailure } from '@/lib/reading/load';
 import type { ReadingBundle, ReadingTab } from '@/lib/reading/types';
@@ -151,14 +151,14 @@ export default function ReadingApp() {
               </button>
             ))}
           </div>
-          <a
+          <Link
             href="/reading/weekly/"
             aria-label={messages.app.weeklyAria}
             className="inline-flex min-h-11 w-full shrink-0 items-center gap-2 border-t border-neutral-200 px-4 py-3 text-sm font-medium text-neutral-500 outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset dark:border-[rgba(148,163,184,0.30)] sm:w-auto sm:border-t-0 sm:border-b-2 sm:border-transparent sm:hover:border-neutral-300"
           >
-            <LockKeyhole className="h-4 w-4" aria-hidden="true" />
+            <Orbit className="h-4 w-4" aria-hidden="true" />
             {messages.app.weekly}
-          </a>
+          </Link>
         </div>
       </nav>
 

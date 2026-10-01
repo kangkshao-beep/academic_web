@@ -28,7 +28,12 @@ async function importTypeScript(relativeUrl, importMap = {}) {
 function assertPrivateHeaders(response, { challenge = false } = {}) {
   assert.equal(response.headers.get('cache-control'), 'private, no-store');
   assert.equal(response.headers.get('cdn-cache-control'), 'no-store');
-  assert((response.headers.get('vary') || '').split(',').map((value) => value.trim().toLowerCase()).includes('authorization'));
+  assert(
+    (response.headers.get('vary') || '')
+      .split(',')
+      .map((value) => value.trim().toLowerCase())
+      .includes('authorization')
+  );
   assert.equal(response.headers.get('x-robots-tag'), 'noindex, nofollow, noarchive');
   assert.equal(response.headers.get('cross-origin-resource-policy'), 'same-origin');
   assert.equal(response.headers.get('referrer-policy'), 'no-referrer');
@@ -40,6 +45,17 @@ function assertPrivateHeaders(response, { challenge = false } = {}) {
   if (challenge) assert.match(response.headers.get('www-authenticate') || '', /^Basic\b/);
 }
 
+function assertPublicHeaders(response, cacheControl = 'public, max-age=0, must-revalidate') {
+  assert.equal(response.headers.get('cache-control'), cacheControl);
+  assert.equal(response.headers.has('www-authenticate'), false);
+  assert.equal(response.headers.has('x-robots-tag'), false);
+  assert.equal(response.headers.has('access-control-allow-origin'), false);
+  assert.equal(response.headers.get('referrer-policy'), 'no-referrer');
+  assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
+  assert.equal(response.headers.get('x-frame-options'), 'DENY');
+  assert.match(response.headers.get('content-security-policy') || '', /default-src 'self'/);
+}
+
 const credentials = 'weekly-test:test-only-password';
 const credentialHash = createHash('sha256').update(credentials, 'utf8').digest('hex');
 const authorization = `Basic ${Buffer.from(credentials, 'utf8').toString('base64')}`;
@@ -47,7 +63,10 @@ const invalidAuthorization = `Basic ${Buffer.from('wrong:credentials', 'utf8').t
 const defaultEnv = { READING_WEEKLY_BASIC_AUTH_SHA256: credentialHash };
 const securityModule = await transpileTypeScript('../functions/reading/_security.ts');
 const authModule = await transpileTypeScript('../functions/reading/weekly/_auth.ts');
-const contractSource = await readFile(new URL('../functions/reading/weekly/_contract.mjs', import.meta.url), 'utf8');
+const contractSource = await readFile(
+  new URL('../functions/reading/weekly/_contract.mjs', import.meta.url),
+  'utf8'
+);
 const contractModule = `data:text/javascript;base64,${Buffer.from(contractSource, 'utf8').toString('base64')}`;
 
 const [{ onRequest: readingMiddleware }, { onRequest: weeklyData }] = await Promise.all([
@@ -61,23 +80,27 @@ const [{ onRequest: readingMiddleware }, { onRequest: weeklyData }] = await Prom
   }),
 ]);
 
-const request = (pathname, method = 'GET', auth = null) => new Request(`https://example.test${pathname}`, {
-  method,
-  headers: auth ? { Authorization: auth } : {},
-});
+const request = (pathname, method = 'GET', auth = null) =>
+  new Request(`https://example.test${pathname}`, {
+    method,
+    headers: auth ? { Authorization: auth } : {},
+  });
 
 for (const method of ['GET', 'HEAD']) {
   let nextCalls = 0;
   const response = await readingMiddleware({
     request: request('/reading/weekly', method),
     env: defaultEnv,
-    next: async () => { nextCalls += 1; return new Response('must not run'); },
+    next: async () => {
+      nextCalls += 1;
+      return new Response('must not run');
+    },
   });
   assert.equal(response.status, 308);
   assert.equal(response.headers.get('location'), '/reading/weekly/');
   assert.equal(await response.text(), '');
   assert.equal(nextCalls, 0);
-  assertPrivateHeaders(response);
+  assertPublicHeaders(response);
 }
 
 const exactWrite = await readingMiddleware({
@@ -86,7 +109,7 @@ const exactWrite = await readingMiddleware({
   next: async () => new Response('must not run'),
 });
 assert.equal(exactWrite.status, 405);
-assertPrivateHeaders(exactWrite);
+assertPublicHeaders(exactWrite, 'no-store');
 
 for (const pathname of [
   '/reading/%77eekly',
@@ -100,7 +123,10 @@ for (const pathname of [
   const response = await readingMiddleware({
     request: request(pathname),
     env: defaultEnv,
-    next: async () => { nextCalls += 1; return new Response('must not run'); },
+    next: async () => {
+      nextCalls += 1;
+      return new Response('must not run');
+    },
   });
   assert.equal(response.status, 404, `${pathname} did not fail before downstream.`);
   assert.equal(nextCalls, 0, `${pathname} reached downstream.`);
@@ -112,26 +138,69 @@ for (const pathname of ['/reading/weekly.html', '/reading/weekly.txt']) {
   const response = await readingMiddleware({
     request: request(pathname),
     env: defaultEnv,
-    next: async () => { nextCalls += 1; return new Response('must not run'); },
+    next: async () => {
+      nextCalls += 1;
+      return new Response('must not run');
+    },
   });
   assert.equal(response.status, 404);
   assert.equal(nextCalls, 0);
-  assertPrivateHeaders(response);
+  assertPublicHeaders(response, 'no-store');
 }
 
 for (const pathname of [
   '/reading/weekly/',
   '/reading/weekly/index.html',
   '/reading/weekly/index.txt',
+  '/reading/weekly/?demo=1',
+]) {
+  for (const method of ['GET', 'HEAD']) {
+    for (const auth of [null, invalidAuthorization, authorization]) {
+      for (const env of [defaultEnv, {}]) {
+        let nextCalls = 0;
+        const response = await readingMiddleware({
+          request: request(pathname, method, auth),
+          env,
+          next: async () => {
+            nextCalls += 1;
+            return new Response(method === 'HEAD' ? null : 'public teaching shell', {
+              headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Cache-Control': 'private, no-store',
+                'WWW-Authenticate': 'Basic realm="obsolete"',
+                'X-Robots-Tag': 'noindex',
+              },
+            });
+          },
+        });
+        assert.equal(
+          response.status,
+          200,
+          `${pathname} must remain public without weekly auth configuration.`
+        );
+        assert.equal(await response.text(), method === 'HEAD' ? '' : 'public teaching shell');
+        assert.equal(nextCalls, 1);
+        assertPublicHeaders(response);
+      }
+    }
+  }
+}
+
+for (const pathname of [
+  '/reading/weekly/data',
   '/reading/weekly/data/topics.json',
   '/reading/weekly/data/unknown.json',
+  '/reading/weekly/data/topics.json?demo=1',
 ]) {
   for (const auth of [null, invalidAuthorization]) {
     let nextCalls = 0;
     const response = await readingMiddleware({
       request: request(pathname, 'GET', auth),
       env: defaultEnv,
-      next: async () => { nextCalls += 1; return new Response('must not run'); },
+      next: async () => {
+        nextCalls += 1;
+        return new Response('must not run');
+      },
     });
     assert.equal(response.status, 401, `${pathname} accepted absent or invalid credentials.`);
     assert.equal(nextCalls, 0, `${pathname} reached downstream without authorization.`);
@@ -140,51 +209,92 @@ for (const pathname of [
 }
 
 let authorizedNextCalls = 0;
-const authorizedPage = await readingMiddleware({
-  request: request('/reading/weekly/', 'GET', authorization),
+const authorizedData = await readingMiddleware({
+  request: request('/reading/weekly/data/topics.json', 'GET', authorization),
   env: defaultEnv,
   next: async () => {
     authorizedNextCalls += 1;
-    return new Response('generic weekly shell', {
+    return new Response('private weekly data', {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Cache-Control': 'public, max-age=3600',
-        'Vary': 'Accept-Encoding',
+        Vary: 'Accept-Encoding',
         'X-Robots-Tag': 'index',
       },
     });
   },
 });
-assert.equal(authorizedPage.status, 200);
-assert.equal(await authorizedPage.text(), 'generic weekly shell');
+assert.equal(authorizedData.status, 200);
+assert.equal(await authorizedData.text(), 'private weekly data');
 assert.equal(authorizedNextCalls, 1);
-assertPrivateHeaders(authorizedPage);
-assert((authorizedPage.headers.get('vary') || '').toLowerCase().includes('accept-encoding'));
+assertPrivateHeaders(authorizedData);
+assert((authorizedData.headers.get('vary') || '').toLowerCase().includes('accept-encoding'));
 
 const missingSecret = await readingMiddleware({
-  request: request('/reading/weekly/'),
+  request: request('/reading/weekly/data/topics.json'),
   env: {},
   next: async () => new Response('must not run'),
 });
 assert.equal(missingSecret.status, 503);
 assertPrivateHeaders(missingSecret);
 
-const authorizedWrite = await readingMiddleware({
-  request: request('/reading/weekly/', 'POST', authorization),
+const privateWrite = await readingMiddleware({
+  request: request('/reading/weekly/data/topics.json', 'POST', authorization),
   env: defaultEnv,
-  next: async () => new Response('must not run'),
+  next: async () => {
+    assert.fail('Rejected data write reached downstream.');
+  },
 });
-assert.equal(authorizedWrite.status, 405);
-assert.equal(authorizedWrite.headers.get('allow'), 'GET, HEAD');
-assertPrivateHeaders(authorizedWrite);
+assert.equal(privateWrite.status, 405);
+assert.equal(privateWrite.headers.get('allow'), 'GET, HEAD');
+assertPrivateHeaders(privateWrite);
+
+const missingPublicPage = await readingMiddleware({
+  request: request('/reading/weekly/missing'),
+  env: {},
+  next: async () => new Response('Not found.', { status: 404 }),
+});
+assert.equal(missingPublicPage.status, 404);
+assertPublicHeaders(missingPublicPage, 'no-store');
+
+for (const pathname of [
+  '/reading/weekly/',
+  '/reading/weekly/index.html',
+  '/reading/weekly/index.txt',
+]) {
+  for (const auth of [null, authorization]) {
+    const rejectedWrite = await readingMiddleware({
+      request: request(pathname, 'POST', auth),
+      env: defaultEnv,
+      next: async () => {
+        assert.fail('Rejected page write reached downstream.');
+      },
+    });
+    assert.equal(rejectedWrite.status, 405);
+    assert.equal(rejectedWrite.headers.get('allow'), 'GET, HEAD');
+    assertPublicHeaders(rejectedWrite, 'no-store');
+  }
+}
 
 const downstreamFailure = await readingMiddleware({
   request: request('/reading/weekly/', 'GET', authorization),
   env: defaultEnv,
-  next: async () => { throw new Error('synthetic downstream failure'); },
+  next: async () => {
+    throw new Error('synthetic downstream failure');
+  },
 });
 assert.equal(downstreamFailure.status, 503);
-assertPrivateHeaders(downstreamFailure);
+assertPublicHeaders(downstreamFailure, 'no-store');
+
+const privateDownstreamFailure = await readingMiddleware({
+  request: request('/reading/weekly/data/topics.json', 'GET', authorization),
+  env: defaultEnv,
+  next: async () => {
+    throw new Error('synthetic downstream failure');
+  },
+});
+assert.equal(privateDownstreamFailure.status, 503);
+assertPrivateHeaders(privateDownstreamFailure);
 
 const fixture = JSON.parse(
   await readFile(new URL('../tests/fixtures/reading-weekly/topics.json', import.meta.url), 'utf8')
@@ -235,10 +345,17 @@ assert.equal(bucketReads, 0, 'Rejected weekly write reached R2.');
 assert.equal((await weeklyData(dataContext('GET', 'unknown.json'))).status, 404);
 assert.equal((await weeklyData(dataContext('GET', ['topics.json']))).status, 404);
 assert.equal(bucketReads, 0, 'Unknown weekly filename reached R2.');
-assert.equal((await weeklyData(dataContext('GET', 'topics.json', authorization, {
-  ...dataEnv,
-  READING_WEEKLY_DATA_PREFIX: '../escape',
-}))).status, 503);
+assert.equal(
+  (
+    await weeklyData(
+      dataContext('GET', 'topics.json', authorization, {
+        ...dataEnv,
+        READING_WEEKLY_DATA_PREFIX: '../escape',
+      })
+    )
+  ).status,
+  503
+);
 assert.equal(bucketReads, 0, 'Invalid weekly prefix reached R2.');
 
 const get = await weeklyData(dataContext('GET', 'topics.json'));
@@ -255,18 +372,33 @@ assertPrivateHeaders(head);
 
 const malformed = structuredClone(fixture);
 malformed.topics[0].private_extension = 'SYNTHETIC_WEEKLY_PRIVATE_CANARY_83c12d';
-const malformedResponse = await weeklyData(dataContext('GET', 'topics.json', authorization, {
-  ...dataEnv,
-  READING_DATA: { async get() { return createObject(JSON.stringify(malformed)); } },
-}));
+const malformedResponse = await weeklyData(
+  dataContext('GET', 'topics.json', authorization, {
+    ...dataEnv,
+    READING_DATA: {
+      async get() {
+        return createObject(JSON.stringify(malformed));
+      },
+    },
+  })
+);
 assert.equal(malformedResponse.status, 503);
-assert.equal((await malformedResponse.text()).includes('SYNTHETIC_WEEKLY_PRIVATE_CANARY_83c12d'), false);
+assert.equal(
+  (await malformedResponse.text()).includes('SYNTHETIC_WEEKLY_PRIVATE_CANARY_83c12d'),
+  false
+);
 assertPrivateHeaders(malformedResponse);
 
-const oversizedResponse = await weeklyData(dataContext('GET', 'topics.json', authorization, {
-  ...dataEnv,
-  READING_DATA: { async get() { return createObject(new Uint8Array(2 * 1024 * 1024 + 1)); } },
-}));
+const oversizedResponse = await weeklyData(
+  dataContext('GET', 'topics.json', authorization, {
+    ...dataEnv,
+    READING_DATA: {
+      async get() {
+        return createObject(new Uint8Array(2 * 1024 * 1024 + 1));
+      },
+    },
+  })
+);
 assert.equal(oversizedResponse.status, 503);
 assertPrivateHeaders(oversizedResponse);
 
@@ -275,4 +407,6 @@ assert.equal(afterPrime.status, 401);
 assert.equal((await afterPrime.text()).includes('SYNTHETIC_WEEKLY_PRIVATE_CANARY_83c12d'), false);
 assertPrivateHeaders(afterPrime, { challenge: true });
 
-process.stdout.write('Weekly Pages Function checks passed (routing, auth, aliases, R2 allowlist, validation, size limit, and cache-prime denial).\n');
+process.stdout.write(
+  'Weekly Pages Function checks passed (public pages, private data auth, aliases, R2 allowlist, validation, size limit, and cache-prime denial).\n'
+);

@@ -207,6 +207,10 @@ git push
 
 当前仓库通过 **Cloudflare Pages** 部署。只要推送到 `main`，Cloudflare 就会自动重新构建并更新 `https://kkshao.org.cn`。
 
+## 每周话题三维课题宇宙
+
+`/reading/weekly/` 无需登录，默认展示 10 个 toy model，支持三维课题词云、HQET 知识板、BESIII-inspired 探测器示意、本地进度保存及 JSON 导入导出。旧私人数据接口仍受保护，公开页面不请求该接口。启动、备份和维护方法见[课题宇宙维护说明](docs/research-universe.md)。
+
 ## 📂 项目结构概览
 
 ```

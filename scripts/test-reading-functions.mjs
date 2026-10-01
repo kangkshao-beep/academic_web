@@ -42,7 +42,10 @@ function routeMatches(pattern, pathname) {
 async function assertReadingRoutes(filename, label) {
   const routes = JSON.parse(await readFile(filename, 'utf8'));
   assert(routes.version === 1, `${label} must use Cloudflare routes schema version 1.`);
-  assert(Array.isArray(routes.include) && Array.isArray(routes.exclude), `${label} has malformed route lists.`);
+  assert(
+    Array.isArray(routes.include) && Array.isArray(routes.exclude),
+    `${label} has malformed route lists.`
+  );
   for (const pathname of [
     '/reading',
     '/reading/',
@@ -66,17 +69,38 @@ async function assertReadingRoutes(filename, label) {
 }
 
 function assertSecurityHeaders(response, cacheControl) {
-  assert(response.headers.get('cache-control') === cacheControl, 'Unexpected Reading cache policy.');
-  assert(response.headers.get('referrer-policy') === 'no-referrer', 'Reading response lacks no-referrer.');
-  assert(response.headers.get('x-content-type-options') === 'nosniff', 'Reading response lacks nosniff.');
-  assert(response.headers.get('x-frame-options') === 'DENY', 'Reading response lacks frame denial.');
+  assert(
+    response.headers.get('cache-control') === cacheControl,
+    'Unexpected Reading cache policy.'
+  );
+  assert(
+    response.headers.get('referrer-policy') === 'no-referrer',
+    'Reading response lacks no-referrer.'
+  );
+  assert(
+    response.headers.get('x-content-type-options') === 'nosniff',
+    'Reading response lacks nosniff.'
+  );
+  assert(
+    response.headers.get('x-frame-options') === 'DENY',
+    'Reading response lacks frame denial.'
+  );
   assert(
     response.headers.get('content-security-policy')?.includes("default-src 'self'"),
     'Reading response lacks the same-origin CSP.'
   );
-  assert(!response.headers.has('access-control-allow-origin'), 'Reading response exposes permissive CORS.');
-  assert(!response.headers.has('www-authenticate'), 'Public Reading response must not issue an auth challenge.');
-  assert(!response.headers.has('x-robots-tag'), 'Public Reading response must not opt out of indexing.');
+  assert(
+    !response.headers.has('access-control-allow-origin'),
+    'Reading response exposes permissive CORS.'
+  );
+  assert(
+    !response.headers.has('www-authenticate'),
+    'Public Reading response must not issue an auth challenge.'
+  );
+  assert(
+    !response.headers.has('x-robots-tag'),
+    'Public Reading response must not opt out of indexing.'
+  );
 }
 
 const PAGE_CACHE = 'public, max-age=0, must-revalidate';
@@ -84,7 +108,10 @@ const DATA_CACHE = 'public, max-age=60, s-maxage=300, stale-while-revalidate=60'
 const ERROR_CACHE = 'no-store';
 const securityModule = await transpileTypeScript('../functions/reading/_security.ts');
 const weeklyAuthModule = await transpileTypeScript('../functions/reading/weekly/_auth.ts');
-const publicDataSource = await readFile(new URL('../functions/reading/_public-data.mjs', import.meta.url), 'utf8');
+const publicDataSource = await readFile(
+  new URL('../functions/reading/_public-data.mjs', import.meta.url),
+  'utf8'
+);
 const publicDataModule = `data:text/javascript;base64,${Buffer.from(publicDataSource, 'utf8').toString('base64')}`;
 const [{ onRequest: secureReading }, { onRequest: readData }] = await Promise.all([
   importTypeScript('../functions/reading/_middleware.ts', {
@@ -97,7 +124,10 @@ const [{ onRequest: secureReading }, { onRequest: readData }] = await Promise.al
   }),
 ]);
 
-await assertReadingRoutes(new URL('../public/_routes.json', import.meta.url), 'public/_routes.json');
+await assertReadingRoutes(
+  new URL('../public/_routes.json', import.meta.url),
+  'public/_routes.json'
+);
 const builtRoutes = new URL('../out/_routes.json', import.meta.url);
 const builtOutput = new URL('../out/', import.meta.url);
 if (existsSync(builtOutput)) {
@@ -118,7 +148,10 @@ for (const method of ['GET', 'HEAD']) {
     },
   });
   assert(redirect.status === 308, `${method} /reading must redirect.`);
-  assert(redirect.headers.get('location') === '/reading/', 'Exact /reading redirect has the wrong target.');
+  assert(
+    redirect.headers.get('location') === '/reading/',
+    'Exact /reading redirect has the wrong target.'
+  );
   assert((await redirect.text()) === '', `${method} /reading redirect must not contain a body.`);
   assert(nextCalls === 0, `${method} /reading redirect must not call the downstream handler.`);
   assertSecurityHeaders(redirect, PAGE_CACHE);
@@ -139,7 +172,7 @@ for (const pathname of [
       return new Response('must not run');
     },
   });
-  assert(denied.status === 404, `${pathname} must remain unavailable until separately authenticated.`);
+  assert(denied.status === 404, `${pathname} is not a supported public route.`);
   assert(nextCalls === 0, `${pathname} reached the downstream handler.`);
   assertSecurityHeaders(denied, ERROR_CACHE);
 }
@@ -153,35 +186,55 @@ const rejectedWrite = await secureReading({
   },
 });
 assert(rejectedWrite.status === 405, 'Reading middleware must reject writes.');
-assert(rejectedWrite.headers.get('allow') === 'GET, HEAD', 'Reading write rejection has the wrong Allow header.');
+assert(
+  rejectedWrite.headers.get('allow') === 'GET, HEAD',
+  'Reading write rejection has the wrong Allow header.'
+);
 assert(writeNextCalls === 0, 'Rejected Reading write reached the downstream handler.');
 assertSecurityHeaders(rejectedWrite, ERROR_CACHE);
 
-const publicPage = await secureReading({
-  request: request('/reading/', 'GET', { Authorization: 'Basic obsolete-credential' }),
-  next: async () => new Response('public shell', {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Cache-Control': 'private, no-store',
-      'WWW-Authenticate': 'Basic realm="obsolete"',
-      'X-Robots-Tag': 'noindex',
-    },
-  }),
-});
-assert(publicPage.status === 200, 'Anonymous Reading page did not pass through middleware.');
-assert((await publicPage.text()) === 'public shell', 'Public downstream response was not preserved.');
-assertSecurityHeaders(publicPage, PAGE_CACHE);
+for (const pathname of [
+  '/reading/',
+  '/reading/weekly/',
+  '/reading/weekly/index.html',
+  '/reading/weekly/index.txt',
+]) {
+  const publicPage = await secureReading({
+    request: request(pathname, 'GET', { Authorization: 'Basic obsolete-credential' }),
+    next: async () =>
+      new Response('public shell', {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'private, no-store',
+          'WWW-Authenticate': 'Basic realm="obsolete"',
+          'X-Robots-Tag': 'noindex',
+        },
+      }),
+  });
+  assert(
+    publicPage.status === 200,
+    `${pathname} did not pass through public middleware without auth configuration.`
+  );
+  assert(
+    (await publicPage.text()) === 'public shell',
+    'Public downstream response was not preserved.'
+  );
+  assertSecurityHeaders(publicPage, PAGE_CACHE);
+}
 
 const missingPage = await secureReading({
   request: request('/reading/missing'),
-  next: async () => new Response('missing', { status: 404, headers: { 'Cache-Control': 'public' } }),
+  next: async () =>
+    new Response('missing', { status: 404, headers: { 'Cache-Control': 'public' } }),
 });
 assert(missingPage.status === 404, 'Downstream Reading 404 was not preserved.');
 assertSecurityHeaders(missingPage, ERROR_CACHE);
 
 const downstreamFailure = await secureReading({
   request: request(),
-  next: async () => { throw new Error('synthetic downstream failure'); },
+  next: async () => {
+    throw new Error('synthetic downstream failure');
+  },
 });
 assert(downstreamFailure.status === 503, 'Downstream failures must fail closed.');
 assertSecurityHeaders(downstreamFailure, ERROR_CACHE);
@@ -209,12 +262,18 @@ const bucket = {
 };
 const defaultEnv = { READING_DATA: bucket, READING_DATA_PREFIX: 'releases/test-release' };
 const dataContext = (method, filename, env = defaultEnv, headers = {}) => ({
-  request: new Request(`https://example.test/reading/data/${String(filename)}`, { method, headers }),
+  request: new Request(`https://example.test/reading/data/${String(filename)}`, {
+    method,
+    headers,
+  }),
   env,
   params: { filename },
 });
 
-assert((await readData(dataContext('POST', 'library.json'))).status === 405, 'Data route must reject writes.');
+assert(
+  (await readData(dataContext('POST', 'library.json'))).status === 405,
+  'Data route must reject writes.'
+);
 assert(bucketReads === 0, 'Rejected data write reached R2.');
 for (const filename of ['export.json', 'thesis_reference_lookup.json', 'other.json']) {
   const denied = await readData(dataContext('GET', filename));
@@ -222,10 +281,20 @@ for (const filename of ['export.json', 'thesis_reference_lookup.json', 'other.js
   assertSecurityHeaders(denied, ERROR_CACHE);
 }
 assert(bucketReads === 0, 'Unlisted data path reached R2.');
-assert((await readData(dataContext('GET', ['library.json']))).status === 404, 'Array filename must be rejected.');
-assert((await readData(dataContext('GET', 'library.json', {}))).status === 503, 'Missing R2 config must fail closed.');
 assert(
-  (await readData(dataContext('GET', 'library.json', { READING_DATA: bucket, READING_DATA_PREFIX: '../escape' }))).status === 503,
+  (await readData(dataContext('GET', ['library.json']))).status === 404,
+  'Array filename must be rejected.'
+);
+assert(
+  (await readData(dataContext('GET', 'library.json', {}))).status === 503,
+  'Missing R2 config must fail closed.'
+);
+assert(
+  (
+    await readData(
+      dataContext('GET', 'library.json', { READING_DATA: bucket, READING_DATA_PREFIX: '../escape' })
+    )
+  ).status === 503,
   'Invalid R2 prefix must fail closed.'
 );
 assert(bucketReads === 0, 'Invalid R2 config reached the bucket.');
@@ -233,17 +302,34 @@ assert(bucketReads === 0, 'Invalid R2 config reached the bucket.');
 const dataGet = await readData(dataContext('GET', 'library.json'));
 const dataBody = await dataGet.text();
 assert(dataGet.status === 200, 'Anonymous R2 GET failed.');
-assert(JSON.stringify(JSON.parse(dataBody)) === JSON.stringify(publicLibrary), 'R2 GET did not return the strict public DTO.');
-for (const forbidden of ['source_document', 'generated_on', 'curation_notice', '"visibility":"private"']) {
+assert(
+  JSON.stringify(JSON.parse(dataBody)) === JSON.stringify(publicLibrary),
+  'R2 GET did not return the strict public DTO.'
+);
+for (const forbidden of [
+  'source_document',
+  'generated_on',
+  'curation_notice',
+  '"visibility":"private"',
+]) {
   assert(!dataBody.includes(forbidden), `R2 GET leaked forbidden library content: ${forbidden}.`);
 }
 assertSecurityHeaders(dataGet, DATA_CACHE);
-assert((dataGet.headers.get('content-type') || '').includes('application/json'), 'R2 response lacks JSON content type.');
+assert(
+  (dataGet.headers.get('content-type') || '').includes('application/json'),
+  'R2 response lacks JSON content type.'
+);
 
 const dataHead = await readData(dataContext('HEAD', 'library.json'));
-assert(dataHead.status === 200 && (await dataHead.text()) === '', 'Anonymous R2 HEAD must succeed without a body.');
+assert(
+  dataHead.status === 200 && (await dataHead.text()) === '',
+  'Anonymous R2 HEAD must succeed without a body.'
+);
 assertSecurityHeaders(dataHead, DATA_CACHE);
-assert((await readData(dataContext('GET', 'threads.json'))).status === 404, 'Missing R2 object must return 404.');
+assert(
+  (await readData(dataContext('GET', 'threads.json'))).status === 404,
+  'Missing R2 object must return 404.'
+);
 
 function envWithObject(value) {
   return {
@@ -267,29 +353,50 @@ async function assertRejectedObject(method, value, label, canary = 'private-cana
 const privateObject = structuredClone(fixtureLibrary);
 privateObject.source_document.body_scope.private_canary = 'private-canary';
 await assertRejectedObject('GET', privateObject, 'A private R2 object must fail closed.');
-await assertRejectedObject('HEAD', privateObject, 'HEAD must validate and reject a private R2 object.');
+await assertRejectedObject(
+  'HEAD',
+  privateObject,
+  'HEAD must validate and reject a private R2 object.'
+);
 
 const unknownFieldObject = structuredClone(publicLibrary);
 unknownFieldObject.papers[0].verification.private_canary = 'private-canary';
-await assertRejectedObject('GET', unknownFieldObject, 'A public object with unknown nested fields must fail closed.');
+await assertRejectedObject(
+  'GET',
+  unknownFieldObject,
+  'A public object with unknown nested fields must fail closed.'
+);
 
 const wrongTypeObject = structuredClone(publicLibrary);
 wrongTypeObject.papers[0].title = { nested: { private_canary: 'private-canary' } };
-await assertRejectedObject('GET', wrongTypeObject, 'A public object with the wrong allowed-field type must fail closed.');
+await assertRejectedObject(
+  'GET',
+  wrongTypeObject,
+  'A public object with the wrong allowed-field type must fail closed.'
+);
 
 const userinfoObject = structuredClone(publicLibrary);
-userinfoObject.papers[0].verification.sources[0].url = 'https://private-canary:secret@example.com/source';
-await assertRejectedObject('GET', userinfoObject, 'A public object containing URL userinfo must fail closed.');
+userinfoObject.papers[0].verification.sources[0].url =
+  'https://private-canary:secret@example.com/source';
+await assertRejectedObject(
+  'GET',
+  userinfoObject,
+  'A public object containing URL userinfo must fail closed.'
+);
 
 await assertRejectedObject('GET', '{malformed-json', 'Malformed R2 JSON must fail closed.');
 
 const failingBucket = {
-  async get() { throw new Error('synthetic R2 failure'); },
+  async get() {
+    throw new Error('synthetic R2 failure');
+  },
 };
-const failedData = await readData(dataContext('GET', 'library.json', {
-  READING_DATA: failingBucket,
-  READING_DATA_PREFIX: 'releases/test-release',
-}));
+const failedData = await readData(
+  dataContext('GET', 'library.json', {
+    READING_DATA: failingBucket,
+    READING_DATA_PREFIX: 'releases/test-release',
+  })
+);
 assert(failedData.status === 503, 'R2 failures must fail closed.');
 assertSecurityHeaders(failedData, ERROR_CACHE);
 
@@ -299,7 +406,12 @@ const composedData = await secureReading({
   next: () => readData(composedContext),
 });
 assert(composedData.status === 200, 'Reading middleware did not pass the public data response.');
-assert(JSON.stringify(JSON.parse(await composedData.text())) === JSON.stringify(publicLibrary), 'Composed data response lost its body.');
+assert(
+  JSON.stringify(JSON.parse(await composedData.text())) === JSON.stringify(publicLibrary),
+  'Composed data response lost its body.'
+);
 assertSecurityHeaders(composedData, DATA_CACHE);
 
-process.stdout.write('Reading Cloudflare Function checks passed (public routing, security headers, allowlist, fail-closed R2, GET/HEAD).\n');
+process.stdout.write(
+  'Reading Cloudflare Function checks passed (public routing, security headers, allowlist, fail-closed R2, GET/HEAD).\n'
+);

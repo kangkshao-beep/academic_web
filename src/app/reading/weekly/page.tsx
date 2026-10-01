@@ -3,7 +3,8 @@ import WeeklyUniverse from '@/components/reading/WeeklyUniverse';
 
 export const metadata: Metadata = {
   title: 'Weekly Topics | Reading',
-  description: 'Protected weekly research topic workspace.',
+  description:
+    'Explore ten toy model research topics, physics lectures, and an interactive detector.',
   robots: {
     index: false,
     follow: false,

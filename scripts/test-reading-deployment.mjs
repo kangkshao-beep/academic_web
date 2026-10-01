@@ -1,9 +1,4 @@
-const DATA_FILES = [
-  'library.json',
-  'relations.json',
-  'threads.json',
-  'view_config.json',
-];
+const DATA_FILES = ['library.json', 'relations.json', 'threads.json', 'view_config.json'];
 const DISALLOWED_PATHS = [
   '/reading/data/export.json',
   '/reading/data/thesis_reference_lookup.json',
@@ -11,10 +6,12 @@ const DISALLOWED_PATHS = [
   '/reading/%77eekly',
   '/reading/weekly%2Fdata%2Ftopics.json',
 ];
-const WEEKLY_PROTECTED_PATHS = [
+const WEEKLY_PUBLIC_PATHS = [
   '/reading/weekly/',
   '/reading/weekly/index.html',
   '/reading/weekly/index.txt',
+];
+const WEEKLY_PROTECTED_PATHS = [
   '/reading/weekly/data/topics.json',
   '/reading/weekly/data/unknown.json',
 ];
@@ -31,29 +28,71 @@ const ROOT_KEYS = {
   'view_config.json': ['schema_version', 'visibility', 'default_view', 'graph'],
 };
 const PAPER_KEYS = [
-  'id', 'title', 'authors', 'authors_complete', 'collaboration', 'year', 'preprint_year',
-  'journal', 'arxiv', 'doi', 'inspire', 'entry_type', 'role', 'topics', 'processes',
-  'priority', 'priority_basis', 'reading_status', 'curation_status', 'origin',
-  'bibliography_ref', 'raw_thesis_citation', 'why_it_matters', 'research_connection',
-  'annotation_author', 'source_in_thesis', 'verification', 'personal_notes', 'idea_hooks',
+  'id',
+  'title',
+  'authors',
+  'authors_complete',
+  'collaboration',
+  'year',
+  'preprint_year',
+  'journal',
+  'arxiv',
+  'doi',
+  'inspire',
+  'entry_type',
+  'role',
+  'topics',
+  'processes',
+  'priority',
+  'priority_basis',
+  'reading_status',
+  'curation_status',
+  'origin',
+  'bibliography_ref',
+  'raw_thesis_citation',
+  'why_it_matters',
+  'research_connection',
+  'annotation_author',
+  'source_in_thesis',
+  'verification',
+  'personal_notes',
+  'idea_hooks',
 ];
 const LOCATOR_KEYS = ['chapter', 'section', 'printed_pages', 'pdf_pages', 'purpose'];
 const VERIFICATION_KEYS = ['identity_status', 'checked_on', 'content_basis', 'sources', 'notes'];
 const VERIFICATION_SOURCE_KEYS = ['kind', 'url', 'locator'];
 const EDGE_KEYS = [
-  'id', 'source', 'target', 'relation', 'layer', 'directed', 'note', 'evidence',
-  'confidence', 'status',
+  'id',
+  'source',
+  'target',
+  'relation',
+  'layer',
+  'directed',
+  'note',
+  'evidence',
+  'confidence',
+  'status',
 ];
 const PRIMARY_EVIDENCE_KEYS = ['kind', 'url', 'locator', 'checked_on'];
 const THESIS_EVIDENCE_KEYS = ['kind', 'chapter', 'section', 'printed_pages', 'pdf_pages'];
 const THREAD_KEYS = [
-  'id', 'title', 'annotation_author', 'status', 'summary', 'thesis_chapters', 'stages',
+  'id',
+  'title',
+  'annotation_author',
+  'status',
+  'summary',
+  'thesis_chapters',
+  'stages',
   'reading_question',
 ];
 const STAGE_KEYS = ['label', 'papers', 'narrative'];
 const GRAPH_KEYS = [
-  'eligible_priority_min', 'initial_focus_ids', 'default_layers',
-  'curatorial_layer_default', 'default_hops', 'max_expansion_hops',
+  'eligible_priority_min',
+  'initial_focus_ids',
+  'default_layers',
+  'curatorial_layer_default',
+  'default_hops',
+  'max_expansion_hops',
 ];
 const FORBIDDEN_PUBLIC_KEYS = new Set([
   'visibility',
@@ -116,7 +155,9 @@ function normalizeOrigin(input) {
   requireCondition(url.username === '' && url.password === '');
   requireCondition(url.pathname === '/' && url.search === '' && url.hash === '');
   const loopbackHosts = new Set(['127.0.0.1', 'localhost', '[::1]', '::1']);
-  requireCondition(url.protocol === 'https:' || (url.protocol === 'http:' && loopbackHosts.has(url.hostname)));
+  requireCondition(
+    url.protocol === 'https:' || (url.protocol === 'http:' && loopbackHosts.has(url.hostname))
+  );
   return url.origin;
 }
 
@@ -311,7 +352,9 @@ async function verifyOrigin(origin) {
     await check(origin, '/reading/', { method }, (response, body) => {
       requireCondition(response.status === 200);
       assertReadingSecurityHeaders(response, 'page');
-      requireCondition((response.headers.get('content-type') || '').toLowerCase().includes('text/html'));
+      requireCondition(
+        (response.headers.get('content-type') || '').toLowerCase().includes('text/html')
+      );
       if (method === 'HEAD') requireCondition(body === '');
     });
   }
@@ -332,7 +375,9 @@ async function verifyOrigin(origin) {
     await check(origin, pathname, {}, (response, body) => {
       requireCondition(response.status === 200);
       assertReadingSecurityHeaders(response, 'data');
-      requireCondition((response.headers.get('content-type') || '').toLowerCase().includes('application/json'));
+      requireCondition(
+        (response.headers.get('content-type') || '').toLowerCase().includes('application/json')
+      );
       parseReadingJson(filename, body);
     });
     await check(origin, pathname, { method: 'HEAD' }, (response, body) => {
@@ -356,10 +401,22 @@ async function verifyOrigin(origin) {
   for (const method of ['GET', 'HEAD']) {
     await check(origin, '/reading/weekly', { method }, (response, body) => {
       requireCondition(response.status === 308);
-      assertWeeklySecurityHeaders(response);
+      assertReadingSecurityHeaders(response, 'page');
       requireCondition(body === '');
       assertSafeReadingRedirect(response, origin, '/reading/weekly/');
     });
+  }
+
+  for (const pathname of WEEKLY_PUBLIC_PATHS) {
+    for (const method of ['GET', 'HEAD']) {
+      await check(origin, pathname, { method }, (response, body) => {
+        requireCondition(response.status === 200 || [301, 302, 307, 308].includes(response.status));
+        assertReadingSecurityHeaders(response, 'page');
+        if (response.status >= 300) assertSafeReadingRedirect(response, origin, '/reading/weekly/');
+        requireCondition(!CANARY || !body.includes(CANARY));
+        if (method === 'HEAD') requireCondition(body === '');
+      });
+    }
   }
 
   for (const pathname of WEEKLY_PROTECTED_PATHS) {
@@ -376,12 +433,20 @@ async function verifyOrigin(origin) {
   for (const pathname of WEEKLY_BLOCKED_ALIASES) {
     await check(origin, pathname, {}, (response, body) => {
       requireCondition(response.status === 404);
-      assertWeeklySecurityHeaders(response);
+      assertReadingSecurityHeaders(response, 'error');
       requireCondition(!CANARY || !body.includes(CANARY));
     });
   }
 
-  for (const pathname of ['/reading', '/reading/', '/reading/data/library.json']) {
+  for (const pathname of [
+    '/reading',
+    '/reading/',
+    '/reading/data/library.json',
+    '/reading/weekly',
+    '/reading/weekly/',
+    '/reading/weekly/index.html',
+    '/reading/weekly/index.txt',
+  ]) {
     await check(origin, pathname, { method: 'POST' }, (response) => {
       requireCondition(response.status === 405);
       requireCondition(response.headers.get('allow') === 'GET, HEAD');

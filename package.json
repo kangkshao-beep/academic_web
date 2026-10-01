@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "predev": "node scripts/build-search-index.mjs",
-    "prebuild": "node scripts/build-search-index.mjs",
+    "prebuild": "node scripts/build-search-index.mjs && node scripts/build-universe-formulas.mjs",
     "dev": "next dev --turbopack",
     "build": "next build",
     "build:reading:public-release": "node scripts/build-reading-public-release.mjs",
@@ -23,6 +23,8 @@
     "test:reading:weekly:validator": "node scripts/test-reading-weekly-validator.mjs",
     "test:reading:weekly:deployment": "node scripts/test-reading-weekly-deployment.mjs",
     "test:reading:weekly:browser": "node scripts/test-reading-weekly-browser.mjs",
+    "test:research-universe": "node scripts/test-research-universe.mjs",
+    "preview:research-universe": "node scripts/preview-research-universe.mjs",
     "test:reading:weekly:leaks": "node scripts/test-reading-weekly-leak-scanner.mjs",
     "test:i18n:locale": "node --experimental-strip-types scripts/test-i18n-locale.mjs",
     "test:reading:public-release": "node scripts/test-reading-public-release.mjs",
@@ -35,6 +37,7 @@
     "clsx": "^2.1.1",
     "cytoscape": "^3.34.3",
     "framer-motion": "^12.18.1",
+    "katex": "^0.16.47",
     "lucide-react": "^0.515.0",
     "minisearch": "^7.2.0",
     "next": "15.3.3",
@@ -43,18 +46,24 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
     "smol-toml": "^1.5.2",
+    "three": "^0.186.1",
     "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/katex": "^0.16.8",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.186.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "lightningcss": "^1",
+    "mathjax-full": "^3.2.2",
     "playwright-core": "^1.63.0",
     "svg2ico": "^1.0.35",
     "tailwindcss": "^4",
@@ -62,6 +71,11 @@
   },
   "optionalDependencies": {
     "lightningcss-linux-x64-gnu": "^1"
+  },
+  "overrides": {
+    "speech-rule-engine": {
+      "@xmldom/xmldom": "0.9.12"
+    }
   },
   "engines": {
     "node": ">=22.0.0"

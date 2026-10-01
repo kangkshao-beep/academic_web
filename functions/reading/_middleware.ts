@@ -34,19 +34,26 @@ export async function onRequest(context: ReadingContext): Promise<Response> {
 
   if (pathname === '/reading/weekly') {
     if (context.request.method !== 'GET' && context.request.method !== 'HEAD') {
-      return weeklyResponse(405, 'Method not allowed.', {
-        Allow: 'GET, HEAD',
-        'Content-Type': 'text/plain; charset=UTF-8',
+      return new Response('Method not allowed.', {
+        status: 405,
+        headers: readingSecurityHeaders(
+          { Allow: 'GET, HEAD', 'Content-Type': 'text/plain; charset=UTF-8' },
+          READING_ERROR_CACHE_CONTROL
+        ),
       });
     }
-    return weeklyResponse(308, null, { Location: '/reading/weekly/' });
+    return new Response(null, {
+      status: 308,
+      headers: readingSecurityHeaders({ Location: '/reading/weekly/' }, READING_PAGE_CACHE_CONTROL),
+    });
   }
 
   if (pathname === '/reading/weekly.html' || pathname === '/reading/weekly.txt') {
-    return weeklyResponse(404, 'Not found.', { 'Content-Type': 'text/plain; charset=UTF-8' });
+    return readingErrorResponse(404, 'Not found.');
   }
 
-  if (pathname.startsWith('/reading/weekly/')) {
+  // The teaching page is public; the separately stored personal topics remain private.
+  if (pathname === '/reading/weekly/data' || pathname.startsWith('/reading/weekly/data/')) {
     const authorization = await authorizeWeeklyRequest(context.request, context.env);
     if (authorization === 'unavailable') {
       return weeklyAuthErrorResponse(503, 'Weekly topic authentication is unavailable.');
@@ -92,9 +99,12 @@ export async function onRequest(context: ReadingContext): Promise<Response> {
 
   try {
     const response = await context.next();
-    const cacheControl = response.status >= 200 && response.status < 400
-      ? (pathname.startsWith('/reading/data/') ? READING_DATA_CACHE_CONTROL : READING_PAGE_CACHE_CONTROL)
-      : READING_ERROR_CACHE_CONTROL;
+    const cacheControl =
+      response.status >= 200 && response.status < 400
+        ? pathname.startsWith('/reading/data/')
+          ? READING_DATA_CACHE_CONTROL
+          : READING_PAGE_CACHE_CONTROL
+        : READING_ERROR_CACHE_CONTROL;
     return secureReadingResponse(response, cacheControl);
   } catch {
     return readingErrorResponse(503, 'Reading is temporarily unavailable.');
