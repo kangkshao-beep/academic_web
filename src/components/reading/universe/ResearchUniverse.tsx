@@ -67,6 +67,7 @@ export default function ResearchUniverse() {
   const [eventStage, setEventStage] = useState(0);
   const [listOpen, setListOpen] = useState(false);
   const [detectorDescriptionOpen, setDetectorDescriptionOpen] = useState(false);
+  const [detectorReset, setDetectorReset] = useState(0);
   const detectorDescriptionToggle = useRef<HTMLButtonElement>(null);
   const listToggle = useRef<HTMLButtonElement>(null);
   const [importError, setImportError] = useState('');
@@ -437,6 +438,9 @@ export default function ResearchUniverse() {
                   </div>
                   <h5>{l('View & detector layers', '视角与探测器分层', '視角與探測器分層')}</h5>
                   <div className="ru-layers">
+                    <button onClick={() => setDetectorReset((revision) => revision + 1)}>
+                      {l('Reset detector view', '复位探测器视角', '重設探測器視角')}
+                    </button>
                     <button
                       aria-pressed={settings.inspectDetector}
                       onClick={() => patch({ inspectDetector: !settings.inspectDetector })}
@@ -612,6 +616,7 @@ export default function ResearchUniverse() {
                     settings={settings}
                     locale={locale}
                     modalOpen={!!topic || !!selectedBoard}
+                    resetRevision={detectorReset}
                     onEventStage={setEventStage}
                   />
                 </div>

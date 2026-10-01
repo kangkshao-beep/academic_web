@@ -374,7 +374,7 @@
   height: clamp(215px, 44%, 285px);
   display: grid;
   grid-template-rows: minmax(0, 1fr) 30px;
-  z-index: 2;
+  pointer-events: none;
 }
 .ru-detector-dock[hidden] {
   display: none;
@@ -396,22 +396,45 @@
   position: absolute;
   inset: 0;
 }
-.ru-detector-scene canvas {
+.ru-detector-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.ru-detector-overlay[hidden] {
+  display: none;
+}
+.ru-detector-overlay canvas {
   display: block;
   width: 100%;
   height: 100%;
+  pointer-events: none;
+}
+.ru-detector-interaction {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(50%);
   touch-action: none;
   cursor: grab;
 }
-.ru-detector-scene canvas:active {
+.ru-detector-interaction:active {
   cursor: grabbing;
 }
-.ru-detector-scene canvas:focus-visible {
-  outline: 1px solid #9cb9c9;
-  outline-offset: -3px;
+.ru-detector-interaction:focus-visible::after {
+  content: '';
+  position: absolute;
+  left: calc(var(--detector-hit-x) + var(--detector-hit-width) / 2 - 12px);
+  top: calc(var(--detector-hit-y) + var(--detector-hit-height) - 2px);
+  width: 24px;
+  height: 2px;
+  background: #9cb9c9;
+  pointer-events: none;
 }
 .ru-detector-caption {
   position: relative;
+  z-index: 4;
+  pointer-events: auto;
   justify-self: center;
   align-self: end;
   font-size: 9px;
@@ -507,6 +530,8 @@
   color: #96b3c2;
 }
 .ru-topic-rail {
+  position: relative;
+  z-index: 4;
   width: 225px;
   flex-shrink: 0;
   background: #08141fe8;
@@ -1080,7 +1105,7 @@
     top: 0;
     bottom: 0;
     width: min(260px, 80vw);
-    z-index: 3;
+    z-index: 4;
     box-shadow: -20px 0 40px #0009;
     background: #08141f;
   }
@@ -1169,6 +1194,7 @@
 /* Eight compact keyboard entries; full lecture titles remain accessible on hover/focus. */
 .ru-board-nav {
   position: absolute;
+  z-index: 4;
   top: 16px;
   right: 25px;
   display: flex;
@@ -1546,7 +1572,7 @@
 }
 .ru-event-explainer {
   position: absolute;
-  z-index: 3;
+  z-index: 4;
   top: 24px;
   right: 24px;
   width: min(280px, 43%);

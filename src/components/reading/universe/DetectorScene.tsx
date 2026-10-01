@@ -12,6 +12,7 @@ interface Props {
   settings: SceneSettings;
   locale: Locale;
   modalOpen: boolean;
+  resetRevision: number;
   onEventStage: (stage: number) => void;
 }
 
@@ -22,8 +23,8 @@ export default function DetectorScene(props: Props) {
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    if (!host.current) return;
     const container = host.current;
-    if (!container) return;
     let renderer: THREE.WebGLRenderer;
     try {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -33,13 +34,20 @@ export default function DetectorScene(props: Props) {
     }
     renderer.setClearColor(0x000000, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    // Render outside the clipped research workspace. The dock is only a layout
+    // anchor; the instrument can grow across the page without resizing its camera.
+    const overlay = document.createElement('div');
+    overlay.className = 'ru-detector-overlay';
     const canvas = renderer.domElement;
     canvas.dataset.testid = 'detector-canvas';
-    canvas.setAttribute('role', 'img');
-    canvas.tabIndex = 0;
-    canvas.style.touchAction = 'none';
-    canvas.style.cursor = 'grab';
-    container.appendChild(canvas);
+    canvas.setAttribute('aria-hidden', 'true');
+    const interaction = document.createElement('div');
+    interaction.className = 'ru-detector-interaction';
+    interaction.dataset.testid = 'detector-interaction';
+    interaction.setAttribute('role', 'img');
+    interaction.tabIndex = 0;
+    overlay.append(canvas, interaction);
+    document.body.appendChild(overlay);
 
     const scene = new THREE.Scene();
     scene.add(new THREE.HemisphereLight('#cbd7e3', '#141c29', 1.8));
@@ -55,7 +63,7 @@ export default function DetectorScene(props: Props) {
     // Dolly-only perspective zoom would pass through the secondary vertices.
     const camera = new THREE.OrthographicCamera(-4, 4, 4, -4, 0.05, 150);
     camera.position.set(0, 0, 18);
-    const controls = new OrbitControls(camera, canvas);
+    const controls = new OrbitControls(camera, interaction);
     controls.enablePan = true;
     controls.screenSpacePanning = true;
     controls.zoomToCursor = true;
@@ -104,13 +112,21 @@ export default function DetectorScene(props: Props) {
     const offset = new THREE.Vector3();
     let viewportWidth = 1;
     let viewportHeight = 1;
+    let dockRect = container.getBoundingClientRect();
+    let sceneTop = 0;
+    let worldUnitsPerPixel = 1;
+    let layoutDirty = true;
+    let projectionZoom = -1;
+    let inspecting = live.current.settings.inspectDetector;
+    let anchorX = 0;
+    let anchorY = 0;
     let dirty = true;
 
     function fitView(preserveZoom: boolean) {
       camera.updateMatrixWorld(true);
       right.setFromMatrixColumn(camera.matrixWorld, 0);
       up.setFromMatrixColumn(camera.matrixWorld, 1);
-      const aspect = viewportWidth / viewportHeight;
+      const aspect = dockRect.width / dockRect.height;
       let halfHeight = 0;
       for (const point of boxCorners(structureBounds())) {
         // Fit about the fixed instrument centre. Using the panned target here
@@ -123,13 +139,39 @@ export default function DetectorScene(props: Props) {
       }
       // Leave a small margin around the instrument so the two beam entrances read.
       halfHeight *= 1.12;
-      camera.left = -halfHeight * aspect;
-      camera.right = halfHeight * aspect;
+      worldUnitsPerPixel = (halfHeight * 2) / dockRect.height;
+      if (!preserveZoom) camera.zoom = 1;
+      updateProjection();
+      controls.update();
+      dirty = true;
+    }
+    function updateProjection() {
+      const halfWidth = (viewportWidth * worldUnitsPerPixel) / 2;
+      const halfHeight = (viewportHeight * worldUnitsPerPixel) / 2;
+      camera.left = -halfWidth;
+      camera.right = halfWidth;
       camera.top = halfHeight;
       camera.bottom = -halfHeight;
-      if (!preserveZoom) camera.zoom = 1;
-      camera.updateProjectionMatrix();
-      controls.update();
+      const dockX = dockRect.x + dockRect.width / 2;
+      const dockY = dockRect.y + dockRect.height / 2;
+      // Give an enlarging instrument room on all sides. Above 3x the anchor
+      // stops moving, so cursor zoom can inspect a chosen decay vertex freely.
+      const expansion = inspecting ? 0 : THREE.MathUtils.smoothstep(camera.zoom, 1, 3);
+      anchorX = THREE.MathUtils.lerp(dockX, viewportWidth / 2, expansion);
+      const expandedY = (Math.max(0, sceneTop) + viewportHeight) / 2;
+      anchorY = THREE.MathUtils.lerp(dockY, expandedY, expansion);
+      camera.setViewOffset(
+        viewportWidth,
+        viewportHeight,
+        viewportWidth / 2 - anchorX,
+        viewportHeight / 2 - anchorY,
+        viewportWidth,
+        viewportHeight
+      );
+      controls.rotateSpeed =
+        (0.7 * viewportHeight) /
+        Math.min(viewportHeight, dockRect.height * Math.max(1, Math.min(camera.zoom, 3)));
+      projectionZoom = camera.zoom;
       dirty = true;
     }
     function resetView() {
@@ -141,26 +183,42 @@ export default function DetectorScene(props: Props) {
       fitView(false);
       controls.enableDamping = true;
     }
-    const resize = new ResizeObserver(() => {
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-      if (width < 1 || height < 1) return;
-      viewportWidth = width;
-      viewportHeight = height;
-      renderer.setSize(width, height);
-      fitView(true);
-    });
+    function invalidateLayout() {
+      layoutDirty = true;
+    }
+    function updateLayout() {
+      const nextDock = container.getBoundingClientRect();
+      const width = document.documentElement.clientWidth;
+      const height = window.innerHeight;
+      const sizeChanged = nextDock.width !== dockRect.width || nextDock.height !== dockRect.height;
+      dockRect = nextDock;
+      sceneTop = container.closest('.ru-viewport')?.getBoundingClientRect().top ?? 0;
+      if (viewportWidth !== width || viewportHeight !== height) {
+        viewportWidth = width;
+        viewportHeight = height;
+        renderer.setSize(width, height);
+      }
+      if (dockRect.width > 0 && dockRect.height > 0) {
+        if (sizeChanged || worldUnitsPerPixel === 1) fitView(true);
+        else updateProjection();
+      }
+      layoutDirty = false;
+    }
+    const resize = new ResizeObserver(invalidateLayout);
     resize.observe(container);
+    resize.observe(document.documentElement);
+    window.addEventListener('resize', invalidateLayout);
+    window.addEventListener('scroll', invalidateLayout, true);
 
     let dragging = false;
     function start() {
       dragging = true;
-      canvas.style.cursor = 'grabbing';
+      interaction.style.cursor = 'grabbing';
       dirty = true;
     }
     function end() {
       dragging = false;
-      canvas.style.cursor = 'grab';
+      interaction.style.cursor = 'grab';
       dirty = true;
     }
     function stopPropagation(event: Event) {
@@ -168,15 +226,26 @@ export default function DetectorScene(props: Props) {
     }
     function focus(event: PointerEvent) {
       event.stopPropagation();
-      if (!live.current.modalOpen) canvas.focus({ preventScroll: true });
+      if (!live.current.modalOpen) interaction.focus({ preventScroll: true });
     }
     function keyboard(event: KeyboardEvent) {
       if (!controls.enabled) return;
-      const keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', '+', '=', '-', '_', 'Home'];
+      const keys = [
+        'ArrowLeft',
+        'ArrowRight',
+        'ArrowUp',
+        'ArrowDown',
+        '+',
+        '=',
+        '-',
+        '_',
+        'Home',
+        'Escape',
+      ];
       if (!keys.includes(event.key)) return;
       event.preventDefault();
       event.stopPropagation();
-      if (event.key === 'Home') {
+      if (event.key === 'Home' || event.key === 'Escape') {
         resetView();
         return;
       }
@@ -221,11 +290,11 @@ export default function DetectorScene(props: Props) {
     }
     controls.addEventListener('start', start);
     controls.addEventListener('end', end);
-    canvas.addEventListener('pointerdown', focus);
+    interaction.addEventListener('pointerdown', focus);
     // OrbitControls listens for move/up on ownerDocument after capture begins.
     // Keep those events bubbling; the other canvas never receives pointerdown.
-    canvas.addEventListener('wheel', stopPropagation);
-    canvas.addEventListener('keydown', keyboard);
+    interaction.addEventListener('wheel', stopPropagation);
+    interaction.addEventListener('keydown', keyboard);
 
     let raf = 0;
     let lost = false;
@@ -235,28 +304,75 @@ export default function DetectorScene(props: Props) {
     let eventClock = 0;
     let stage = -1;
     let reset = live.current.settings.reset;
+    let resetRevision = live.current.resetRevision;
     let quality = '';
     let signature = '';
     const projected = new THREE.Vector3();
+    const hitBounds = { x: 0, y: 0, width: 0, height: 0 };
+    const detectorBounds = { x: 0, y: 0, width: 0, height: 0 };
+    function updateHitRegion(enabled: boolean) {
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
+      for (const point of boxCorners(structureBounds())) {
+        point.project(camera);
+        const x = ((point.x + 1) * viewportWidth) / 2;
+        const y = ((1 - point.y) * viewportHeight) / 2;
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+      }
+      Object.assign(detectorBounds, { x: minX, y: minY, width: maxX - minX, height: maxY - minY });
+      const docked = camera.zoom <= 1.05 && controls.target.lengthSq() < 1e-8;
+      hitBounds.x = Math.max(0, docked ? dockRect.left : minX - 20);
+      hitBounds.y = Math.max(0, docked ? dockRect.top : minY - 20);
+      const rightEdge = Math.min(viewportWidth, docked ? dockRect.right : maxX + 20);
+      const bottomEdge = Math.min(viewportHeight, docked ? dockRect.bottom : maxY + 20);
+      hitBounds.width = Math.max(0, rightEdge - hitBounds.x);
+      hitBounds.height = Math.max(0, bottomEdge - hitBounds.y);
+      // Clip only the input surface, never the WebGL canvas. Outside this area
+      // clicks and wheel gestures reach the blackboards and main scene normally.
+      interaction.style.clipPath = `inset(${hitBounds.y}px ${Math.max(0, viewportWidth - rightEdge)}px ${Math.max(0, viewportHeight - bottomEdge)}px ${hitBounds.x}px)`;
+      interaction.style.pointerEvents = enabled ? 'auto' : 'none';
+      interaction.tabIndex = enabled ? 0 : -1;
+      for (const [key, value] of Object.entries(hitBounds)) {
+        interaction.style.setProperty(`--detector-hit-${key}`, `${value}px`);
+      }
+      canvas.dataset.hitBounds = JSON.stringify(hitBounds);
+      canvas.dataset.detectorBounds = JSON.stringify(detectorBounds);
+    }
     function tick(now: number) {
       if (document.hidden || lost) return;
       raf = requestAnimationFrame(tick);
       const delta = Math.max(0, Math.min((now - last) / 1000, 0.05));
       last = now;
       const { settings, modalOpen, locale } = live.current;
-      const visible = settings.detector || settings.inspectDetector;
+      if (inspecting !== settings.inspectDetector) {
+        inspecting = settings.inspectDetector;
+        layoutDirty = true;
+      }
+      if (layoutDirty) updateLayout();
+      const visible =
+        (settings.detector || settings.inspectDetector) &&
+        dockRect.width > 0 &&
+        dockRect.height > 0 &&
+        dockRect.bottom > 0 &&
+        dockRect.top < viewportHeight;
+      overlay.hidden = !visible;
       controls.enabled = visible && !modalOpen;
       const nextSignature = JSON.stringify(settings) + modalOpen + locale;
       if (signature !== nextSignature) {
         signature = nextSignature;
         dirty = true;
-        canvas.setAttribute(
+        interaction.setAttribute(
           'aria-label',
           say(
             locale,
-            'Interactive detector: drag to rotate, scroll or pinch to zoom without an upper limit, right-drag or two-finger drag to pan. Arrow keys rotate, Shift + arrows pan, plus and minus zoom, Home resets the view.',
-            '独立探测器：拖动旋转，滚轮或双指缩放，无放大上限；右键拖动或双指拖动平移。方向键旋转，Shift 加方向键平移，加减号缩放，Home 重置视角。',
-            '獨立探測器：拖動旋轉，滾輪或雙指縮放，無放大上限；右鍵拖動或雙指拖動平移。方向鍵旋轉，Shift 加方向鍵平移，加減號縮放，Home 重設視角。'
+            'Interactive detector: drag to rotate, scroll or pinch to enlarge beyond the dock without an upper limit, right-drag or two-finger drag to pan. Arrow keys rotate, Shift + arrows pan, plus and minus zoom, Home or Escape restores the view.',
+            '独立探测器：拖动旋转，滚轮或双指放大，可越出原区域且无上限；右键拖动或双指拖动平移。方向键旋转，Shift 加方向键平移，加减号缩放，Home 或 Esc 恢复视角。',
+            '獨立探測器：拖動旋轉，滾輪或雙指放大，可越出原區域且無上限；右鍵拖動或雙指拖動平移。方向鍵旋轉，Shift 加方向鍵平移，加減號縮放，Home 或 Esc 恢復視角。'
           )
         );
       }
@@ -266,6 +382,10 @@ export default function DetectorScene(props: Props) {
         eventClock = 0;
         resetView();
         reset = settings.reset;
+      }
+      if (resetRevision !== live.current.resetRevision) {
+        resetView();
+        resetRevision = live.current.resetRevision;
       }
       if (quality !== settings.quality) {
         quality = settings.quality;
@@ -286,8 +406,10 @@ export default function DetectorScene(props: Props) {
         centreInstrument();
       }
       const changed = controls.update();
+      if (camera.zoom !== projectionZoom) updateProjection();
       camera.updateMatrixWorld(true);
       scene.updateMatrixWorld(true);
+      updateHitRegion(controls.enabled);
       const displayedTime =
         settings.eventTime ?? (settings.reduced ? EVENT_STAGE_TIMES[4] : eventClock);
       const nextStage = detector.update(displayedTime, settings.tracks, camera, viewportHeight);
@@ -330,15 +452,6 @@ export default function DetectorScene(props: Props) {
             };
           })
         );
-        const points = boxCorners(structureBounds()).map((point) => point.project(camera));
-        const xs = points.map((point) => ((point.x + 1) * viewportWidth) / 2);
-        const ys = points.map((point) => ((1 - point.y) * viewportHeight) / 2);
-        canvas.dataset.detectorBounds = JSON.stringify({
-          x: Math.min(...xs),
-          y: Math.min(...ys),
-          width: Math.max(...xs) - Math.min(...xs),
-          height: Math.max(...ys) - Math.min(...ys),
-        });
         frames = 0;
         report = now;
       }
@@ -354,6 +467,10 @@ export default function DetectorScene(props: Props) {
     function contextLost(event: Event) {
       event.preventDefault();
       lost = true;
+      overlay.hidden = true;
+      controls.enabled = false;
+      interaction.style.pointerEvents = 'none';
+      interaction.tabIndex = -1;
       cancelAnimationFrame(raf);
       setFailed(true);
     }
@@ -363,15 +480,17 @@ export default function DetectorScene(props: Props) {
     return () => {
       cancelAnimationFrame(raf);
       resize.disconnect();
+      window.removeEventListener('resize', invalidateLayout);
+      window.removeEventListener('scroll', invalidateLayout, true);
       document.removeEventListener('visibilitychange', visibility);
       canvas.removeEventListener('webglcontextlost', contextLost);
-      canvas.removeEventListener('pointerdown', focus);
-      canvas.removeEventListener('wheel', stopPropagation);
-      canvas.removeEventListener('keydown', keyboard);
+      interaction.removeEventListener('pointerdown', focus);
+      interaction.removeEventListener('wheel', stopPropagation);
+      interaction.removeEventListener('keydown', keyboard);
       controls.dispose();
       disposeObject(scene);
       renderer.dispose();
-      canvas.remove();
+      overlay.remove();
     };
   }, []);
 

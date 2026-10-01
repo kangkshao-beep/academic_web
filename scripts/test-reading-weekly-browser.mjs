@@ -121,19 +121,92 @@ async function checkDetectorDock(page, sceneCanvas) {
   assert(dock.y - scene.y > scene.height * 0.4, 'The dock must stay in the lower-left corner.');
   assert(dock.x + dock.width < scene.x + scene.width);
   assert(dock.y + dock.height < scene.y + scene.height);
-  assert(detector.x >= dock.x && detector.x + detector.width <= dock.x + dock.width + 1);
-  assert(detector.y >= dock.y && detector.y + detector.height <= dock.y + dock.height + 1);
-  assert(Math.abs(detector.width - view.width) < 1);
-  assert(Math.abs(detector.height - view.height) < 1);
-  assert(Math.abs(detector.x + detector.width / 2 - view.x - view.width / 2) < 1);
-  assert(Math.abs(detector.y + detector.height / 2 - view.y - view.height / 2) < 1);
+  const viewport = page.viewportSize();
+  assert(Math.abs(detector.x) < 1 && Math.abs(detector.y) < 1);
+  assert(Math.abs(detector.width - viewport.width) < 1);
+  assert(Math.abs(detector.height - viewport.height) < 1);
+  assert.equal(
+    await page.getByTestId('detector-canvas').evaluate((e) => getComputedStyle(e).pointerEvents),
+    'none',
+    'The full-window render canvas must not capture background interactions.'
+  );
   const target = await page.getByTestId('detector-canvas').evaluate((e) => ({
     x: Number(e.dataset.targetX),
     y: Number(e.dataset.targetY),
   }));
-  assert(Math.abs(target.x - detector.width / 2) < 1, 'Detector orbit target must be centered.');
-  assert(Math.abs(target.y - detector.height / 2) < 1, 'Detector orbit target must be centered.');
+  assert(
+    Math.abs(target.x - view.x - view.width / 2) < 1,
+    'Default detector must use its dock centre.'
+  );
+  assert(
+    Math.abs(target.y - view.y - view.height / 2) < 1,
+    'Default detector must use its dock centre.'
+  );
   return dock;
+}
+
+async function detectorHitBounds(page) {
+  const bounds = JSON.parse(
+    await page.getByTestId('detector-canvas').getAttribute('data-hit-bounds')
+  );
+  assert(['x', 'y', 'width', 'height'].every((key) => Number.isFinite(bounds[key])));
+  assert(bounds.width > 0 && bounds.height > 0, 'The detector needs a visible interaction area.');
+  return bounds;
+}
+
+async function detectorInputPoint(page, outside) {
+  const bounds = await detectorHitBounds(page);
+  const point = await page.evaluate(
+    ({ bounds, outside }) => {
+      const left = Math.max(1, bounds.x);
+      const top = Math.max(1, bounds.y);
+      const right = Math.min(innerWidth - 1, bounds.x + bounds.width);
+      const bottom = Math.min(innerHeight - 1, bounds.y + bounds.height);
+      for (const yFraction of [0.5, 0.35, 0.65, 0.2, 0.8]) {
+        for (const xFraction of [0.5, 0.65, 0.35, 0.8, 0.2]) {
+          const x = left + (right - left) * xFraction;
+          const y = top + (bottom - top) * yFraction;
+          if (
+            outside &&
+            x >= outside.x - 24 &&
+            x <= outside.x + outside.width + 24 &&
+            y >= outside.y - 24 &&
+            y <= outside.y + outside.height + 24
+          )
+            continue;
+          if (
+            document.elementFromPoint(x, y)?.getAttribute('data-testid') === 'detector-interaction'
+          )
+            return { x, y };
+        }
+      }
+      return null;
+    },
+    { bounds, outside }
+  );
+  assert(
+    point,
+    outside
+      ? 'The enlarged detector must respond beyond its original dock.'
+      : 'The detector must receive input inside its projected bounds.'
+  );
+  return point;
+}
+
+async function settledCamera(page, canvas) {
+  let previous = await canvas.getAttribute('data-camera');
+  let unchanged = 0;
+  // Full-window SwiftShader rendering may need longer to dissipate orbit damping.
+  // Sample more slowly than the 500 ms diagnostics interval, rather than using
+  // one short fixed sleep as proof that a gesture has finished.
+  for (let sample = 0; sample < 30; sample++) {
+    await page.waitForTimeout(600);
+    const current = await canvas.getAttribute('data-camera');
+    unchanged = current === previous ? unchanged + 1 : 0;
+    previous = current;
+    if (unchanged >= 2) return current;
+  }
+  assert.fail('Camera damping did not settle after the gesture.');
 }
 
 let browser;
@@ -179,6 +252,7 @@ try {
   assert.equal(publicPageResponse.status(), 200);
   const canvas = page.getByTestId('universe-canvas');
   const detectorCanvas = page.getByTestId('detector-canvas');
+  const detectorInteraction = page.getByTestId('detector-interaction');
   const detectorDock = page.getByTestId('detector-dock');
   const showControls = async (open) => {
     const isOpen = (await page.locator('.ru-settings').getAttribute('open')) !== null;
@@ -434,7 +508,7 @@ try {
   const initialCamera = await canvas.getAttribute('data-camera');
   const initialDetectorCamera = await detectorCanvas.getAttribute('data-camera');
   const anchoredBoards = await canvas.getAttribute('data-board-bounds');
-  const detectorRect = await detectorCanvas.boundingBox();
+  const detectorRect = await page.locator('.ru-detector-view').boundingBox();
   await page.mouse.move(
     detectorRect.x + detectorRect.width * 0.72,
     detectorRect.y + detectorRect.height * 0.34
@@ -468,13 +542,145 @@ try {
   });
   // Exercise real wheel input well beyond a fitted overview, then zoom again.
   // Optical zoom keeps the camera outside the instrument while enlarging detail.
-  await detectorCanvas.focus();
+  await detectorInteraction.focus();
   await page.keyboard.press('Home');
   await page.waitForFunction(() => {
     const data = document.querySelector('[data-testid="detector-canvas"]')?.dataset;
     return Number(data?.zoom) === 1;
   });
   assert.equal(await detectorCanvas.getAttribute('data-camera'), initialDetectorCamera);
+  const originalDetectorNode = await detectorCanvas.elementHandle();
+  const originalProjection = JSON.parse(await detectorCanvas.getAttribute('data-detector-bounds'));
+  const beforeExpansionTime = await detectorCanvas.getAttribute('data-event-time');
+  let floatingPoint = await detectorInputPoint(page);
+  await page.mouse.move(floatingPoint.x, floatingPoint.y);
+  await page.mouse.wheel(0, -3000);
+  await page.waitForFunction(
+    () => Number(document.querySelector('[data-testid="detector-canvas"]')?.dataset.zoom) > 3
+  );
+  const expandedProjection = JSON.parse(await detectorCanvas.getAttribute('data-detector-bounds'));
+  assert(expandedProjection.width > originalProjection.width * 2);
+  assert(expandedProjection.height > originalProjection.height * 2);
+  assert(
+    expandedProjection.x + expandedProjection.width > detectorRect.x + detectorRect.width + 60 ||
+      expandedProjection.y < detectorRect.y - 60,
+    'Magnified detector geometry must visibly extend beyond the old clipped dock.'
+  );
+  assert(expandedProjection.width > page.viewportSize().width * 0.35);
+  assert(await originalDetectorNode.evaluate((element) => element.isConnected));
+  assert.equal(await detectorCanvas.getAttribute('data-event-time'), beforeExpansionTime);
+  assert.equal(await canvas.getAttribute('data-camera'), initialCamera);
+  assert.equal(await canvas.getAttribute('data-board-bounds'), anchoredBoards);
+  assert.equal(await canvas.getAttribute('data-boards'), '8');
+  assert.equal(await page.locator('.ru-board-nav button').count(), 8);
+  await page.screenshot({
+    path: path.join(screenshotDir, '25-detector-floating-expansion.png'),
+    fullPage: true,
+  });
+  // Orbit through geometry beyond the former dock, rather than its old small rectangle.
+  floatingPoint = await detectorInputPoint(page, detectorRect);
+  const beforeFloatingDrag = await detectorCanvas.getAttribute('data-camera');
+  await page.mouse.move(floatingPoint.x, floatingPoint.y);
+  await page.mouse.down();
+  await page.mouse.move(floatingPoint.x + 48, floatingPoint.y - 32, { steps: 12 });
+  await page.mouse.up();
+  await page.waitForTimeout(900);
+  assert.notEqual(await detectorCanvas.getAttribute('data-camera'), beforeFloatingDrag);
+  assert.equal(await canvas.getAttribute('data-camera'), initialCamera);
+  assert.equal(await canvas.getAttribute('data-board-bounds'), anchoredBoards);
+  assert.equal(await modal.count(), 0);
+  assert.equal(await boardModal.count(), 0);
+  await showControls(true);
+  await page.getByRole('button', { name: 'Reset detector view', exact: true }).click();
+  await showControls(false);
+  await page.waitForFunction(
+    () => Number(document.querySelector('[data-testid="detector-canvas"]')?.dataset.zoom) === 1
+  );
+  assert.equal(await detectorCanvas.getAttribute('data-camera'), initialDetectorCamera);
+  assert.equal(await canvas.getAttribute('data-camera'), initialCamera);
+  assert.equal(await canvas.getAttribute('data-board-bounds'), anchoredBoards);
+  floatingPoint = await detectorInputPoint(page);
+  await page.mouse.move(floatingPoint.x, floatingPoint.y);
+  await page.mouse.wheel(0, -3000);
+  await page.waitForFunction(
+    () => Number(document.querySelector('[data-testid="detector-canvas"]')?.dataset.zoom) > 3
+  );
+  const floatingCamera = await settledCamera(page, detectorCanvas);
+  const floatingZoom = await detectorCanvas.getAttribute('data-zoom');
+  // Blackboard controls and dialogs must remain reachable above a large detector.
+  await boardEntry.click();
+  await boardModal.waitFor();
+  assert(
+    await boardModal.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return element.contains(
+        document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)
+      );
+    })
+  );
+  await page.waitForTimeout(650);
+  assert.equal(await detectorCanvas.getAttribute('data-camera'), floatingCamera);
+  assert.equal(await detectorCanvas.getAttribute('data-zoom'), floatingZoom);
+  await page.keyboard.press('Escape');
+  await boardModal.waitFor({ state: 'detached' });
+  // The transparent part of the fixed layer must pass input to the topic scene.
+  const backgroundDrag = await canvas.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    for (const yFraction of [0.2, 0.4, 0.6, 0.8]) {
+      for (const xFraction of [0.85, 0.7, 0.55, 0.25]) {
+        const x = rect.x + rect.width * xFraction;
+        const y = rect.y + rect.height * yFraction;
+        const end = { x: x + 44, y: y + 28 };
+        if (
+          document.elementFromPoint(x, y) === element &&
+          document.elementFromPoint(end.x, end.y) === element
+        )
+          return { x, y, end };
+      }
+    }
+    return null;
+  });
+  assert(backgroundDrag, 'A floating detector must leave the surrounding topic scene interactive.');
+  await page.mouse.move(backgroundDrag.x, backgroundDrag.y);
+  await page.mouse.down();
+  await page.mouse.move(backgroundDrag.end.x, backgroundDrag.end.y, { steps: 12 });
+  await page.mouse.up();
+  await page.waitForTimeout(900);
+  const independentlyMovedCamera = await settledCamera(page, canvas);
+  assert.notEqual(independentlyMovedCamera, initialCamera);
+  assert.equal(await detectorCanvas.getAttribute('data-camera'), floatingCamera);
+  assert.equal(await detectorCanvas.getAttribute('data-zoom'), floatingZoom);
+  await detectorInteraction.focus();
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(
+    () => Number(document.querySelector('[data-testid="detector-canvas"]')?.dataset.zoom) === 1
+  );
+  assert.equal(await detectorCanvas.getAttribute('data-camera'), initialDetectorCamera);
+  assert.equal(await canvas.getAttribute('data-camera'), independentlyMovedCamera);
+  await checkDetectorDock(page, canvas);
+  await page.keyboard.press('Shift+ArrowLeft');
+  await page.keyboard.press('Shift+ArrowLeft');
+  await page.waitForFunction(
+    (camera) =>
+      document.querySelector('[data-testid="detector-canvas"]')?.dataset.camera !== camera,
+    initialDetectorCamera
+  );
+  assert.equal(Number(await detectorCanvas.getAttribute('data-zoom')), 1);
+  assert.equal(await canvas.getAttribute('data-camera'), independentlyMovedCamera);
+  const pannedAtDefault = await detectorInputPoint(page, detectorRect);
+  await page.mouse.move(pannedAtDefault.x, pannedAtDefault.y);
+  await page.mouse.wheel(0, -250);
+  await page.waitForFunction(
+    () => Number(document.querySelector('[data-testid="detector-canvas"]')?.dataset.zoom) > 1
+  );
+  await detectorInteraction.focus();
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(
+    () => Number(document.querySelector('[data-testid="detector-canvas"]')?.dataset.zoom) === 1
+  );
+  await page.getByRole('button', { name: 'Reset View', exact: true }).click();
+  await page.waitForTimeout(900);
+  assert.equal(await canvas.getAttribute('data-camera'), initialCamera);
   await page.mouse.move(
     detectorRect.x + detectorRect.width / 2,
     detectorRect.y + detectorRect.height / 2
@@ -484,6 +690,8 @@ try {
     () => Number(document.querySelector('[data-testid="detector-canvas"]')?.dataset.zoom) > 30
   );
   const deepZoom = Number(await detectorCanvas.getAttribute('data-zoom'));
+  const deepPoint = await detectorInputPoint(page);
+  await page.mouse.move(deepPoint.x, deepPoint.y);
   await page.mouse.wheel(0, -2000);
   await page.waitForFunction((previous) => {
     const zoom = Number(document.querySelector('[data-testid="detector-canvas"]')?.dataset.zoom);
@@ -499,15 +707,13 @@ try {
   assert.equal(await canvas.getAttribute('data-camera'), initialCamera);
   assert.equal(await canvas.getAttribute('data-board-bounds'), anchoredBoards);
   // A close-up must be navigable without changing the topic scene or magnification.
+  const panPoint = await detectorInputPoint(page);
+  await page.mouse.move(panPoint.x, panPoint.y);
   await page.mouse.down({ button: 'right' });
-  await page.mouse.move(
-    detectorRect.x + detectorRect.width / 2 + 35,
-    detectorRect.y + detectorRect.height / 2 - 18,
-    { steps: 10 }
-  );
+  await page.mouse.move(panPoint.x + 35, panPoint.y - 18, { steps: 10 });
   await page.mouse.up({ button: 'right' });
   await page.waitForTimeout(900);
-  const pannedCamera = await detectorCanvas.getAttribute('data-camera');
+  const pannedCamera = await settledCamera(page, detectorCanvas);
   assert.notEqual(pannedCamera, beforePan, 'Right-drag must pan a detector close-up.');
   assert.equal(Number(await detectorCanvas.getAttribute('data-zoom')), deeperZoom);
   assert.equal(await canvas.getAttribute('data-camera'), initialCamera);
@@ -521,7 +727,7 @@ try {
   await page.waitForTimeout(900);
   assert.equal(Number(await detectorCanvas.getAttribute('data-zoom')), deeperZoom);
   assert.equal(await detectorCanvas.getAttribute('data-camera'), pannedCamera);
-  await detectorCanvas.focus();
+  await detectorInteraction.focus();
   await page.keyboard.press('-');
   await page.waitForFunction(
     (zoom) =>
@@ -614,7 +820,7 @@ try {
     assert(Number.isFinite(vertex.x) && Number.isFinite(vertex.y));
     assert(vertex.x > 0 && vertex.x < closeupRect.width);
     assert(vertex.y > 0 && vertex.y < closeupRect.height);
-    await page.mouse.move(closeupRect.x + vertex.x, closeupRect.y + vertex.y);
+    await page.mouse.move(vertex.x, vertex.y);
     await page.mouse.wheel(0, delta);
   };
   await zoomAtDecayVertex(-4500);
@@ -635,7 +841,7 @@ try {
   });
   assert.equal(await canvas.getAttribute('data-camera'), initialCamera);
   assert.equal(await detectorCanvas.getAttribute('data-event-stage'), '4');
-  await detectorCanvas.focus();
+  await detectorInteraction.focus();
   await page.keyboard.press('Home');
   await page.waitForFunction(
     () => Number(document.querySelector('[data-testid="detector-canvas"]')?.dataset.zoom) === 1
@@ -708,7 +914,8 @@ try {
   );
   assert(fadeScreenshotSaved, 'Capture the visible fade for visual inspection.');
   await page.getByTestId('weekly-motion-toggle').click();
-  await detectorCanvas.click({ position: { x: 240, y: 180 } });
+  const inspectedPoint = await detectorInputPoint(page);
+  await page.mouse.click(inspectedPoint.x, inspectedPoint.y);
   assert.equal(await modal.count(), 0, 'Detector inspection must not pick hidden topic nodes.');
   await page.screenshot({
     path: path.join(screenshotDir, '07-detector-closeup.png'),
@@ -1016,7 +1223,7 @@ try {
     },
     screenshots: screenshotDir,
     coverage:
-      'Anonymous public weekly entry with 10 toy models, private API still authenticated, no private UI fetches or auth challenges, retired private source migration preserving local progress, eight Mannel blackboards (raycast/keyboard/backdrop/Esc/focus/mobile/fallback), straight tracks, total hadronic X signal description with one cyan X direction and gold positron, no exclusive three-hadron channel in event notes or signal stage, equal landscape blackboards with staggered rows, centered independent lower-left detector dock on desktop/mobile, collapsed event-note disclosure with keyboard/Escape/focus, isolated detector orbit/optical zoom beyond 60x/right-drag pan, zoom retention on resize, keyboard zoom/Home, secondary-vertex close-ups, independent topic-scene orbit, unchanged board bounds during detector manipulation, extruded glyph geometry, five held collision stages, fast injection / slow decay, 4.8-second automatic loop, visible fade with continuously moving daughter heads, independent slow detector rotation and pause, consolidated scene controls, expanded detector view without moving the main camera/layers/reset/source links, speed/direction/quality, drag, hover, modal/focus, progress reload/reopen, notes/math, export/import, 10 toy models, 3 locales, 390px, reduced motion and delayed formula repaint, WebGL fallback',
+      'Anonymous public weekly entry with 10 toy models, private API still authenticated, no private UI fetches or auth challenges, retired private source migration preserving local progress, eight Mannel blackboards (raycast/keyboard/backdrop/Esc/focus/mobile/fallback), straight tracks, total hadronic X signal description with one cyan X direction and gold positron, no exclusive three-hadron channel in event notes or signal stage, equal landscape blackboards with staggered rows, centered independent lower-left detector dock on desktop/mobile, collapsed event-note disclosure with keyboard/Escape/focus, independent full-window detector overlay growing beyond the dock, outside-dock orbit and transparent-background click-through, modal layering, Escape restoration, isolated detector orbit/optical zoom beyond 60x/right-drag pan, zoom retention on resize, keyboard zoom/Home, secondary-vertex close-ups, independent topic-scene orbit, unchanged board bounds during detector manipulation, extruded glyph geometry, five held collision stages, fast injection / slow decay, 4.8-second automatic loop, visible fade with continuously moving daughter heads, independent slow detector rotation and pause, consolidated scene controls, expanded detector view without moving the main camera/layers/reset/source links, speed/direction/quality, drag, hover, modal/focus, progress reload/reopen, notes/math, export/import, 10 toy models, 3 locales, 390px, reduced motion and delayed formula repaint, WebGL fallback',
   };
   await writeFile(path.join(screenshotDir, 'verification.json'), JSON.stringify(report, null, 2));
   await rm(path.join(screenshotDir, 'failure.png'), { force: true });
