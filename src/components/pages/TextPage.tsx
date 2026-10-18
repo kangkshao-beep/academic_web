@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ReactMarkdown, { type Components } from 'react-markdown';
+import ReactMarkdown, { defaultUrlTransform, type Components } from 'react-markdown';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { TextPageConfig } from '@/types/page';
 import { useMessages } from '@/lib/i18n/useMessages';
@@ -109,7 +109,10 @@ export default function TextPage({ config, content, embedded = false }: TextPage
                     </p>
                 )}
                 <div className="text-neutral-700 dark:text-neutral-600 leading-relaxed">
-                    <ReactMarkdown components={markdownComponents}>
+                    <ReactMarkdown
+                        components={markdownComponents}
+                        urlTransform={(url) => url.startsWith('media:/conferences/') ? url : defaultUrlTransform(url)}
+                    >
                         {content}
                     </ReactMarkdown>
                 </div>

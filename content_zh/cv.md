@@ -63,7 +63,7 @@
 - 地点：重庆山城国际会议中心，重庆
 - 报告题目：粲强子单举衰变的唯象学研究
 - 报告类型：分会报告
-- 材料：[讲稿](https://indico.ihep.ac.cn/event/28363/contributions/217563/attachments/102023/136840/Kangkshao.pdf) · [报告现场](media:/conferences/chongqing-hfqcd-2026-talk.jpg) · [会议合影](media:/conferences/chongqing-hfqcd-2026-group.jpg)
+- 材料：[讲稿](/conferences/chongqing-hfqcd-2026-slides.pdf) · [报告现场](media:/conferences/chongqing-hfqcd-2026-talk.jpg) · [会议合影](media:/conferences/chongqing-hfqcd-2026-group.jpg)
 
 ### 第七届 Future Tau Charm Facilities 国际研讨会
 
@@ -85,15 +85,15 @@
 
 - 时间：2025年8月5日 - 8月9日
 - 地点：兰州大学，兰州
-- 报告题目：粲介子半轻子单举衰变的唯象研究
+- 报告题目：粲介子单举半轻衰变的唯象研究
 - 报告类型：口头报告
-- 材料：[讲稿](https://indico.ihep.ac.cn/event/24963/contributions/197110/attachments/93316/122182/%E9%82%B5%E5%BA%B7%E5%BA%B7.pdf)
+- 材料：[讲稿](/conferences/lanzhou-besiii-charm-2025-slides.pdf)
 
 ### 2025 年重味物理高精度计算研讨会
 
 - 时间：2025年7月18日 - 7月21日
 - 地点：江苏淮安
-- 报告题目：粲介子半轻子单举衰变的唯象研究
+- 报告题目：粲介子单举半轻衰变的唯象研究
 - 报告类型：口头报告
 - 材料：会议页面未公开讲稿
 
@@ -103,7 +103,7 @@
 - 地点：华中科技大学，武汉
 - 报告题目：Charm inclusive decay
 - 报告类型：口头报告
-- 材料：[讲稿](https://indico.ihep.ac.cn/event/24230/contributions/175130/attachments/85681/109726/%E6%AD%A6%E6%B1%89%E9%9D%92%E5%B9%B4%E8%AE%BA%E5%9D%9B%E9%82%B5%E5%BA%B7%E5%BA%B7.pdf) · [会议合影](media:/conferences/wuhan-youth-forum-2024-group.png)
+- 材料：[讲稿](/conferences/wuhan-youth-forum-2024-slides.pdf) · [会议合影](media:/conferences/wuhan-youth-forum-2024-group.png)
 
 ### HFCPV 2024
 
@@ -111,7 +111,7 @@
 - 地点：湖南衡阳
 - 报告题目：Charm Semi-Leptonic Inclusive Decay
 - 报告类型：大会报告
-- 材料：[讲稿](https://indico.ihep.ac.cn/event/21576/contributions/169603/attachments/83600/106100/Inclusive%20kang%20kang%20shao.pdf) · [会议合影](media:/conferences/hfcpv-2024-group.jpeg)
+- 材料：[讲稿](/conferences/hfcpv-2024-slides.pdf) · [会议合影](media:/conferences/hfcpv-2024-group.jpeg)
 
 ## 奖项与荣誉
 

@@ -63,7 +63,7 @@
 - Location: Chongqing Shancheng International Conference Center, Chongqing, China
 - Talk: "Phenomenological study of inclusive charm-hadron decays"
 - Type: Parallel-session oral presentation
-- Materials: [Slides](https://indico.ihep.ac.cn/event/28363/contributions/217563/attachments/102023/136840/Kangkshao.pdf) · [Talk Photo](media:/conferences/chongqing-hfqcd-2026-talk.jpg) · [Group Photo](media:/conferences/chongqing-hfqcd-2026-group.jpg)
+- Materials: [Slides](/conferences/chongqing-hfqcd-2026-slides.pdf) · [Talk Photo](media:/conferences/chongqing-hfqcd-2026-talk.jpg) · [Group Photo](media:/conferences/chongqing-hfqcd-2026-group.jpg)
 
 ### The 7th International Workshop on Future Tau Charm Facilities
 
@@ -87,7 +87,7 @@
 - Location: Lanzhou University, Lanzhou, China
 - Talk: "Phenomenological study on semi-leptonic inclusive decay of charm meson"
 - Type: Oral presentation
-- Materials: [Slides](https://indico.ihep.ac.cn/event/24963/contributions/197110/attachments/93316/122182/%E9%82%B5%E5%BA%B7%E5%BA%B7.pdf)
+- Materials: [Slides](/conferences/lanzhou-besiii-charm-2025-slides.pdf)
 
 ### Workshop on High-precision Heavy-flavor Physics
 
@@ -103,7 +103,7 @@
 - Location: Huazhong University of Science and Technology, Wuhan, China
 - Talk: "Charm inclusive decay"
 - Type: Oral presentation
-- Materials: [Slides](https://indico.ihep.ac.cn/event/24230/contributions/175130/attachments/85681/109726/%E6%AD%A6%E6%B1%89%E9%9D%92%E5%B9%B4%E8%AE%BA%E5%9D%9B%E9%82%B5%E5%BA%B7%E5%BA%B7.pdf) · [Group Photo](media:/conferences/wuhan-youth-forum-2024-group.png)
+- Materials: [Slides](/conferences/wuhan-youth-forum-2024-slides.pdf) · [Group Photo](media:/conferences/wuhan-youth-forum-2024-group.png)
 
 ### HFCPV 2024
 
@@ -111,7 +111,7 @@
 - Location: Hengyang, Hunan, China
 - Talk: "Charm Semi-Leptonic Inclusive Decay"
 - Type: Plenary presentation
-- Materials: [Slides](https://indico.ihep.ac.cn/event/21576/contributions/169603/attachments/83600/106100/Inclusive%20kang%20kang%20shao.pdf) · [Group Photo](media:/conferences/hfcpv-2024-group.jpeg)
+- Materials: [Slides](/conferences/hfcpv-2024-slides.pdf) · [Group Photo](media:/conferences/hfcpv-2024-group.jpeg)
 
 ## Honors and Awards
 
