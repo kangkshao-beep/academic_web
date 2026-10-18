@@ -7,13 +7,20 @@
 
 ## Education
 
+**Huazhong University of Science and Technology (HUST)**, PhD student in Theoretical Physics, *Present*
+
+- Major research topic: **Theoretical calculations and phenomenological studies of inclusive semileptonic charm-hadron decays**
+
 **Lanzhou University**, Master in High Energy Physics Theory, *09/2022 - 06/2025*
 
 - Selected coursework (UCAS): Gauge Field Theory, Lie Group and Lie Algebra, Particle Physics II
 - Selected coursework (HUST): Quantum Field Theory, Group Theory, Advanced Quantum Mechanics
-- Major research topic: **inclusive charm decays**
 
 **Lanzhou University**, Bachelor of Nuclear Physics, *09/2018 - 06/2022*
+
+## Academic Visits
+
+**School of Physical Sciences, University of Chinese Academy of Sciences (Yanqi Lake Campus)**, academic visit, *2023 (six months)*
 
 ## Research Experience
 
