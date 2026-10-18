@@ -20,6 +20,8 @@
 
 ## Academic Visits
 
+**School of Science and Engineering, The Chinese University of Hong Kong, Shenzhen**, academic visit, *2024*
+
 **School of Physical Sciences, University of Chinese Academy of Sciences (Yanqi Lake Campus)**, academic visit, *2023 (six months)*
 
 ## Research Experience
