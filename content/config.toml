@@ -9,7 +9,7 @@ last_updated = "August 27, 2026"
 name = "Kang-Kang Shao"
 title = "PhD Student"
 institution = "Huazhong University of Science and Technology (HUST)"
-avatar = "/avatar.svg"
+avatar = "/portrait.png"
 
 [[author.advisors]]
 name = "Qin Qin"
