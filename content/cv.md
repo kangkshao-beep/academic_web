@@ -71,7 +71,7 @@
 - Location: Huangshan, Anhui, China
 - Talk: "D meson inclusive decays"
 - Type: Oral presentation
-- Materials: No public slides linked on the conference page.
+- Materials: [Slides](/conferences/huangshan-ftcf-2025-slides.pdf)
 
 ### Workshop on the Structure of Heavy-flavor Hadrons
 

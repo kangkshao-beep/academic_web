@@ -71,7 +71,7 @@
 - 地点：安徽黄山
 - 报告题目：D meson inclusive decays
 - 报告类型：口头报告
-- 材料：会议页面未公开讲稿
+- 材料：[讲稿](/conferences/huangshan-ftcf-2025-slides.pdf)
 
 ### 重味强子结构专题研讨会
 
